@@ -23,10 +23,15 @@ export const useMovies = () => {
         await loadMovies();
     };
 
+    const updateMovie = async (id: number, data: Partial<Movie>) => {
+        await movieService.update(id, data);
+        await loadMovies();
+    };
+
     const deleteMovie = async (id: number) => {
         await movieService.delete(id);
         await loadMovies();
     };
 
-    return { movies, addMovie, deleteMovie };
+    return { movies, addMovie, updateMovie, deleteMovie };
 };

@@ -3,6 +3,7 @@ import type { Movie } from '../../types';
 type MovieTableProps = {
     movies: Movie[];
     onDelete: (id: number) => Promise<void>;
+    onEdit: (movie: Movie) => void;
 };
 
 const MovieTable = ({ movies, onDelete }: MovieTableProps) => {
@@ -23,7 +24,10 @@ const MovieTable = ({ movies, onDelete }: MovieTableProps) => {
                         <td className="p-4">{movie.title}</td>
                         <td className="p-4">{movie.year}</td>
                         <td className="p-4">{movie.genre}</td>
-                        <td className="p-4 text-right">
+                        <td className="p-4 text-right space-x-4">
+                            <button onClick={() => onEdit(movie)} className="text-blue-400 hover:text-blue-300">
+                                Edit
+                            </button>
                             <button onClick={() => onDelete(movie.id)} className="text-red-500 hover:text-red-400">
                                 Delete
                             </button>

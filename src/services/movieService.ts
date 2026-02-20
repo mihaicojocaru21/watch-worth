@@ -32,6 +32,14 @@ export const movieService = {
         return newMovie;
     },
 
+    update: async (id: number, data: Partial<Movie>) => {
+        await delay(300);
+        const index = movies.findIndex(m => m.id === id);
+        if (index === -1) return null;
+        movies[index] = { ...movies[index], ...data };
+        return movies[index];
+    },
+
     getBrokenData: async () => {
         await new Promise(res => setTimeout(res, 500));
         throw new Error("500 Internal Server Error");
