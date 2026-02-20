@@ -27,5 +27,5 @@ export const router = createBrowserRouter([
             }
         ]
     },
-    { path: "*", element: <div>Pagina nu a fost găsită</div> }
+    { path: "*", element: <div>Page has not been found.</div> }
 ]);
