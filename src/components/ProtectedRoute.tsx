@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import ErrorPage from '../pages/ErrorPage';
+import { PATHS } from '../config/paths';
 
 interface ProtectedRouteProps {
     allowedRoles?: ('admin' | 'user')[];
@@ -8,13 +8,13 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
     const { user } = useAuth();
-    
+
     if (!user) {
-        return <ErrorPage code="401" title="Unauthorized" message="Please login to access this area." />;
+        return <Navigate to={PATHS.errors.unauthorized} replace />;
     }
-    
+
     if (allowedRoles && !allowedRoles.includes(user.role as 'admin' | 'user')) {
-        return <Navigate to="/forbidden" replace />;
+        return <Navigate to={PATHS.errors.forbidden} replace />;
     }
 
     return <Outlet />;

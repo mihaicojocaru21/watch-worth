@@ -1,9 +1,22 @@
 import { Link } from 'react-router-dom';
-import { MOCK_MOVIES } from '../data/mockData';
 import MovieCard from '../components/MovieCard';
+import { useMovieList } from '../hooks/useMovieList';
+import ServerError from './ServerError';
 
 const Home = () => {
-    const featuredMovies = MOCK_MOVIES.slice(0, 3);
+    const {
+        movies,
+        search,
+        sortBy,
+        loading,
+        error,
+        setSearch,
+        setSortBy,
+    } = useMovieList();
+
+    const featuredMovies = movies.slice(0, 3);
+
+    if (error) return <ServerError />;
 
     return (
         <div className="space-y-16">
@@ -25,19 +38,45 @@ const Home = () => {
             </section>
 
             <section className="container mx-auto px-4">
-                <div className="flex justify-between items-end mb-8">
-                    <h2 className="text-3xl font-bold text-white border-l-4 border-blue-500 pl-4">
-                        Weekly Recommendations
-                    </h2>
-                    <Link to="/movies" className="text-blue-400 hover:text-blue-300 font-medium">
-                        See all &rarr;
-                    </Link>
+                <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
+                    <div>
+                        <h2 className="text-3xl font-bold text-white border-l-4 border-blue-500 pl-4">
+                            Weekly Recommendations
+                        </h2>
+                        <p className="text-gray-400 mt-2">Browse by search or year.</p>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-3">
+                        <input
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            placeholder="Search movies..."
+                            className="px-4 py-2 rounded bg-gray-700 border border-gray-600 text-white"
+                        />
+                        <select
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value as '' | 'year')}
+                            className="px-4 py-2 rounded bg-gray-700 border border-gray-600 text-white"
+                        >
+                            <option value="">Sort: Default</option>
+                            <option value="year">Sort: Year</option>
+                        </select>
+                    </div>
                 </div>
 
+                {loading && (
+                    <div className="text-center text-gray-400 py-10">Loading movies...</div>
+                )}
+
+                {!loading && featuredMovies.length === 0 && (
+                    <div className="text-center text-gray-500 py-10">No movies found.</div>
+                )}
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {featuredMovies.map(movie => (
-                        <MovieCard key={movie.id} movie={movie} />
-                    ))}
+                    {!loading &&
+                        featuredMovies.map(movie => (
+                            <MovieCard key={movie.id} movie={movie} />
+                        ))}
                 </div>
             </section>
         </div>
