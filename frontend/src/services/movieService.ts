@@ -15,6 +15,10 @@ export const movieService = {
 
         if (sortBy === 'year') {
             filtered.sort((a, b) => b.year - a.year);
+        } else if (sortBy === 'genre') {
+            filtered.sort((a, b) => a.genre.localeCompare(b.genre));
+        } else if (sortBy === 'rating') {
+            filtered.sort((a, b) => b.rating - a.rating);
         }
 
         return filtered;

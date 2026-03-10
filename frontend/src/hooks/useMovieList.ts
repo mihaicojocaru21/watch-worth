@@ -2,9 +2,9 @@ import { useCallback, useEffect, useState } from 'react';
 import type { Movie } from '../types';
 import { movieService } from '../services/movieService';
 
-type SortOption = '' | 'year';
+type SortOption = 'year' | 'genre' | 'rating';
 
-export const useMovieList = (initialSearch = '', initialSort: SortOption = '') => {
+export const useMovieList = (initialSearch = '', initialSort: SortOption = 'year') => {
     const [movies, setMovies] = useState<Movie[]>([]);
     const [search, setSearch] = useState(initialSearch);
     const [sortBy, setSortBy] = useState<SortOption>(initialSort);
@@ -16,7 +16,7 @@ export const useMovieList = (initialSearch = '', initialSort: SortOption = '') =
         setError(null);
 
         try {
-            const data = await movieService.getAll(search, sortBy || undefined);
+            const data = await movieService.getAll(search, sortBy);
             setMovies(data);
         } catch {
             setError('internal');

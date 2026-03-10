@@ -33,11 +33,12 @@ const Movies = () => {
                     />
                     <select
                         value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value as '' | 'year')}
+                        onChange={(e) => setSortBy(e.target.value as 'year' | 'genre' | 'rating')}
                         className="px-4 py-2 rounded bg-gray-700 border border-gray-600 text-white"
                     >
-                        <option value="">Sort: Default</option>
-                        <option value="year">Sort: Year</option>
+                        <option value="year">Sort by: Year</option>
+                        <option value="genre">Sort by: Genre</option>
+                        <option value="rating">Sort by: Popularity</option>
                     </select>
                 </div>
 
