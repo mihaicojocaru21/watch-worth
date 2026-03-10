@@ -7,7 +7,7 @@ export const MOCK_MOVIES: Movie[] = [
         year: 2010,
         description: "A thief who steals corporate secrets through the use of dream-sharing technology.",
         rating: 8.8,
-        image: "https://via.placeholder.com/300x450?text=Inception", // Am corectat din imageUrl in image
+        image: "https://image.tmdb.org/t/p/w500/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg",
         genre: "Sci-Fi"
     },
     {
@@ -16,7 +16,7 @@ export const MOCK_MOVIES: Movie[] = [
         year: 2008,
         description: "When the menace known as the Joker wreaks havoc and chaos on the people of Gotham.",
         rating: 9.0,
-        image: "https://via.placeholder.com/300x450?text=Dark+Knight", // Am corectat din imageUrl in image
+        image: "https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
         genre: "Action"
     },
     {
@@ -25,7 +25,7 @@ export const MOCK_MOVIES: Movie[] = [
         year: 2014,
         description: "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.",
         rating: 8.6,
-        image: "https://via.placeholder.com/300x450?text=Interstellar", // Am corectat din imageUrl in image
+        image: "https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",
         genre: "Sci-Fi"
     }
 ];

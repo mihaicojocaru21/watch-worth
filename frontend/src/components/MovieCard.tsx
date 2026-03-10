@@ -9,7 +9,7 @@ const MovieCard = ({ movie }: MovieCardProps) => {
         <div className="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:transform hover:scale-105 transition-all duration-300 border border-gray-700 cursor-pointer group">
             <div className="relative h-[300px] overflow-hidden">
                 <img
-                    src={movie.imageUrl}
+                    src={movie.image}
                     alt={movie.title}
                     className="w-full h-full object-cover group-hover:opacity-75 transition-opacity"
                 />
