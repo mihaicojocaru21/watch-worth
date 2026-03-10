@@ -31,7 +31,7 @@ const MovieCard = ({ movie }: MovieCardProps) => {
                 </p>
 
                 <button className="mt-4 w-full py-2 bg-gray-700 hover:bg-blue-600 text-white rounded-lg transition-colors font-medium">
-                    Vezi detalii
+                    See Details
                 </button>
             </div>
         </div>
