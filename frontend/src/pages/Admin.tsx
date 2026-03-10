@@ -20,9 +20,9 @@ const Admin = () => {
 
         await addMovie({
             ...data,
-            description: 'No description.',
+            description: data.description || 'No description.',
             rating: 0,
-            image: 'https://via.placeholder.com/300x450?text=No+Image',
+            image: data.image || 'https://via.placeholder.com/300x450?text=No+Image',
         });
         toast.success('Movie added!');
     };
@@ -48,6 +48,8 @@ const Admin = () => {
                     title: editingMovie.title,
                     year: editingMovie.year,
                     genre: editingMovie.genre,
+                    image: editingMovie.image,
+                    description: editingMovie.description,
                 } : undefined}
                 submitLabel={editingMovie ? 'Update' : 'Add'}
                 onCancel={editingMovie ? onCancelEdit : undefined}

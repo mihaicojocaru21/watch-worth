@@ -6,7 +6,7 @@ type MovieTableProps = {
     onEdit: (movie: Movie) => void;
 };
 
-const MovieTable = ({ movies, onDelete }: MovieTableProps) => {
+const MovieTable = ({ movies, onDelete, onEdit }: MovieTableProps) => {
     return (
         <div className="bg-gray-800 rounded-lg overflow-hidden border border-gray-700">
             <table className="w-full text-left text-gray-300">
