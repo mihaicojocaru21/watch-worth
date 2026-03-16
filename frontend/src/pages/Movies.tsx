@@ -4,250 +4,270 @@ import { useMovieList } from '../hooks/useMovieList';
 import ServerError from './ServerError';
 import { MOCK_MOVIES } from '../data/mockData';
 
-// Derive unique genres from mock data
-const ALL_GENRES = ['All', ...Array.from(new Set(MOCK_MOVIES.map(m => m.genre))).sort()];
-const MIN_YEAR = Math.min(...MOCK_MOVIES.map(m => m.year));
-const MAX_YEAR = Math.max(...MOCK_MOVIES.map(m => m.year));
+const ALL_GENRES = Array.from(new Set(MOCK_MOVIES.map(m => m.genre))).sort();
+const MIN_YEAR   = Math.min(...MOCK_MOVIES.map(m => m.year));
+const MAX_YEAR   = Math.max(...MOCK_MOVIES.map(m => m.year));
 
-type SortOption = 'year' | 'genre' | 'rating' | 'title';
+type SortKey = 'rating' | 'year' | 'title' | 'genre';
 
-const Movies = () => {
-    const { movies, loading, error } = useMovieList('', 'rating');
+const SORTS: { key: SortKey; label: string; icon: string }[] = [
+    { key: 'rating', label: 'Top Rated', icon: '★' },
+    { key: 'year',   label: 'Newest',    icon: '◷' },
+    { key: 'title',  label: 'A – Z',     icon: 'Aa' },
+    { key: 'genre',  label: 'Genre',     icon: '⊞' },
+];
 
-    // Local filter state
-    const [search, setSearch]         = useState('');
-    const [sortBy, setSortBy]         = useState<SortOption>('rating');
-    const [genre, setGenre]           = useState('All');
-    const [minRating, setMinRating]   = useState(0);
-    const [yearFrom, setYearFrom]     = useState(MIN_YEAR);
-    const [yearTo, setYearTo]         = useState(MAX_YEAR);
-    const [filtersOpen, setFiltersOpen] = useState(false);
+const RATING_PRESETS = [
+    { label: 'Any',  value: 0   },
+    { label: '7+',   value: 7   },
+    { label: '7.5+', value: 7.5 },
+    { label: '8+',   value: 8   },
+    { label: '8.5+', value: 8.5 },
+    { label: '9+',   value: 9   },
+];
 
-    const activeFilterCount = [
-        genre !== 'All',
-        minRating > 0,
-        yearFrom !== MIN_YEAR || yearTo !== MAX_YEAR,
-    ].filter(Boolean).length;
+export default function Movies() {
+    const { movies, loading, error } = useMovieList('rating');
+
+    const [search,    setSearch]    = useState('');
+    const [sortBy,    setSortBy]    = useState<SortKey>('rating');
+    const [genre,     setGenre]     = useState('');
+    const [minRating, setMinRating] = useState(0);
+    const [yearFrom,  setYearFrom]  = useState(MIN_YEAR);
+    const [yearTo,    setYearTo]    = useState(MAX_YEAR);
+    const [panel,     setPanel]     = useState(false);
+
+    const activeCount = [genre, minRating > 0, yearFrom !== MIN_YEAR || yearTo !== MAX_YEAR].filter(Boolean).length;
+
+    const reset = () => {
+        setSearch(''); setSortBy('rating'); setGenre('');
+        setMinRating(0); setYearFrom(MIN_YEAR); setYearTo(MAX_YEAR);
+    };
 
     const filtered = useMemo(() => {
-        let result = [...movies];
-
-        if (search.trim()) {
-            const q = search.toLowerCase();
-            result = result.filter(m =>
-                m.title.toLowerCase().includes(q) ||
-                m.genre.toLowerCase().includes(q)
-            );
-        }
-
-        if (genre !== 'All') {
-            result = result.filter(m => m.genre === genre);
-        }
-
-        result = result.filter(m => m.rating >= minRating);
-        result = result.filter(m => m.year >= yearFrom && m.year <= yearTo);
-
-        if (sortBy === 'year')   result.sort((a, b) => b.year - a.year);
-        if (sortBy === 'rating') result.sort((a, b) => b.rating - a.rating);
-        if (sortBy === 'genre')  result.sort((a, b) => a.genre.localeCompare(b.genre));
-        if (sortBy === 'title')  result.sort((a, b) => a.title.localeCompare(b.title));
-
-        return result;
+        let r = [...movies];
+        const q = search.trim().toLowerCase();
+        if (q) r = r.filter(m => m.title.toLowerCase().includes(q) || m.genre.toLowerCase().includes(q));
+        if (genre) r = r.filter(m => m.genre === genre);
+        r = r.filter(m => m.rating >= minRating && m.year >= yearFrom && m.year <= yearTo);
+        if (sortBy === 'rating') r.sort((a, b) => b.rating - a.rating);
+        if (sortBy === 'year')   r.sort((a, b) => b.year - a.year);
+        if (sortBy === 'title')  r.sort((a, b) => a.title.localeCompare(b.title));
+        if (sortBy === 'genre')  r.sort((a, b) => a.genre.localeCompare(b.genre));
+        return r;
     }, [movies, search, genre, minRating, yearFrom, yearTo, sortBy]);
-
-    const resetFilters = () => {
-        setSearch('');
-        setSortBy('rating');
-        setGenre('All');
-        setMinRating(0);
-        setYearFrom(MIN_YEAR);
-        setYearTo(MAX_YEAR);
-    };
 
     if (error) return <ServerError />;
 
     return (
-        <div className="container mx-auto px-4 pb-12">
+        <div className="min-h-screen">
 
-            {/* Header */}
-            <div className="mb-8 text-center">
-                <h1 className="text-4xl font-bold text-white mb-2">Movie Collection</h1>
-                <p className="text-gray-400">Discover the best films on WatchWorth</p>
+            {/* ── Cinematic page header ── */}
+            <div className="relative overflow-hidden border-b border-gray-800">
+                <div className="absolute -top-20 -left-20 w-72 h-72 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute -top-10 right-0 w-96 h-64 bg-purple-600/8 rounded-full blur-3xl pointer-events-none" />
+
+                <div className="relative container mx-auto px-4 pt-12 pb-10">
+                    <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
+
+                        <div>
+                            <div className="flex items-center gap-2.5 mb-3">
+                                <div className="h-px w-8 bg-blue-500 rounded-full" />
+                                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-400">Browse</span>
+                            </div>
+                            <h1 className="text-5xl font-black text-white tracking-tight leading-none mb-3">
+                                Movie{' '}
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
+                                    Collection
+                                </span>
+                            </h1>
+                            <p className="text-gray-500 text-sm">
+                                {loading
+                                    ? 'Loading catalogue…'
+                                    : <>{filtered.length} <span className="text-gray-600">of</span> {movies.length} films</>}
+                            </p>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                            <p className="text-xs uppercase tracking-widest text-gray-600 font-semibold">Sort by</p>
+                            <div className="flex flex-wrap gap-1.5">
+                                {SORTS.map(s => (
+                                    <button
+                                        key={s.key}
+                                        onClick={() => setSortBy(s.key)}
+                                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold border transition-all ${
+                                            sortBy === s.key
+                                                ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-600/20'
+                                                : 'bg-gray-800/80 border-gray-700/80 text-gray-400 hover:text-white hover:border-gray-600'
+                                        }`}
+                                    >
+                                        <span className={`text-[10px] font-black ${sortBy === s.key ? 'text-blue-200' : 'text-gray-600'}`}>{s.icon}</span>
+                                        {s.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            {/* Search + Sort bar */}
-            <div className="flex flex-col sm:flex-row gap-3 mb-4">
-                {/* Search */}
-                <div className="relative flex-1">
-                    <span className="absolute inset-y-0 left-3 flex items-center text-gray-400 pointer-events-none">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
-                        </svg>
-                    </span>
-                    <input
-                        value={search}
-                        onChange={e => setSearch(e.target.value)}
-                        placeholder="Search by title or genre..."
-                        className="w-full pl-9 pr-4 py-2.5 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors text-sm"
-                    />
-                </div>
+            <div className="container mx-auto px-4 pb-16">
 
-                {/* Sort */}
-                <select
-                    value={sortBy}
-                    onChange={e => setSortBy(e.target.value as SortOption)}
-                    className="px-4 py-2.5 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm"
-                >
-                    <option value="rating">Sort: Rating</option>
-                    <option value="year">Sort: Year</option>
-                    <option value="title">Sort: Title A–Z</option>
-                    <option value="genre">Sort: Genre</option>
-                </select>
-
-                {/* Toggle filters */}
-                <button
-                    onClick={() => setFiltersOpen(p => !p)}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-medium transition-all ${
-                        filtersOpen || activeFilterCount > 0
-                            ? 'bg-blue-600 border-blue-500 text-white'
-                            : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-blue-500 hover:text-white'
-                    }`}
-                >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h18M6 8h12M9 12h6M12 16h0" />
-                    </svg>
-                    Filters
-                    {activeFilterCount > 0 && (
-                        <span className="bg-white text-blue-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                            {activeFilterCount}
+                {/* ── Toolbar ── */}
+                <div className="flex flex-col sm:flex-row gap-3 py-5">
+                    <div className="relative flex-1">
+                        <span className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                            <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
+                            </svg>
                         </span>
-                    )}
-                </button>
-            </div>
-
-            {/* Expandable filter panel */}
-            {filtersOpen && (
-                <div className="bg-gray-800 border border-gray-700 rounded-xl p-6 mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-
-                    {/* Genre */}
-                    <div>
-                        <label className="block text-xs uppercase tracking-widest text-gray-400 mb-3 font-semibold">Genre</label>
-                        <div className="flex flex-wrap gap-2">
-                            {ALL_GENRES.map(g => (
-                                <button
-                                    key={g}
-                                    onClick={() => setGenre(g)}
-                                    className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all ${
-                                        genre === g
-                                            ? 'bg-blue-600 border-blue-500 text-white'
-                                            : 'bg-gray-700 border-gray-600 text-gray-300 hover:border-blue-400 hover:text-white'
-                                    }`}
-                                >
-                                    {g}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Min rating */}
-                    <div>
-                        <label className="block text-xs uppercase tracking-widest text-gray-400 mb-3 font-semibold">
-                            Minimum Rating — <span className="text-yellow-400">{minRating > 0 ? `${minRating}+` : 'Any'}</span>
-                        </label>
-                        <div className="flex flex-wrap gap-2">
-                            {[0, 7, 7.5, 8, 8.5, 9].map(r => (
-                                <button
-                                    key={r}
-                                    onClick={() => setMinRating(r)}
-                                    className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all ${
-                                        minRating === r
-                                            ? 'bg-yellow-500 border-yellow-400 text-gray-900'
-                                            : 'bg-gray-700 border-gray-600 text-gray-300 hover:border-yellow-400 hover:text-white'
-                                    }`}
-                                >
-                                    {r === 0 ? 'Any' : `${r}+`}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Year range */}
-                    <div>
-                        <label className="block text-xs uppercase tracking-widest text-gray-400 mb-3 font-semibold">
-                            Year Range — <span className="text-blue-400">{yearFrom} – {yearTo}</span>
-                        </label>
-                        <div className="flex items-center gap-3">
-                            <input
-                                type="number"
-                                min={MIN_YEAR}
-                                max={yearTo}
-                                value={yearFrom}
-                                onChange={e => setYearFrom(Number(e.target.value))}
-                                className="w-24 p-2 rounded-lg bg-gray-700 border border-gray-600 text-white text-sm focus:outline-none focus:border-blue-500"
-                            />
-                            <span className="text-gray-500">–</span>
-                            <input
-                                type="number"
-                                min={yearFrom}
-                                max={MAX_YEAR}
-                                value={yearTo}
-                                onChange={e => setYearTo(Number(e.target.value))}
-                                className="w-24 p-2 rounded-lg bg-gray-700 border border-gray-600 text-white text-sm focus:outline-none focus:border-blue-500"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Reset */}
-                    {activeFilterCount > 0 && (
-                        <div className="sm:col-span-2 lg:col-span-3 pt-2 border-t border-gray-700">
-                            <button
-                                onClick={resetFilters}
-                                className="text-sm text-red-400 hover:text-red-300 transition-colors font-medium"
-                            >
-                                ✕ Reset all filters
+                        <input
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                            placeholder="Search titles, genres…"
+                            className="w-full pl-11 pr-10 py-3 bg-gray-800/70 border border-gray-700/80 rounded-xl text-white text-sm placeholder-gray-600 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-all"
+                        />
+                        {search && (
+                            <button onClick={() => setSearch('')} className="absolute inset-y-0 right-3.5 flex items-center text-gray-600 hover:text-gray-300 transition-colors">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
                             </button>
-                        </div>
-                    )}
-                </div>
-            )}
+                        )}
+                    </div>
 
-            {/* Result count */}
-            {!loading && (
-                <p className="text-sm text-gray-500 mb-5">
-                    Showing <span className="text-white font-semibold">{filtered.length}</span> movie{filtered.length !== 1 ? 's' : ''}
-                </p>
-            )}
-
-            {/* Loading skeletons */}
-            {loading && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    {Array.from({ length: 8 }).map((_, i) => (
-                        <div key={i} className="bg-gray-800 rounded-xl h-96 animate-pulse border border-gray-700" />
-                    ))}
-                </div>
-            )}
-
-            {/* Empty */}
-            {!loading && filtered.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-24 text-center">
-                    <div className="w-16 h-16 mb-4 rounded-full bg-gray-800 flex items-center justify-center text-2xl">🎬</div>
-                    <p className="text-gray-400 font-medium">No movies match your filters.</p>
-                    <button onClick={resetFilters} className="mt-4 text-sm text-blue-400 hover:text-blue-300 transition-colors">
-                        Reset filters
+                    <button
+                        onClick={() => setPanel(p => !p)}
+                        className={`flex items-center gap-2.5 px-5 py-3 rounded-xl border text-sm font-semibold whitespace-nowrap transition-all ${
+                            panel || activeCount > 0
+                                ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-600/20'
+                                : 'bg-gray-800/70 border-gray-700/80 text-gray-400 hover:text-white hover:border-gray-600'
+                        }`}
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h18M6 8h12M10 12h4" />
+                        </svg>
+                        Filters
+                        {activeCount > 0 && (
+                            <span className="bg-white text-blue-600 text-[10px] font-black rounded-full w-5 h-5 flex items-center justify-center leading-none">
+                                {activeCount}
+                            </span>
+                        )}
                     </button>
                 </div>
-            )}
 
-            {/* Grid */}
-            {!loading && filtered.length > 0 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    {filtered.map(movie => (
-                        <MovieCard key={movie.id} movie={movie} />
-                    ))}
-                </div>
-            )}
+                {/* ── Filter panel ── */}
+                {panel && (
+                    <div className="mb-6 rounded-2xl border border-gray-700/60 bg-gray-800/40 backdrop-blur-sm overflow-hidden">
+                        <div className="p-6 space-y-6">
+                            <div>
+                                <p className="text-[11px] uppercase tracking-[0.15em] text-gray-500 font-bold mb-3">Genre</p>
+                                <div className="flex flex-wrap gap-2">
+                                    <button
+                                        onClick={() => setGenre('')}
+                                        className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                                            !genre ? 'bg-gray-200 border-gray-200 text-gray-900' : 'bg-gray-900/50 border-gray-700 text-gray-400 hover:border-gray-500 hover:text-white'
+                                        }`}
+                                    >All</button>
+                                    {ALL_GENRES.map(g => (
+                                        <button
+                                            key={g}
+                                            onClick={() => setGenre(g === genre ? '' : g)}
+                                            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                                                genre === g ? 'bg-blue-600 border-blue-500 text-white' : 'bg-gray-900/50 border-gray-700 text-gray-400 hover:border-gray-500 hover:text-white'
+                                            }`}
+                                        >{g}</button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div>
+                                    <p className="text-[11px] uppercase tracking-[0.15em] text-gray-500 font-bold mb-3">
+                                        Min Rating
+                                        {minRating > 0 && <span className="ml-2 text-yellow-400 normal-case font-black">★ {minRating}+</span>}
+                                    </p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {RATING_PRESETS.map(p => (
+                                            <button
+                                                key={p.value}
+                                                onClick={() => setMinRating(p.value)}
+                                                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold border transition-all ${
+                                                    minRating === p.value ? 'bg-yellow-500 border-yellow-400 text-gray-900' : 'bg-gray-900/50 border-gray-700 text-gray-400 hover:border-yellow-700 hover:text-yellow-400'
+                                                }`}
+                                            >{p.label}</button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <p className="text-[11px] uppercase tracking-[0.15em] text-gray-500 font-bold mb-3">
+                                        Year Range
+                                        <span className="ml-2 text-blue-400 normal-case font-bold">{yearFrom} – {yearTo}</span>
+                                    </p>
+                                    <div className="flex items-center gap-3">
+                                        <input type="number" min={MIN_YEAR} max={yearTo} value={yearFrom}
+                                               onChange={e => setYearFrom(Number(e.target.value))}
+                                               className="w-24 px-3 py-2 rounded-xl bg-gray-900/60 border border-gray-700 text-white text-sm focus:outline-none focus:border-blue-500 transition-all" />
+                                        <span className="text-gray-600 font-bold">—</span>
+                                        <input type="number" min={yearFrom} max={MAX_YEAR} value={yearTo}
+                                               onChange={e => setYearTo(Number(e.target.value))}
+                                               className="w-24 px-3 py-2 rounded-xl bg-gray-900/60 border border-gray-700 text-white text-sm focus:outline-none focus:border-blue-500 transition-all" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {activeCount > 0 && (
+                            <div className="px-6 py-3 border-t border-gray-700/50 bg-gray-900/30 flex items-center justify-between">
+                                <span className="text-xs text-gray-500">{activeCount} filter{activeCount !== 1 ? 's' : ''} active</span>
+                                <button onClick={reset} className="flex items-center gap-1.5 text-xs text-red-400 hover:text-red-300 font-semibold transition-colors">
+                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                    Reset all
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* ── Skeleton ── */}
+                {loading && (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
+                        {Array.from({ length: 10 }).map((_, i) => (
+                            <div key={i} className="rounded-2xl overflow-hidden bg-gray-800/50 border border-gray-700/50 animate-pulse">
+                                <div className="aspect-[2/3] bg-gray-700/50" />
+                                <div className="p-3 space-y-2">
+                                    <div className="h-3 bg-gray-700/60 rounded-full w-3/4" />
+                                    <div className="h-3 bg-gray-700/40 rounded-full w-1/2" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {/* ── Empty state ── */}
+                {!loading && filtered.length === 0 && (
+                    <div className="flex flex-col items-center justify-center py-36 text-center">
+                        <div className="w-20 h-20 mb-6 rounded-2xl bg-gray-800/80 border border-gray-700 flex items-center justify-center text-3xl">🎬</div>
+                        <p className="text-xl font-black text-white mb-2">No results</p>
+                        <p className="text-gray-500 text-sm mb-7 max-w-xs">No movies match your current filters. Try broadening your search.</p>
+                        <button onClick={reset} className="px-6 py-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 border border-gray-700 text-sm font-semibold text-gray-300 transition-all">
+                            Reset filters
+                        </button>
+                    </div>
+                )}
+
+                {/* ── Grid ── */}
+                {!loading && filtered.length > 0 && (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
+                        {filtered.map(movie => (
+                            <MovieCard key={movie.id} movie={movie} />
+                        ))}
+                    </div>
+                )}
+            </div>
         </div>
     );
-};
-
-export default Movies;
+}

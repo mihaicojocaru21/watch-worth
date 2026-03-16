@@ -1,95 +1,139 @@
-import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 const movieSchema = z.object({
-    title: z.string().min(2, 'Title too short'),
-    year: z.number().min(1900).max(new Date().getFullYear() + 1),
-    genre: z.string().min(2, 'Genre required'),
-    rating: z.number().min(0).max(10).optional(),
-    image: z.string().url('Must be a valid URL').optional().or(z.literal('')),
-    description: z.string().min(10, 'Description too short').optional(),
+    title:       z.string().min(1, 'Title is required'),
+    year:        z.number({ invalid_type_error: 'Enter a valid year' }).min(1888).max(2099),
+    genre:       z.string().min(1, 'Genre is required'),
+    rating:      z.number({ invalid_type_error: 'Enter a rating' }).min(0).max(10),
+    image:       z.string().url('Enter a valid URL').or(z.literal('')).optional(),
+    description: z.string().optional(),
 });
 
 export type MovieFormData = z.infer<typeof movieSchema>;
 
-type MovieFormProps = {
-    onSubmit: (data: MovieFormData) => Promise<void>;
-    initialValues?: MovieFormData;
-    submitLabel?: string;
-    onCancel?: () => void;
-};
+interface Props {
+    onSubmit:      (data: MovieFormData) => Promise<void>;
+    initialValues?: Partial<MovieFormData>;
+    submitLabel?:  string;
+    onCancel?:     () => void;
+}
 
-const defaultValues: MovieFormData = {
-    title: '',
-    year: new Date().getFullYear(),
-    genre: '',
-    rating: 7.0,
-    image: '',
-    description: '',
-};
+const Field = ({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) => (
+    <div className="flex flex-col gap-1.5">
+        <label className="text-xs font-semibold uppercase tracking-wider text-gray-400">{label}</label>
+        {children}
+        {error && <p className="text-xs text-red-400 flex items-center gap-1"><span>⚠</span>{error}</p>}
+    </div>
+);
 
-const MovieForm = ({ onSubmit, initialValues, submitLabel = 'Add', onCancel }: MovieFormProps) => {
-    const {
-        register,
-        handleSubmit,
-        reset,
-        formState: { errors },
-    } = useForm<MovieFormData>({
+const inputCls = (hasError?: boolean) =>
+    `w-full px-3.5 py-2.5 rounded-xl bg-gray-900/70 border text-white text-sm placeholder-gray-600 focus:outline-none transition-all ${
+        hasError
+            ? 'border-red-500/60 focus:border-red-400 focus:ring-2 focus:ring-red-500/10'
+            : 'border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10'
+    }`;
+
+const MovieForm = ({ onSubmit, initialValues, submitLabel = 'Add Movie', onCancel }: Props) => {
+    const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<MovieFormData>({
         resolver: zodResolver(movieSchema),
-        defaultValues: initialValues ?? defaultValues,
+        defaultValues: {
+            title:       initialValues?.title       ?? '',
+            year:        initialValues?.year        ?? new Date().getFullYear(),
+            genre:       initialValues?.genre       ?? '',
+            rating:      initialValues?.rating      ?? 7.0,
+            image:       initialValues?.image       ?? '',
+            description: initialValues?.description ?? '',
+        },
     });
 
-    useEffect(() => {
-        reset(initialValues ?? defaultValues);
-    }, [initialValues, reset]);
-
-    const handleFormSubmit = async (data: MovieFormData) => {
-        await onSubmit(data);
-        reset(defaultValues);
-    };
-
     return (
-        <form onSubmit={handleSubmit(handleFormSubmit)} className="bg-gray-800 p-6 rounded-lg border border-gray-700 space-y-4">
-            <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1">
-                    <input {...register('title')} placeholder="Title" className="w-full p-2 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 outline-none" />
-                    {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title.message}</p>}
-                </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-                <div className="w-28">
-                    <input {...register('year', { valueAsNumber: true })} type="number" placeholder="Year" className="w-full p-2 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 outline-none" />
-                    {errors.year && <p className="text-red-500 text-xs mt-1">Invalid year</p>}
-                </div>
+            <Field label="Title" error={errors.title?.message}>
+                <input
+                    {...register('title')}
+                    placeholder="e.g. The Godfather"
+                    className={inputCls(!!errors.title)}
+                />
+            </Field>
 
-                <div className="w-36">
-                    <input {...register('genre')} placeholder="Genre" className="w-full p-2 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 outline-none" />
-                    {errors.genre && <p className="text-red-500 text-xs mt-1">{errors.genre.message}</p>}
-                </div>
-
-                <div className="w-24">
-                    <input {...register('rating', { valueAsNumber: true })} type="number" step="0.1" min="0" max="10" placeholder="Rating" className="w-full p-2 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 outline-none" />
-                    {errors.rating && <p className="text-red-500 text-xs mt-1">0 – 10</p>}
-                </div>
+            <div className="grid grid-cols-2 gap-3">
+                <Field label="Year" error={errors.year?.message}>
+                    <input
+                        {...register('year', { valueAsNumber: true })}
+                        type="number"
+                        placeholder="2024"
+                        className={inputCls(!!errors.year)}
+                    />
+                </Field>
+                <Field label="Rating" error={errors.rating?.message}>
+                    <input
+                        {...register('rating', { valueAsNumber: true })}
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max="10"
+                        placeholder="8.5"
+                        className={inputCls(!!errors.rating)}
+                    />
+                </Field>
             </div>
 
-            <div>
-                <input {...register('image')} placeholder="Image URL (optional)" className="w-full p-2 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 outline-none" />
-                {errors.image && <p className="text-red-500 text-xs mt-1">{errors.image.message}</p>}
+            <Field label="Genre" error={errors.genre?.message}>
+                <input
+                    {...register('genre')}
+                    placeholder="e.g. Drama, Sci-Fi"
+                    className={inputCls(!!errors.genre)}
+                />
+            </Field>
+
+            <Field label="Poster URL" error={errors.image?.message}>
+                <input
+                    {...register('image')}
+                    placeholder="https://image.tmdb.org/..."
+                    className={inputCls(!!errors.image)}
+                />
+            </Field>
+
+            <div className="sm:col-span-2">
+                <Field label="Description" error={errors.description?.message}>
+                    <textarea
+                        {...register('description')}
+                        rows={3}
+                        placeholder="Short synopsis…"
+                        className={`${inputCls(!!errors.description)} resize-none`}
+                    />
+                </Field>
             </div>
 
-            <div>
-                <textarea {...register('description')} placeholder="Description (optional)" rows={3} className="w-full p-2 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 outline-none resize-none" />
-                {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description.message}</p>}
-            </div>
-
-            <div className="flex gap-4">
-                <button type="submit" className="bg-green-600 px-6 py-2 text-white rounded font-bold hover:bg-green-700 transition-colors">
-                    {submitLabel}
+            {/* Actions */}
+            <div className="sm:col-span-2 flex items-center gap-3 pt-2">
+                <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-semibold transition-all shadow-lg shadow-blue-600/20"
+                >
+                    {isSubmitting ? (
+                        <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                        </svg>
+                    ) : (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                    )}
+                    {isSubmitting ? 'Saving…' : submitLabel}
                 </button>
+
                 {onCancel && (
-                    <button type="button" onClick={onCancel} className="bg-gray-600 px-6 py-2 text-white rounded font-bold hover:bg-gray-500 transition-colors">
+                    <button
+                        type="button"
+                        onClick={onCancel}
+                        className="px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-400 hover:text-white hover:bg-white/5 border border-transparent hover:border-gray-700 transition-all"
+                    >
                         Cancel
                     </button>
                 )}
