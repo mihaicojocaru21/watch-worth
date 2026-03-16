@@ -8,6 +8,16 @@ export interface Movie {
     genre: string;
 }
 
+export interface Review {
+    id: string;
+    movieId: number;
+    userId: number;
+    username: string;
+    rating: number;
+    text: string;
+    createdAt: string;
+}
+
 export interface User {
     id: number;
     username: string;
