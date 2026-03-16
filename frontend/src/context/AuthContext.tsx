@@ -1,9 +1,7 @@
-// src/context/AuthContext.tsx
 import { createContext, useContext, useState, useEffect } from 'react';
 import { authService } from '../services/authService';
 import type { User } from '../types';
 
-// Definim ce date ținem minte
 interface AuthContextType {
     user: User | null;
     login: (email: string) => Promise<boolean>;

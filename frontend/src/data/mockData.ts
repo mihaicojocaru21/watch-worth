@@ -7,7 +7,7 @@ export const MOCK_MOVIES: Movie[] = [
         year: 1994,
         description: "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
         rating: 9.3,
-        image: "https://image.tmdb.org/t/p/w500/9cqNxx0GxF0bAY0KHBdCywJvqfK.jpg",
+        image: "https://image.tmdb.org/t/p/w500/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg",
         genre: "Drama"
     },
     {
@@ -52,7 +52,7 @@ export const MOCK_MOVIES: Movie[] = [
         year: 1957,
         description: "The jury in a New York City murder trial is frustrated by a single member whose skeptical caution forces them to reconsider the evidence.",
         rating: 9.0,
-        image: "https://image.tmdb.org/t/p/w500/ow3wq89wM8qd5X7hWKxiRfsFf9C.jpg",
+        image: "https://image.tmdb.org/t/p/w500/ppd84D2i9W8jXmsyInGyihiSyqz.jpg",
         genre: "Drama"
     },
     {
@@ -246,9 +246,9 @@ export const MOCK_MOVIES: Movie[] = [
     },
     {
         id: 28,
-        title: "Leon: The Professional",
+        title: "Léon: The Professional",
         year: 1994,
-        description: "12-year-old Mathilda is taken in by Leon, a professional cleaner, after her family is murdered. Leon and Mathilda form an unusual relationship as she becomes his apprentice.",
+        description: "12-year-old Mathilda is taken in by Léon, a professional cleaner, after her family is murdered. They form an unusual relationship as she becomes his apprentice.",
         rating: 8.5,
         image: "https://image.tmdb.org/t/p/w500/yI6X2cCM5YPJtxMhUd3dPGqDAhw.jpg",
         genre: "Action"
@@ -293,7 +293,7 @@ export const MOCK_MOVIES: Movie[] = [
         id: 33,
         title: "Alien",
         year: 1979,
-        description: "After a space merchant vessel receives an unknown transmission as a distress call, one of the crew is attacked by a mysterious life form and they discover it was a warning.",
+        description: "After a space merchant vessel receives an unknown transmission as a distress call, one of the crew is attacked by a mysterious life form.",
         rating: 8.4,
         image: "https://image.tmdb.org/t/p/w500/vfrQk5IPloGg1v9Rzbh2Eg3VGyM.jpg",
         genre: "Horror"
@@ -358,7 +358,7 @@ export const MOCK_MOVIES: Movie[] = [
         year: 2012,
         description: "With the help of a German bounty hunter, a freed slave sets out to rescue his wife from a brutal Mississippi plantation owner.",
         rating: 8.4,
-        image: "https://image.tmdb.org/t/p/w500/7oWY8VDWW7thTzWh3OKYRkWAb8Z.jpg",
+        image: "https://image.tmdb.org/t/p/w500/2oZklIzUbvZXXzIFzv7Hi68d6xf.jpg",
         genre: "Western"
     },
     {
