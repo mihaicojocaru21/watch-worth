@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { movieService } from '../services/movieService';
+import { useWatchlist } from '../context/WatchlistContext';
 import type { Movie } from '../types';
 
 const FALLBACK_IMAGE = 'https://placehold.co/400x600/1f2937/6b7280?text=No+Poster';
 
 const StarRating = ({ rating }: { rating: number }) => {
-    const filled = Math.round(rating / 2); // 0–10 → 0–5 stars
+    const filled = Math.round(rating / 2);
     return (
         <div className="flex items-center gap-1">
             {[1, 2, 3, 4, 5].map(i => (
@@ -24,6 +25,7 @@ const MovieDetail = () => {
     const [movie, setMovie] = useState<Movie | null>(null);
     const [loading, setLoading] = useState(true);
     const [imgError, setImgError] = useState(false);
+    const { isInWatchlist, toggleWatchlist } = useWatchlist();
 
     useEffect(() => {
         if (!id) return;
@@ -64,19 +66,16 @@ const MovieDetail = () => {
     }
 
     const posterSrc = imgError ? FALLBACK_IMAGE : movie.image;
+    const saved = isInWatchlist(movie.id);
 
     return (
         <div className="relative min-h-screen">
-
-            {/* Blurred backdrop */}
             <div
                 className="absolute inset-0 -z-10 opacity-10 blur-3xl scale-110"
                 style={{ backgroundImage: `url(${posterSrc})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
             />
 
             <div className="container mx-auto px-4 py-10 max-w-5xl">
-
-                {/* Back button */}
                 <button
                     onClick={() => navigate(-1)}
                     className="mb-8 flex items-center gap-2 text-gray-400 hover:text-white transition-colors group"
@@ -85,9 +84,7 @@ const MovieDetail = () => {
                     <span className="text-sm font-medium">Back</span>
                 </button>
 
-                {/* Main content */}
                 <div className="flex flex-col md:flex-row gap-10">
-
                     {/* Poster */}
                     <div className="w-full md:w-72 shrink-0">
                         <div className="rounded-2xl overflow-hidden shadow-2xl shadow-black/60 border border-gray-700">
@@ -102,31 +99,50 @@ const MovieDetail = () => {
 
                     {/* Details */}
                     <div className="flex-1 flex flex-col justify-start pt-2">
-
-                        {/* Genre badge */}
                         <span className="inline-block self-start px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-blue-500/15 text-blue-400 border border-blue-500/20 mb-4">
                             {movie.genre}
                         </span>
 
-                        {/* Title */}
                         <h1 className="text-4xl md:text-5xl font-extrabold text-white leading-tight mb-2">
                             {movie.title}
                         </h1>
 
-                        {/* Year */}
                         <p className="text-gray-500 text-sm mb-5 font-medium tracking-wider uppercase">
                             {movie.year}
                         </p>
 
-                        {/* Rating */}
-                        <div className="mb-8">
+                        <div className="mb-6">
                             <StarRating rating={movie.rating} />
                         </div>
 
-                        {/* Divider */}
+                        {/* Watchlist toggle */}
+                        <button
+                            onClick={() => toggleWatchlist(movie.id)}
+                            className={`self-start flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-sm transition-all mb-8 ${
+                                saved
+                                    ? 'bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/20'
+                                    : 'bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white border border-gray-600'
+                            }`}
+                        >
+                            {saved ? (
+                                <>
+                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                    </svg>
+                                    Saved to Watchlist
+                                </>
+                            ) : (
+                                <>
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                    </svg>
+                                    Add to Watchlist
+                                </>
+                            )}
+                        </button>
+
                         <div className="border-t border-gray-700/60 mb-6" />
 
-                        {/* Description */}
                         <div>
                             <h3 className="text-xs uppercase tracking-widest text-gray-500 font-semibold mb-3">Synopsis</h3>
                             <p className="text-gray-300 leading-relaxed text-base">
@@ -134,11 +150,10 @@ const MovieDetail = () => {
                             </p>
                         </div>
 
-                        {/* Meta row */}
                         <div className="mt-10 grid grid-cols-3 gap-4">
                             {[
-                                { label: 'Year',   value: String(movie.year)   },
-                                { label: 'Genre',  value: movie.genre           },
+                                { label: 'Year',   value: String(movie.year) },
+                                { label: 'Genre',  value: movie.genre },
                                 { label: 'Rating', value: `${movie.rating} / 10` },
                             ].map(({ label, value }) => (
                                 <div key={label} className="bg-gray-800/60 border border-gray-700/50 rounded-xl p-4 text-center">
