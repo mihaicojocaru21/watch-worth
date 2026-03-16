@@ -25,19 +25,22 @@ const Login = () => {
     });
 
     const onSubmit = async (data: LoginFormData) => {
-        const success = await login(data.email);
+        const success = await login(data.email, data.password);
 
         if (success) {
             toast.success("Login successful!");
             navigate('/');
         } else {
-            toast.error("User not found! Try: admin@test.com");
+            toast.error("Invalid email or password.");
         }
     };
 
     return (
         <div className="max-w-md mx-auto mt-10 p-6 bg-gray-800 rounded-lg shadow-xl border border-gray-700">
-            <h2 className="text-2xl font-bold mb-6 text-white text-center">Login</h2>
+            <h2 className="text-2xl font-bold mb-2 text-white text-center">Login</h2>
+            <p className="text-gray-400 text-sm text-center mb-6">
+                Admin: <span className="text-blue-400">admin@watchworth.com</span> / <span className="text-blue-400">admin123</span>
+            </p>
 
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
                 <div>
@@ -46,7 +49,7 @@ const Login = () => {
                         {...register("email")}
                         type="email"
                         className="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white focus:border-blue-500 outline-none"
-                        placeholder="admin@test.com"
+                        placeholder="admin@watchworth.com"
                     />
                     {errors.email && <span className="text-red-400 text-sm">{errors.email.message}</span>}
                 </div>
@@ -57,7 +60,7 @@ const Login = () => {
                         {...register("password")}
                         type="password"
                         className="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white focus:border-blue-500 outline-none"
-                        placeholder="******"
+                        placeholder="••••••"
                     />
                     {errors.password && <span className="text-red-400 text-sm">{errors.password.message}</span>}
                 </div>

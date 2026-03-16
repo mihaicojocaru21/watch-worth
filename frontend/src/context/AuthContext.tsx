@@ -3,23 +3,23 @@ import { authService } from '../services/authService';
 import type { User } from '../types';
 
 interface AuthContextType {
-    user: User | null;
-    login: (email: string) => Promise<boolean>;
+    user: Omit<User, 'password'> | null;
+    login: (email: string, password: string) => Promise<boolean>;
     logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>(null!);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-    const [user, setUser] = useState<User | null>(null);
-    
+    const [user, setUser] = useState<Omit<User, 'password'> | null>(null);
+
     useEffect(() => {
         const savedUser = authService.getCurrentUser();
         if (savedUser) setUser(savedUser);
     }, []);
 
-    const login = async (email: string) => {
-        const foundUser = await authService.login(email);
+    const login = async (email: string, password: string) => {
+        const foundUser = await authService.login(email, password);
         if (foundUser) {
             setUser(foundUser);
             return true;
@@ -34,9 +34,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     return (
         <AuthContext.Provider value={{ user, login, logout }}>
-    {children}
-    </AuthContext.Provider>
-);
+            {children}
+        </AuthContext.Provider>
+    );
 };
 
 export const useAuth = () => useContext(AuthContext);

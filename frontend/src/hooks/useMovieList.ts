@@ -25,19 +25,6 @@ export const useMovieList = (initialSearch = '', initialSort: SortOption = 'year
         }
     }, [search, sortBy]);
 
-    const simulateError = useCallback(async () => {
-        setLoading(true);
-        setError(null);
-
-        try {
-            await movieService.getBrokenData();
-        } catch {
-            setError('internal');
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
     useEffect(() => {
         loadMovies();
     }, [loadMovies]);
@@ -51,6 +38,5 @@ export const useMovieList = (initialSearch = '', initialSort: SortOption = 'year
         setSearch,
         setSortBy,
         refresh: loadMovies,
-        simulateError,
     };
 };

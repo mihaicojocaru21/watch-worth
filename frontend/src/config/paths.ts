@@ -5,6 +5,7 @@ export const PATHS = {
         login: "/login",
         register: "/register",
         movies: "/movies",
+        movieDetail: "/movies/:id",
     },
     admin: {
         root: "/admin",
