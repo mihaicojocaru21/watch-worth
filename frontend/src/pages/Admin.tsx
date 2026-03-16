@@ -6,6 +6,8 @@ import MovieTable from '../components/admin/MovieTable';
 import { useMovies } from '../hooks/useMovies';
 import type { Movie } from '../types';
 
+const PLACEHOLDER_IMAGE = 'https://placehold.co/300x450/1f2937/6b7280?text=No+Poster';
+
 const Admin = () => {
     const { movies, addMovie, updateMovie, deleteMovie } = useMovies();
     const [editingMovie, setEditingMovie] = useState<Movie | null>(null);
@@ -20,9 +22,9 @@ const Admin = () => {
 
         await addMovie({
             ...data,
-            description: data.description || 'No description.',
-            rating: 0,
-            image: data.image || 'https://via.placeholder.com/300x450?text=No+Image',
+            description: data.description ?? 'No description available.',
+            rating: data.rating ?? 7.0,
+            image: data.image ?? PLACEHOLDER_IMAGE,
         });
         toast.success('Movie added!');
     };
@@ -48,6 +50,7 @@ const Admin = () => {
                     title: editingMovie.title,
                     year: editingMovie.year,
                     genre: editingMovie.genre,
+                    rating: editingMovie.rating,
                     image: editingMovie.image,
                     description: editingMovie.description,
                 } : undefined}

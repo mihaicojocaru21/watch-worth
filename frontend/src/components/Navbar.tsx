@@ -1,8 +1,16 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
     const { user, logout } = useAuth();
+    const { pathname } = useLocation();
+
+    const linkClass = (path: string) =>
+        `transition-colors ${
+            pathname === path
+                ? 'text-white font-semibold border-b border-blue-400 pb-0.5'
+                : 'text-gray-400 hover:text-white'
+        }`;
 
     return (
         <nav className="bg-gray-900 border-b border-gray-800 p-4 sticky top-0 z-50">
@@ -12,18 +20,18 @@ const Navbar = () => {
                 </Link>
 
                 <div className="flex gap-6 items-center">
-                    <Link to="/" className="text-gray-300 hover:text-white transition-colors">Home</Link>
-                    <Link to="/movies" className="text-gray-300 hover:text-white transition-colors">Movies</Link>
-                    
+                    <Link to="/" className={linkClass('/')}>Home</Link>
+                    <Link to="/movies" className={linkClass('/movies')}>Movies</Link>
+
                     {user?.role === 'admin' && (
-                        <Link to="/admin" className="text-yellow-400 hover:text-yellow-300 font-bold transition-colors">
+                        <Link to="/admin" className={`font-bold transition-colors ${pathname === '/admin' ? 'text-yellow-300' : 'text-yellow-400 hover:text-yellow-300'}`}>
                             Admin Panel
                         </Link>
                     )}
-                    
+
                     {user ? (
                         <div className="flex items-center gap-4">
-                            <span className="text-white text-sm">Salut, {user.username}!</span>
+                            <span className="text-white text-sm">Hi, {user.username}!</span>
                             <button
                                 onClick={logout}
                                 className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-all"

@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import type { Movie } from '../types';
 
 interface MovieCardProps {
@@ -7,9 +8,14 @@ interface MovieCardProps {
 const FALLBACK_IMAGE = 'https://placehold.co/300x450/1f2937/6b7280?text=No+Poster';
 
 const MovieCard = ({ movie }: MovieCardProps) => {
+    const navigate = useNavigate();
+
     return (
         <div className="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:transform hover:scale-105 transition-all duration-300 border border-gray-700 cursor-pointer group">
-            <div className="relative h-[300px] overflow-hidden bg-gray-700">
+            <div
+                className="relative h-[300px] overflow-hidden bg-gray-700"
+                onClick={() => navigate(`/movies/${movie.id}`)}
+            >
                 <img
                     src={movie.image}
                     alt={movie.title}
@@ -37,7 +43,10 @@ const MovieCard = ({ movie }: MovieCardProps) => {
                     {movie.description}
                 </p>
 
-                <button className="mt-4 w-full py-2 bg-gray-700 hover:bg-blue-600 text-white rounded-lg transition-colors font-medium">
+                <button
+                    onClick={() => navigate(`/movies/${movie.id}`)}
+                    className="mt-4 w-full py-2 bg-gray-700 hover:bg-blue-600 text-white rounded-lg transition-colors font-medium"
+                >
                     See Details
                 </button>
             </div>

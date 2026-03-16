@@ -7,6 +7,7 @@ import Home from '../pages/Home';
 import Login from '../pages/Login';
 import Admin from '../pages/Admin';
 import Movies from '../pages/Movies';
+import MovieDetail from '../pages/MovieDetail';
 import Unauthorized from '../pages/Unauthorized';
 import Forbidden from '../pages/Forbidden';
 import ServerError from '../pages/ServerError';
@@ -16,8 +17,9 @@ export const router = createBrowserRouter([
     {
         element: <Layout />,
         children: [
-            { path: PATHS.public.home, element: <Home /> },
-            { path: PATHS.public.movies, element: <Movies /> },
+            { path: PATHS.public.home,        element: <Home /> },
+            { path: PATHS.public.movies,      element: <Movies /> },
+            { path: PATHS.public.movieDetail, element: <MovieDetail /> },
 
             {
                 element: <Guard publicOnly />,
@@ -34,9 +36,9 @@ export const router = createBrowserRouter([
             },
 
             { path: PATHS.errors.unauthorized, element: <Unauthorized /> },
-            { path: PATHS.errors.forbidden, element: <Forbidden /> },
-            { path: PATHS.errors.server, element: <ServerError /> },
+            { path: PATHS.errors.forbidden,    element: <Forbidden /> },
+            { path: PATHS.errors.server,       element: <ServerError /> },
         ]
     },
-    { path: "*", element: <NotFound /> }
+    { path: '*', element: <NotFound /> }
 ]);
