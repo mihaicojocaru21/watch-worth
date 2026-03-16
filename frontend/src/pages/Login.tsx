@@ -13,7 +13,6 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-// A handful of top-rated films to show in the decorative panel
 const FEATURED = [
     { title: 'The Shawshank Redemption', year: 1994, rating: 9.3 },
     { title: 'The Godfather',             year: 1972, rating: 9.2 },
