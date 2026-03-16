@@ -4,10 +4,8 @@ import { movieService } from '../services/movieService';
 
 type SortOption = 'year' | 'genre' | 'rating';
 
-export const useMovieList = (initialSearch = '', initialSort: SortOption = 'year') => {
+export const useMovieList = (initialSort: SortOption = 'rating') => {
     const [movies, setMovies] = useState<Movie[]>([]);
-    const [search, setSearch] = useState(initialSearch);
-    const [sortBy, setSortBy] = useState<SortOption>(initialSort);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<null | 'internal'>(null);
 
@@ -16,14 +14,14 @@ export const useMovieList = (initialSearch = '', initialSort: SortOption = 'year
         setError(null);
 
         try {
-            const data = await movieService.getAll(search, sortBy);
+            const data = await movieService.getAll(undefined, initialSort);
             setMovies(data);
         } catch {
             setError('internal');
         } finally {
             setLoading(false);
         }
-    }, [search, sortBy]);
+    }, [initialSort]);
 
     useEffect(() => {
         loadMovies();
@@ -31,12 +29,8 @@ export const useMovieList = (initialSearch = '', initialSort: SortOption = 'year
 
     return {
         movies,
-        search,
-        sortBy,
         loading,
         error,
-        setSearch,
-        setSortBy,
         refresh: loadMovies,
     };
 };

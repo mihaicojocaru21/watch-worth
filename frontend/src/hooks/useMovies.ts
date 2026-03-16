@@ -9,7 +9,7 @@ export const useMovies = () => {
         try {
             const data = await movieService.getAll();
             setMovies(data);
-        } catch (error) {
+        } catch {
             console.error('Failed to load movies');
         }
     }, []);
