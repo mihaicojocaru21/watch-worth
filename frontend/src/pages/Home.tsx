@@ -4,7 +4,7 @@ import { useMovieList } from '../hooks/useMovieList';
 import ServerError from './ServerError';
 
 const Home = () => {
-    const { movies, loading, error } = useMovieList();
+    const { movies, loading, error } = useMovieList('rating');
 
     const featuredMovies = movies.slice(0, 9);
 
@@ -67,7 +67,6 @@ const Home = () => {
                     <p className="text-gray-400 mt-1 text-sm">Our top picks you shouldn't miss.</p>
                 </div>
 
-                {/* Loading skeletons */}
                 {loading && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                         {Array.from({ length: 9 }).map((_, i) => (
@@ -76,7 +75,6 @@ const Home = () => {
                     </div>
                 )}
 
-                {/* Empty */}
                 {!loading && featuredMovies.length === 0 && (
                     <div className="flex flex-col items-center justify-center py-20 text-center">
                         <div className="w-16 h-16 mb-4 rounded-full bg-gray-800 flex items-center justify-center text-2xl">🎬</div>
@@ -84,7 +82,6 @@ const Home = () => {
                     </div>
                 )}
 
-                {/* Cards */}
                 {!loading && featuredMovies.length > 0 && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                         {featuredMovies.map(movie => (
@@ -93,7 +90,6 @@ const Home = () => {
                     </div>
                 )}
 
-                {/* See all CTA */}
                 {!loading && featuredMovies.length > 0 && (
                     <div className="mt-10 text-center">
                         <Link

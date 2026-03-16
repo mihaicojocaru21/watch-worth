@@ -24,21 +24,21 @@ export const router = createBrowserRouter([
             {
                 element: <Guard publicOnly />,
                 children: [
-                    { path: PATHS.public.login, element: <Login /> }
-                ]
+                    { path: PATHS.public.login, element: <Login /> },
+                ],
             },
 
             {
                 element: <ProtectedRoute allowedRoles={['admin']} />,
                 children: [
-                    { path: PATHS.admin.root, element: <Admin /> }
-                ]
+                    { path: PATHS.admin.root, element: <Admin /> },
+                ],
             },
 
             { path: PATHS.errors.unauthorized, element: <Unauthorized /> },
             { path: PATHS.errors.forbidden,    element: <Forbidden /> },
             { path: PATHS.errors.server,       element: <ServerError /> },
-        ]
+        ],
     },
-    { path: '*', element: <NotFound /> }
+    { path: '*', element: <NotFound /> },
 ]);
