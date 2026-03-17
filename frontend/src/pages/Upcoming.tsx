@@ -1,6 +1,45 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { UPCOMING_MOVIES } from '../data/mockUpcoming';
 import type { UpcomingMovie } from '../types';
+
+// ---------------------------------------------------------------------------
+// Poster fetcher — uses VITE_TMDB_KEY from .env.local if available
+// Add this line to your .env.local:   VITE_TMDB_KEY=your_key_from_themoviedb.org
+// Get a free key at: https://www.themoviedb.org/settings/api
+// ---------------------------------------------------------------------------
+const TMDB_KEY = (import.meta as any).env?.VITE_TMDB_KEY as string | undefined;
+
+const FALLBACK = (title: string) =>
+    `https://placehold.co/300x450/0f172a/4b5563?text=${encodeURIComponent(title)}`;
+
+function usePoster(tmdbId: number, fallbackTitle: string, staticImage: string) {
+    const [src, setSrc] = useState(staticImage && !staticImage.includes('placehold.co') ? staticImage : '');
+
+    useEffect(() => {
+        if (src) return; // already have a real image
+        if (!tmdbId) { setSrc(FALLBACK(fallbackTitle)); return; }
+
+        if (TMDB_KEY) {
+            fetch(`https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${TMDB_KEY}`)
+                .then(r => r.json())
+                .then(d => {
+                    if (d.poster_path) {
+                        setSrc(`https://image.tmdb.org/t/p/w500${d.poster_path}`);
+                    } else {
+                        setSrc(FALLBACK(fallbackTitle));
+                    }
+                })
+                .catch(() => setSrc(FALLBACK(fallbackTitle)));
+        } else {
+            // No API key — try a direct TMDB image path guess, fallback to placeholder
+            setSrc(FALLBACK(fallbackTitle));
+        }
+    }, [tmdbId]);
+
+    return src || FALLBACK(fallbackTitle);
+}
+
+// ---------------------------------------------------------------------------
 
 const YEARS = [2026, 2027, 2028];
 
@@ -17,25 +56,33 @@ const STATUS_DOT: Record<UpcomingMovie['status'], string> = {
 };
 
 const UpcomingCard = ({ movie }: { movie: UpcomingMovie }) => {
+    const posterSrc = usePoster(movie.tmdbId, movie.title, movie.image);
     const [imgError, setImgError] = useState(false);
+
+    const finalSrc = imgError ? FALLBACK(movie.title) : posterSrc;
 
     return (
         <div className="group relative flex flex-col sm:flex-row gap-5 rounded-2xl border border-gray-700/60 bg-gray-800/40 p-5 hover:border-gray-600/80 hover:bg-gray-800/60 transition-all duration-300">
 
             {/* Poster */}
-            <div className="shrink-0 w-full sm:w-28 aspect-[2/3] sm:aspect-auto sm:h-40 rounded-xl overflow-hidden border border-white/5 shadow-lg shadow-black/30">
-                <img
-                    src={imgError ? `https://placehold.co/300x450/1f2937/4b5563?text=${encodeURIComponent(movie.title)}` : movie.image}
-                    alt={movie.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    onError={() => setImgError(true)}
-                />
+            <div className="shrink-0 w-full sm:w-28 aspect-[2/3] sm:aspect-auto sm:h-40 rounded-xl overflow-hidden border border-white/5 shadow-lg shadow-black/30 bg-gray-900">
+                {finalSrc ? (
+                    <img
+                        src={finalSrc}
+                        alt={movie.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        onError={() => setImgError(true)}
+                    />
+                ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                        <div className="w-6 h-6 border-2 border-gray-700 border-t-gray-500 rounded-full animate-spin" />
+                    </div>
+                )}
             </div>
 
             {/* Info */}
             <div className="flex-1 min-w-0 flex flex-col justify-between gap-3">
                 <div>
-                    {/* Top row */}
                     <div className="flex flex-wrap items-center gap-2 mb-2.5">
                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-bold uppercase tracking-wider ${STATUS_STYLES[movie.status]}`}>
                             <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[movie.status]}`} />
@@ -57,7 +104,6 @@ const UpcomingCard = ({ movie }: { movie: UpcomingMovie }) => {
                     <p className="text-sm text-gray-500 leading-relaxed line-clamp-2">{movie.description}</p>
                 </div>
 
-                {/* Cast */}
                 <div className="flex flex-wrap gap-1.5">
                     {movie.cast.slice(0, 4).map(actor => (
                         <span key={actor} className="px-2.5 py-1 rounded-lg bg-gray-900/50 border border-gray-700/60 text-[11px] text-gray-400 font-medium">
@@ -110,7 +156,18 @@ export default function Upcoming() {
                             </p>
                         </div>
 
-                        {/* Stats */}
+                        {!TMDB_KEY && (
+                            <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-yellow-500/8 border border-yellow-500/20 max-w-sm">
+                                <svg className="w-4 h-4 text-yellow-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                <div>
+                                    <p className="text-xs font-bold text-yellow-400 mb-0.5">Posters need a TMDB key</p>
+                                    <p className="text-[11px] text-gray-500">Add <code className="text-yellow-400/80">VITE_TMDB_KEY=your_key</code> to <code className="text-yellow-400/80">.env.local</code>. Free at <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noreferrer" className="underline text-indigo-400 hover:text-indigo-300">themoviedb.org</a></p>
+                                </div>
+                            </div>
+                        )}
+
                         <div className="flex items-center gap-3">
                             {YEARS.map(y => (
                                 <div key={y} className="text-center px-4 py-3 rounded-xl bg-gray-800/60 border border-gray-700/60">
@@ -153,7 +210,6 @@ export default function Upcoming() {
                     if (!films.length) return null;
                     return (
                         <div key={year} className="mb-12">
-                            {/* Year divider */}
                             <div className="flex items-center gap-4 mb-6">
                                 <span className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
                                     {year}

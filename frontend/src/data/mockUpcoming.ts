@@ -9,6 +9,7 @@ export const UPCOMING_MOVIES: UpcomingMovie[] = [
     /* ── 2026 ───────────────────────────────────────────────────── */
     {
         id: 101,
+        tmdbId: 687163,
         title: 'Project Hail Mary',
         year: 2026,
         releaseDate: 'Mar 20, 2026',
@@ -21,6 +22,7 @@ export const UPCOMING_MOVIES: UpcomingMovie[] = [
     },
     {
         id: 102,
+        tmdbId: 920248,
         title: 'The Mandalorian & Grogu',
         year: 2026,
         releaseDate: 'May 22, 2026',
@@ -33,6 +35,7 @@ export const UPCOMING_MOVIES: UpcomingMovie[] = [
     },
     {
         id: 103,
+        tmdbId: 1084244,
         title: 'Toy Story 5',
         year: 2026,
         releaseDate: 'Jun 19, 2026',
@@ -45,6 +48,7 @@ export const UPCOMING_MOVIES: UpcomingMovie[] = [
     },
     {
         id: 104,
+        tmdbId: 1012452,
         title: 'The Odyssey',
         year: 2026,
         releaseDate: 'Jul 17, 2026',
@@ -57,6 +61,7 @@ export const UPCOMING_MOVIES: UpcomingMovie[] = [
     },
     {
         id: 105,
+        tmdbId: 969681,
         title: 'Spider-Man: Brand New Day',
         year: 2026,
         releaseDate: 'Jul 31, 2026',
@@ -69,6 +74,7 @@ export const UPCOMING_MOVIES: UpcomingMovie[] = [
     },
     {
         id: 106,
+        tmdbId: 1003596,
         title: 'Avengers: Doomsday',
         year: 2026,
         releaseDate: 'Dec 18, 2026',
@@ -81,6 +87,7 @@ export const UPCOMING_MOVIES: UpcomingMovie[] = [
     },
     {
         id: 107,
+        tmdbId: 1698151,
         title: 'Dune: Messiah',
         year: 2026,
         releaseDate: 'Dec 25, 2026',
@@ -95,6 +102,7 @@ export const UPCOMING_MOVIES: UpcomingMovie[] = [
     /* ── 2027 ───────────────────────────────────────────────────── */
     {
         id: 108,
+        tmdbId: 569094,
         title: 'Spider-Man: Beyond the Spider-Verse',
         year: 2027,
         releaseDate: 'Jun 20, 2027',
@@ -107,6 +115,7 @@ export const UPCOMING_MOVIES: UpcomingMovie[] = [
     },
     {
         id: 109,
+        tmdbId: 0,
         title: 'Untitled Matt Reeves Project',
         year: 2027,
         releaseDate: 'Oct 1, 2027',
@@ -121,6 +130,7 @@ export const UPCOMING_MOVIES: UpcomingMovie[] = [
     /* ── 2028 ───────────────────────────────────────────────────── */
     {
         id: 110,
+        tmdbId: 1003598,
         title: 'Avengers: Secret Wars',
         year: 2028,
         releaseDate: 'TBA 2028',

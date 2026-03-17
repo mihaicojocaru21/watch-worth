@@ -10,6 +10,7 @@ export interface Movie {
 
 export interface UpcomingMovie {
     id: number;
+    tmdbId: number;
     title: string;
     year: number;
     releaseDate: string;
