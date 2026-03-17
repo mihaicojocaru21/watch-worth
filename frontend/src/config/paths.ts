@@ -5,6 +5,7 @@ export const PATHS = {
         movies: "/movies",
         movieDetail: "/movies/:id",
         watchlist: "/watchlist",
+        upcoming: "/upcoming",
     },
     admin: {
         root: "/admin",

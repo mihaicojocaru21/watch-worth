@@ -9,6 +9,7 @@ import Admin from '../pages/Admin';
 import Movies from '../pages/Movies';
 import MovieDetail from '../pages/MovieDetail';
 import Watchlist from '../pages/Watchlist';
+import Upcoming from '../pages/Upcoming';
 import Unauthorized from '../pages/Unauthorized';
 import Forbidden from '../pages/Forbidden';
 import ServerError from '../pages/ServerError';
@@ -22,6 +23,7 @@ export const router = createBrowserRouter([
             { path: PATHS.public.movies,      element: <Movies /> },
             { path: PATHS.public.movieDetail, element: <MovieDetail /> },
             { path: PATHS.public.watchlist,   element: <Watchlist /> },
+            { path: PATHS.public.upcoming,    element: <Upcoming /> },
 
             {
                 element: <Guard publicOnly />,

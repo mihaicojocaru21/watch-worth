@@ -39,6 +39,7 @@ const Navbar = () => {
                             {[
                                 { to: '/',        label: 'Home'   },
                                 { to: '/movies',  label: 'Movies' },
+                                { to: '/upcoming', label: 'Coming Soon' },
                             ].map(({ to, label }) => (
                                 <Link
                                     key={to}
@@ -157,9 +158,10 @@ const Navbar = () => {
                 {mobileOpen && (
                     <div className="md:hidden bg-gray-900/95 backdrop-blur-md border-b border-white/5 px-4 py-4 space-y-1">
                         {[
-                            { to: '/',         label: 'Home'      },
-                            { to: '/movies',   label: 'Movies'    },
-                            { to: '/watchlist', label: 'Watchlist' },
+                            { to: '/',         label: 'Home'        },
+                            { to: '/movies',   label: 'Movies'      },
+                            { to: '/upcoming', label: 'Coming Soon' },
+                            { to: '/watchlist', label: 'Watchlist'  },
                         ].map(({ to, label }) => (
                             <Link
                                 key={to}

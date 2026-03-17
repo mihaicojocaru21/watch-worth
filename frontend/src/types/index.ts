@@ -8,6 +8,20 @@ export interface Movie {
     genre: string;
 }
 
+export interface UpcomingMovie {
+    id: number;
+    tmdbId: number;
+    title: string;
+    year: number;
+    releaseDate: string;
+    genre: string;
+    director: string;
+    cast: string[];
+    description: string;
+    image: string;
+    status: 'Coming Soon' | 'In Production' | 'Post-Production';
+}
+
 export interface Review {
     id: string;
     movieId: number;
