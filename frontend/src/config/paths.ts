@@ -11,7 +11,6 @@ export const PATHS = {
         root: "/admin",
     },
     errors: {
-        unauthorized: "/unauthorized",
         forbidden: "/forbidden",
         server: "/error",
     },

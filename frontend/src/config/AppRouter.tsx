@@ -10,7 +10,6 @@ import Movies from '../pages/Movies';
 import MovieDetail from '../pages/MovieDetail';
 import Watchlist from '../pages/Watchlist';
 import Upcoming from '../pages/Upcoming';
-import Unauthorized from '../pages/Unauthorized';
 import Forbidden from '../pages/Forbidden';
 import ServerError from '../pages/ServerError';
 import NotFound from '../pages/NotFound';
@@ -39,9 +38,8 @@ export const router = createBrowserRouter([
                 ],
             },
 
-            { path: PATHS.errors.unauthorized, element: <Unauthorized /> },
-            { path: PATHS.errors.forbidden,    element: <Forbidden /> },
-            { path: PATHS.errors.server,       element: <ServerError /> },
+            { path: PATHS.errors.forbidden, element: <Forbidden /> },
+            { path: PATHS.errors.server,    element: <ServerError /> },
         ],
     },
     { path: '*', element: <NotFound /> },

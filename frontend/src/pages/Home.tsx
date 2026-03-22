@@ -5,7 +5,7 @@ import { usePoster } from '../hooks/usePoster';
 import ServerError from './ServerError';
 import type { Movie } from '../types';
 
-/* ── Hero card as its own component so it can call usePoster ── */
+/* ── Hero card ca component separat — necesar pentru usePoster ── */
 const HeroCard = ({ movie }: { movie: Movie }) => {
     const posterSrc = usePoster(movie.tmdbId, movie.title, movie.image);
 
@@ -14,22 +14,18 @@ const HeroCard = ({ movie }: { movie: Movie }) => {
             to={`/movies/${movie.id}`}
             className="group relative flex overflow-hidden rounded-2xl border border-gray-700/60 bg-gray-800/40 hover:border-blue-500/40 transition-all duration-300 h-56 sm:h-64"
         >
-            {/* Blurred poster background */}
             <div
                 className="absolute inset-0 bg-cover bg-center scale-105 blur-sm opacity-20 group-hover:opacity-30 transition-opacity duration-500"
                 style={{ backgroundImage: `url(${posterSrc})` }}
             />
             <div className="absolute inset-0 bg-gradient-to-r from-gray-900/95 via-gray-900/80 to-transparent" />
 
-            {/* Content */}
             <div className="relative flex items-center gap-6 p-6 sm:p-8 flex-1 min-w-0">
-                {/* Rank badge */}
                 <div className="shrink-0 flex flex-col items-center">
                     <span className="text-[10px] font-black uppercase tracking-widest text-blue-400 mb-1">#1</span>
                     <span className="text-5xl font-black text-white/10 leading-none select-none">01</span>
                 </div>
 
-                {/* Poster thumbnail */}
                 <div className="shrink-0 w-24 sm:w-28 aspect-[2/3] rounded-xl overflow-hidden border border-white/10 shadow-2xl">
                     <img
                         src={posterSrc}
@@ -38,7 +34,6 @@ const HeroCard = ({ movie }: { movie: Movie }) => {
                     />
                 </div>
 
-                {/* Meta */}
                 <div className="min-w-0">
                     <div className="flex items-center gap-2 mb-2">
                         <span className="px-2 py-0.5 rounded-md bg-blue-500/15 border border-blue-500/25 text-blue-400 text-[10px] font-bold uppercase tracking-wider">
@@ -62,7 +57,6 @@ const HeroCard = ({ movie }: { movie: Movie }) => {
                 </div>
             </div>
 
-            {/* Arrow */}
             <div className="relative hidden sm:flex items-center pr-8 text-gray-700 group-hover:text-blue-400 transition-colors">
                 <svg className="w-5 h-5 translate-x-0 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -72,10 +66,8 @@ const HeroCard = ({ movie }: { movie: Movie }) => {
     );
 };
 
-/* ── Main page ── */
 const Home = () => {
     const { movies, loading, error } = useMovieList('rating');
-
     const featuredMovies = movies.slice(0, 9);
 
     if (error) return <ServerError />;
@@ -101,16 +93,10 @@ const Home = () => {
                 </p>
 
                 <div className="flex flex-wrap justify-center gap-4">
-                    <Link
-                        to="/movies"
-                        className="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-bold transition-all shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40"
-                    >
+                    <Link to="/movies" className="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-bold transition-all shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40">
                         Explore Movies
                     </Link>
-                    <Link
-                        to="/login"
-                        className="px-8 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-full font-bold transition-all"
-                    >
+                    <Link to="/login" className="px-8 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-full font-bold transition-all">
                         Sign In
                     </Link>
                 </div>
@@ -131,8 +117,6 @@ const Home = () => {
 
             {/* ── Weekly Picks ── */}
             <section className="container mx-auto px-4">
-
-                {/* Section header */}
                 <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
                     <div>
                         <div className="inline-flex items-center gap-2 mb-4 px-3 py-1.5 rounded-full bg-blue-500/8 border border-blue-500/20">
@@ -144,15 +128,10 @@ const Home = () => {
                         </div>
                         <h2 className="text-4xl font-black text-white tracking-tight leading-none">
                             Weekly<br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
-                                Recommendations
-                            </span>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">Recommendations</span>
                         </h2>
-                        <p className="text-gray-500 mt-3 text-sm">
-                            Our editors' top picks — curated fresh every week.
-                        </p>
+                        <p className="text-gray-500 mt-3 text-sm">Our editors' top picks — curated fresh every week.</p>
                     </div>
-
                     <Link
                         to="/movies"
                         className="hidden sm:inline-flex self-end items-center gap-2 px-5 py-2.5 rounded-xl border border-gray-700 hover:border-blue-500/60 bg-gray-800/60 hover:bg-gray-800 text-gray-400 hover:text-white text-sm font-semibold transition-all whitespace-nowrap"
@@ -164,7 +143,6 @@ const Home = () => {
                     </Link>
                 </div>
 
-                {/* Loading skeletons */}
                 {loading && (
                     <div className="space-y-5">
                         <div className="h-64 rounded-2xl bg-gray-800/50 animate-pulse border border-gray-700/50" />
@@ -176,7 +154,6 @@ const Home = () => {
                     </div>
                 )}
 
-                {/* Empty */}
                 {!loading && featuredMovies.length === 0 && (
                     <div className="flex flex-col items-center justify-center py-20 text-center">
                         <div className="w-16 h-16 mb-4 rounded-2xl bg-gray-800 border border-gray-700 flex items-center justify-center text-2xl">🎬</div>
@@ -184,15 +161,11 @@ const Home = () => {
                     </div>
                 )}
 
-                {/* Featured layout: 1 hero + 8 grid */}
                 {!loading && featuredMovies.length > 0 && (() => {
                     const [hero, ...rest] = featuredMovies;
                     return (
                         <div className="space-y-5">
-                            {/* Hero card — uses HeroCard component with usePoster */}
                             <HeroCard movie={hero} />
-
-                            {/* Grid of remaining 8 */}
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                                 {rest.map((movie, i) => (
                                     <MovieCard key={movie.id} movie={movie} rank={i + 2} />
@@ -202,13 +175,9 @@ const Home = () => {
                     );
                 })()}
 
-                {/* Mobile "View all" */}
                 {!loading && featuredMovies.length > 0 && (
                     <div className="mt-8 text-center sm:hidden">
-                        <Link
-                            to="/movies"
-                            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl border border-gray-700 text-gray-400 hover:text-white text-sm font-semibold transition-all"
-                        >
+                        <Link to="/movies" className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl border border-gray-700 text-gray-400 hover:text-white text-sm font-semibold transition-all">
                             View full collection
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -227,7 +196,6 @@ const Home = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-
                     <div className="group relative overflow-hidden rounded-2xl border border-gray-700/60 bg-gray-800/40 p-7 hover:border-blue-500/40 transition-all duration-300 hover:bg-gray-800/60">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/8 rounded-full blur-2xl translate-x-8 -translate-y-8 group-hover:bg-blue-500/14 transition-colors" />
                         <div className="relative">
@@ -269,7 +237,6 @@ const Home = () => {
                         </div>
                         <div className="absolute bottom-0 left-0 h-px w-0 bg-gradient-to-r from-green-500/60 to-transparent group-hover:w-full transition-all duration-500" />
                     </div>
-
                 </div>
             </section>
 
