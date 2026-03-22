@@ -1,8 +1,78 @@
 import { Link } from 'react-router-dom';
 import MovieCard from '../components/MovieCard';
 import { useMovieList } from '../hooks/useMovieList';
+import { usePoster } from '../hooks/usePoster';
 import ServerError from './ServerError';
+import type { Movie } from '../types';
 
+/* ── Hero card as its own component so it can call usePoster ── */
+const HeroCard = ({ movie }: { movie: Movie }) => {
+    const posterSrc = usePoster(movie.tmdbId, movie.title, movie.image);
+
+    return (
+        <Link
+            to={`/movies/${movie.id}`}
+            className="group relative flex overflow-hidden rounded-2xl border border-gray-700/60 bg-gray-800/40 hover:border-blue-500/40 transition-all duration-300 h-56 sm:h-64"
+        >
+            {/* Blurred poster background */}
+            <div
+                className="absolute inset-0 bg-cover bg-center scale-105 blur-sm opacity-20 group-hover:opacity-30 transition-opacity duration-500"
+                style={{ backgroundImage: `url(${posterSrc})` }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-gray-900/95 via-gray-900/80 to-transparent" />
+
+            {/* Content */}
+            <div className="relative flex items-center gap-6 p-6 sm:p-8 flex-1 min-w-0">
+                {/* Rank badge */}
+                <div className="shrink-0 flex flex-col items-center">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-blue-400 mb-1">#1</span>
+                    <span className="text-5xl font-black text-white/10 leading-none select-none">01</span>
+                </div>
+
+                {/* Poster thumbnail */}
+                <div className="shrink-0 w-24 sm:w-28 aspect-[2/3] rounded-xl overflow-hidden border border-white/10 shadow-2xl">
+                    <img
+                        src={posterSrc}
+                        alt={movie.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                </div>
+
+                {/* Meta */}
+                <div className="min-w-0">
+                    <div className="flex items-center gap-2 mb-2">
+                        <span className="px-2 py-0.5 rounded-md bg-blue-500/15 border border-blue-500/25 text-blue-400 text-[10px] font-bold uppercase tracking-wider">
+                            {movie.genre}
+                        </span>
+                        <span className="text-gray-600 text-xs">{movie.year}</span>
+                    </div>
+                    <h3 className="text-xl sm:text-2xl font-black text-white leading-tight mb-2 truncate">
+                        {movie.title}
+                    </h3>
+                    <p className="text-gray-500 text-sm line-clamp-2 leading-relaxed hidden sm:block">
+                        {movie.description}
+                    </p>
+                    <div className="flex items-center gap-1.5 mt-3">
+                        <svg className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                        </svg>
+                        <span className="text-white font-black text-sm">{movie.rating.toFixed(1)}</span>
+                        <span className="text-gray-600 text-xs">/ 10</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Arrow */}
+            <div className="relative hidden sm:flex items-center pr-8 text-gray-700 group-hover:text-blue-400 transition-colors">
+                <svg className="w-5 h-5 translate-x-0 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+            </div>
+        </Link>
+    );
+};
+
+/* ── Main page ── */
 const Home = () => {
     const { movies, loading, error } = useMovieList('rating');
 
@@ -65,7 +135,6 @@ const Home = () => {
                 {/* Section header */}
                 <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
                     <div>
-                        {/* Live badge */}
                         <div className="inline-flex items-center gap-2 mb-4 px-3 py-1.5 rounded-full bg-blue-500/8 border border-blue-500/20">
                             <span className="relative flex h-2 w-2">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-60" />
@@ -120,68 +189,8 @@ const Home = () => {
                     const [hero, ...rest] = featuredMovies;
                     return (
                         <div className="space-y-5">
-
-                            {/* Hero card — #1 pick */}
-                            <Link
-                                to={`/movies/${hero.id}`}
-                                className="group relative flex overflow-hidden rounded-2xl border border-gray-700/60 bg-gray-800/40 hover:border-blue-500/40 transition-all duration-300 h-56 sm:h-64"
-                            >
-                                {/* Blurred poster background */}
-                                <div
-                                    className="absolute inset-0 bg-cover bg-center scale-105 blur-sm opacity-20 group-hover:opacity-30 transition-opacity duration-500"
-                                    style={{ backgroundImage: `url(${hero.image})` }}
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-r from-gray-900/95 via-gray-900/80 to-transparent" />
-
-                                {/* Content */}
-                                <div className="relative flex items-center gap-6 p-6 sm:p-8 flex-1 min-w-0">
-                                    {/* Rank badge */}
-                                    <div className="shrink-0 flex flex-col items-center">
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-blue-400 mb-1">#1</span>
-                                        <span className="text-5xl font-black text-white/10 leading-none select-none">01</span>
-                                    </div>
-
-                                    {/* Poster thumbnail */}
-                                    <div className="shrink-0 w-24 sm:w-28 aspect-[2/3] rounded-xl overflow-hidden border border-white/10 shadow-2xl">
-                                        <img
-                                            src={hero.image}
-                                            alt={hero.title}
-                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                            onError={e => { (e.target as HTMLImageElement).src = 'https://placehold.co/300x450/1f2937/6b7280?text=No+Poster'; }}
-                                        />
-                                    </div>
-
-                                    {/* Meta */}
-                                    <div className="min-w-0">
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <span className="px-2 py-0.5 rounded-md bg-blue-500/15 border border-blue-500/25 text-blue-400 text-[10px] font-bold uppercase tracking-wider">
-                                                {hero.genre}
-                                            </span>
-                                            <span className="text-gray-600 text-xs">{hero.year}</span>
-                                        </div>
-                                        <h3 className="text-xl sm:text-2xl font-black text-white leading-tight mb-2 truncate">
-                                            {hero.title}
-                                        </h3>
-                                        <p className="text-gray-500 text-sm line-clamp-2 leading-relaxed hidden sm:block">
-                                            {hero.description}
-                                        </p>
-                                        <div className="flex items-center gap-1.5 mt-3">
-                                            <svg className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
-                                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                            </svg>
-                                            <span className="text-white font-black text-sm">{hero.rating.toFixed(1)}</span>
-                                            <span className="text-gray-600 text-xs">/ 10</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Arrow */}
-                                <div className="relative hidden sm:flex items-center pr-8 text-gray-700 group-hover:text-blue-400 transition-colors">
-                                    <svg className="w-5 h-5 translate-x-0 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                    </svg>
-                                </div>
-                            </Link>
+                            {/* Hero card — uses HeroCard component with usePoster */}
+                            <HeroCard movie={hero} />
 
                             {/* Grid of remaining 8 */}
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -211,7 +220,6 @@ const Home = () => {
 
             {/* ── Why WatchWorth ── */}
             <section className="container mx-auto px-4 pb-16">
-                {/* Section label */}
                 <div className="flex items-center gap-3 mb-8">
                     <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-700 to-transparent" />
                     <span className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500 shrink-0">Why WatchWorth</span>
@@ -220,7 +228,6 @@ const Home = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-                    {/* Card 1 — Hand-picked */}
                     <div className="group relative overflow-hidden rounded-2xl border border-gray-700/60 bg-gray-800/40 p-7 hover:border-blue-500/40 transition-all duration-300 hover:bg-gray-800/60">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/8 rounded-full blur-2xl translate-x-8 -translate-y-8 group-hover:bg-blue-500/14 transition-colors" />
                         <div className="relative">
@@ -235,7 +242,6 @@ const Home = () => {
                         <div className="absolute bottom-0 left-0 h-px w-0 bg-gradient-to-r from-blue-500/60 to-transparent group-hover:w-full transition-all duration-500" />
                     </div>
 
-                    {/* Card 2 — Always fresh — slightly elevated */}
                     <div className="group relative overflow-hidden rounded-2xl border border-purple-500/30 bg-gradient-to-b from-purple-500/8 to-gray-800/40 p-7 hover:border-purple-400/50 transition-all duration-300 md:-translate-y-2 shadow-lg shadow-purple-900/10">
                         <div className="absolute top-0 right-0 w-40 h-40 bg-purple-500/10 rounded-full blur-2xl translate-x-10 -translate-y-10 group-hover:bg-purple-500/16 transition-colors" />
                         <div className="relative">
@@ -250,7 +256,6 @@ const Home = () => {
                         <div className="absolute bottom-0 left-0 h-px w-0 bg-gradient-to-r from-purple-500/60 to-transparent group-hover:w-full transition-all duration-500" />
                     </div>
 
-                    {/* Card 3 — No clutter */}
                     <div className="group relative overflow-hidden rounded-2xl border border-gray-700/60 bg-gray-800/40 p-7 hover:border-green-500/40 transition-all duration-300 hover:bg-gray-800/60">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/6 rounded-full blur-2xl translate-x-8 -translate-y-8 group-hover:bg-green-500/12 transition-colors" />
                         <div className="relative">
