@@ -2,19 +2,21 @@ import { useNavigate } from 'react-router-dom';
 import type { Movie } from '../types';
 import { useWatchlist } from '../context/WatchlistContext';
 import { useAuth } from '../context/AuthContext';
+import { usePoster } from '../hooks/usePoster';
 
 interface MovieCardProps {
     movie: Movie;
     rank?: number;
 }
 
-const FALLBACK_IMAGE = 'https://placehold.co/300x450/1f2937/6b7280?text=No+Poster';
-
 const MovieCard = ({ movie, rank }: MovieCardProps) => {
     const navigate = useNavigate();
     const { user } = useAuth();
     const { isInWatchlist, toggleWatchlist } = useWatchlist();
     const saved = isInWatchlist(movie.id);
+
+    // Fetch poster via TMDB API (falls back to movie.image if no API key)
+    const posterSrc = usePoster(movie.tmdbId, movie.title, movie.image);
 
     const handleWatchlist = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -28,15 +30,16 @@ const MovieCard = ({ movie, rank }: MovieCardProps) => {
             className="group relative aspect-[2/3] rounded-2xl overflow-hidden cursor-pointer border border-white/5 shadow-xl shadow-black/30 hover:shadow-black/50 hover:border-white/10 transition-all duration-300 hover:-translate-y-1"
         >
             {/* Poster */}
-            <img
-                src={movie.image}
-                alt={movie.title}
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                onError={e => {
-                    const t = e.currentTarget;
-                    if (t.src !== FALLBACK_IMAGE) t.src = FALLBACK_IMAGE;
-                }}
-            />
+            {posterSrc ? (
+                <img
+                    src={posterSrc}
+                    alt={movie.title}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+            ) : (
+                /* Loading skeleton while poster is being fetched */
+                <div className="absolute inset-0 bg-gray-800 animate-pulse" />
+            )}
 
             {/* Persistent vignette — top fade for buttons */}
             <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-transparent" />

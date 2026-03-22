@@ -1,6 +1,5 @@
 import type { UpcomingMovie } from '../types';
 
-// Placeholder posters — color-coded by genre
 const P = (color: string, label: string) =>
     `https://placehold.co/300x450/${color}/ffffff?text=${encodeURIComponent(label)}`;
 
