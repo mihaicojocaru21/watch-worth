@@ -4,9 +4,8 @@ import { movieService } from '../services/movieService';
 import { useWatchlist } from '../context/WatchlistContext';
 import { useReviews } from '../context/ReviewContext';
 import { useAuth } from '../context/AuthContext';
+import { usePoster } from '../hooks/usePoster';
 import type { Movie } from '../types';
-
-const FALLBACK_IMAGE = 'https://placehold.co/400x600/1f2937/6b7280?text=No+Poster';
 
 /* ── Star picker ── */
 const StarPicker = ({ value, onChange }: { value: number; onChange: (v: number) => void }) => {
@@ -61,9 +60,8 @@ const MovieDetail = () => {
     const { isInWatchlist, toggleWatchlist } = useWatchlist();
     const { reviews, loadReviews, addReview, updateReview, deleteReview, getUserReview } = useReviews();
 
-    const [movie, setMovie]       = useState<Movie | null>(null);
-    const [loading, setLoading]   = useState(true);
-    const [imgError, setImgError] = useState(false);
+    const [movie, setMovie]     = useState<Movie | null>(null);
+    const [loading, setLoading] = useState(true);
 
     /* review form state */
     const [formOpen, setFormOpen]     = useState(false);
@@ -83,6 +81,14 @@ const MovieDetail = () => {
         });
         loadReviews(movieId);
     }, [id]);
+
+    // Fetch poster via TMDB API if key is available.
+    // We pass 0 / empty string until the movie loads, then re-resolve automatically.
+    const posterSrc = usePoster(
+        movie?.tmdbId ?? 0,
+        movie?.title ?? '',
+        movie?.image ?? ''
+    );
 
     if (loading) return (
         <div className="container mx-auto px-4 py-12 max-w-5xl">
@@ -108,53 +114,35 @@ const MovieDetail = () => {
         </div>
     );
 
-    const posterSrc  = imgError ? FALLBACK_IMAGE : movie.image;
-    const saved      = isInWatchlist(movie.id);
-    const myReview   = user ? getUserReview(movieId, user.id) : undefined;
-    const avgReview  = reviews.length
+    const saved     = isInWatchlist(movie.id);
+    const myReview  = user ? getUserReview(movieId, user.id) : undefined;
+    const avgReview = reviews.length
         ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
         : null;
 
     const openAddForm = () => {
-        setEditingId(null);
-        setStarValue(0);
-        setReviewText('');
-        setFormError('');
-        setFormOpen(true);
+        setEditingId(null); setStarValue(0); setReviewText(''); setFormError(''); setFormOpen(true);
     };
-
     const openEditForm = () => {
         if (!myReview) return;
-        setEditingId(myReview.id);
-        setStarValue(myReview.rating);
-        setReviewText(myReview.text);
-        setFormError('');
-        setFormOpen(true);
+        setEditingId(myReview.id); setStarValue(myReview.rating); setReviewText(myReview.text); setFormError(''); setFormOpen(true);
     };
-
-    const cancelForm = () => {
-        setFormOpen(false);
-        setEditingId(null);
-    };
+    const cancelForm = () => { setFormOpen(false); setEditingId(null); };
 
     const submitReview = () => {
         if (starValue === 0) { setFormError('Please select a star rating.'); return; }
         if (reviewText.trim().length < 10) { setFormError('Review must be at least 10 characters.'); return; }
         if (!user) return;
-
         if (editingId) {
             updateReview(editingId, movieId, starValue, reviewText.trim());
         } else {
             addReview(movieId, user.id, user.username, starValue, reviewText.trim());
         }
-        setFormOpen(false);
-        setEditingId(null);
+        setFormOpen(false); setEditingId(null);
     };
 
     const handleDelete = (reviewId: string) => {
-        if (window.confirm('Delete your review?')) {
-            deleteReview(reviewId, movieId);
-        }
+        if (window.confirm('Delete your review?')) deleteReview(reviewId, movieId);
     };
 
     return (
@@ -188,7 +176,6 @@ const MovieDetail = () => {
                                 src={posterSrc}
                                 alt={movie.title}
                                 className="w-full object-cover"
-                                onError={() => setImgError(true)}
                             />
                         </div>
                     </div>
@@ -247,9 +234,9 @@ const MovieDetail = () => {
 
                         <div className="mt-8 grid grid-cols-3 gap-3">
                             {[
-                                { label: 'Year',   value: String(movie.year)      },
-                                { label: 'Genre',  value: movie.genre             },
-                                { label: 'Rating', value: `${movie.rating} / 10`  },
+                                { label: 'Year',   value: String(movie.year)     },
+                                { label: 'Genre',  value: movie.genre            },
+                                { label: 'Rating', value: `${movie.rating} / 10` },
                             ].map(({ label, value }) => (
                                 <div key={label} className="bg-gray-800/60 border border-gray-700/50 rounded-xl p-4 text-center">
                                     <p className="text-xs uppercase tracking-widest text-gray-500 mb-1">{label}</p>
@@ -282,7 +269,6 @@ const MovieDetail = () => {
                             )}
                         </div>
 
-                        {/* CTA */}
                         {user ? (
                             myReview ? (
                                 <div className="flex items-center gap-2">
@@ -297,10 +283,7 @@ const MovieDetail = () => {
                                 </div>
                             ) : (
                                 !formOpen && (
-                                    <button
-                                        onClick={openAddForm}
-                                        className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold shadow-lg shadow-blue-600/20 transition-all"
-                                    >
+                                    <button onClick={openAddForm} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold shadow-lg shadow-blue-600/20 transition-all">
                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4"/></svg>
                                         Write a Review
                                     </button>
@@ -323,15 +306,11 @@ const MovieDetail = () => {
                                 <span className="text-sm font-bold text-white">{user?.username}</span>
                                 <span className="text-xs text-gray-600 ml-auto">{editingId ? 'Editing review' : 'New review'}</span>
                             </div>
-
                             <div className="p-6 space-y-5">
-                                {/* Stars */}
                                 <div>
                                     <p className="text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">Your Rating</p>
                                     <StarPicker value={starValue} onChange={setStarValue} />
                                 </div>
-
-                                {/* Text */}
                                 <div>
                                     <p className="text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">Your Review</p>
                                     <textarea
@@ -348,7 +327,6 @@ const MovieDetail = () => {
                                         </p>
                                     )}
                                 </div>
-
                                 <div className="flex items-center gap-3 pt-1">
                                     <button onClick={submitReview} className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold transition-all shadow-lg shadow-blue-600/20">
                                         {editingId ? 'Save Changes' : 'Post Review'}
@@ -379,29 +357,18 @@ const MovieDetail = () => {
                                 return (
                                     <div
                                         key={review.id}
-                                        className={`rounded-2xl border p-6 transition-all ${
-                                            isOwn
-                                                ? 'bg-blue-500/5 border-blue-500/20'
-                                                : 'bg-gray-800/40 border-gray-700/60'
-                                        }`}
+                                        className={`rounded-2xl border p-6 transition-all ${isOwn ? 'bg-blue-500/5 border-blue-500/20' : 'bg-gray-800/40 border-gray-700/60'}`}
                                     >
                                         <div className="flex items-start justify-between gap-4 mb-3">
                                             <div className="flex items-center gap-3">
-                                                {/* Avatar */}
-                                                <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-black text-white shrink-0 ${
-                                                    isOwn
-                                                        ? 'bg-gradient-to-br from-blue-500 to-purple-500'
-                                                        : 'bg-gradient-to-br from-gray-600 to-gray-700'
-                                                }`}>
+                                                <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-black text-white shrink-0 ${isOwn ? 'bg-gradient-to-br from-blue-500 to-purple-500' : 'bg-gradient-to-br from-gray-600 to-gray-700'}`}>
                                                     {review.username.charAt(0).toUpperCase()}
                                                 </div>
                                                 <div>
                                                     <div className="flex items-center gap-2">
                                                         <span className="text-sm font-bold text-white">{review.username}</span>
                                                         {isOwn && (
-                                                            <span className="text-[10px] font-black uppercase tracking-wider text-blue-400 bg-blue-500/10 border border-blue-500/20 px-1.5 py-0.5 rounded-md">
-                                                                You
-                                                            </span>
+                                                            <span className="text-[10px] font-black uppercase tracking-wider text-blue-400 bg-blue-500/10 border border-blue-500/20 px-1.5 py-0.5 rounded-md">You</span>
                                                         )}
                                                     </div>
                                                     <p className="text-xs text-gray-600 mt-0.5">{formatDate(review.createdAt)}</p>
@@ -409,7 +376,6 @@ const MovieDetail = () => {
                                             </div>
                                             <StarDisplay value={review.rating} />
                                         </div>
-
                                         <p className="text-gray-300 text-sm leading-relaxed">{review.text}</p>
                                     </div>
                                 );
@@ -417,7 +383,6 @@ const MovieDetail = () => {
                         </div>
                     )}
                 </div>
-
             </div>
         </div>
     );

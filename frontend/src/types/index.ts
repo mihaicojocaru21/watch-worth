@@ -1,10 +1,11 @@
 export interface Movie {
     id: number;
+    tmdbId: number;
     title: string;
     year: number;
     description: string;
     rating: number;
-    image: string;
+    image: string;   // fallback URL used when no TMDB API key is set
     genre: string;
 }
 
