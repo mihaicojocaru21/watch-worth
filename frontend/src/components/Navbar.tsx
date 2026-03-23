@@ -2,10 +2,33 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useWatchlist } from '../context/WatchlistContext';
+import { useTheme } from '../context/ThemeContext';
+
+/* ── Sun / Moon icons ── */
+const SunIcon = () => (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="5"/>
+        <line x1="12" y1="1"  x2="12" y2="3"/>
+        <line x1="12" y1="21" x2="12" y2="23"/>
+        <line x1="4.22" y1="4.22"  x2="5.64" y2="5.64"/>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+        <line x1="1"  y1="12" x2="3"  y2="12"/>
+        <line x1="21" y1="12" x2="23" y2="12"/>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+    </svg>
+);
+
+const MoonIcon = () => (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+    </svg>
+);
 
 const Navbar = () => {
     const { user, logout } = useAuth();
     const { watchlist } = useWatchlist();
+    const { isDark, toggleTheme } = useTheme();
     const { pathname } = useLocation();
     const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -14,7 +37,6 @@ const Navbar = () => {
     return (
         <>
             <header className="sticky top-0 z-50">
-                {/* Glassmorphism bar */}
                 <div className="bg-gray-900/80 backdrop-blur-md border-b border-white/5 shadow-xl shadow-black/20">
                     <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-6">
 
@@ -37,8 +59,9 @@ const Navbar = () => {
                         {/* ── Desktop nav links ── */}
                         <nav className="hidden md:flex items-center gap-1">
                             {[
-                                { to: '/',        label: 'Home'   },
-                                { to: '/movies',  label: 'Movies' },
+                                { to: '/',         label: 'Home'        },
+                                { to: '/movies',   label: 'Movies'      },
+                                { to: '/genres',   label: 'Genres'      },
                                 { to: '/upcoming', label: 'Coming Soon' },
                             ].map(({ to, label }) => (
                                 <Link
@@ -106,10 +129,19 @@ const Navbar = () => {
                         </nav>
 
                         {/* ── Desktop right side ── */}
-                        <div className="hidden md:flex items-center gap-3">
+                        <div className="hidden md:flex items-center gap-2">
+
+                            {/* ── Theme toggle ── */}
+                            <button
+                                onClick={toggleTheme}
+                                title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+                                className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10 transition-all"
+                            >
+                                {isDark ? <SunIcon /> : <MoonIcon />}
+                            </button>
+
                             {user ? (
                                 <>
-                                    {/* User badge */}
                                     <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/8">
                                         <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-xs font-black text-white shrink-0">
                                             {user.username.charAt(0).toUpperCase()}
@@ -141,16 +173,24 @@ const Navbar = () => {
                             )}
                         </div>
 
-                        {/* ── Mobile hamburger ── */}
-                        <button
-                            className="md:hidden w-9 h-9 flex flex-col items-center justify-center gap-1.5 rounded-lg hover:bg-white/5 transition-colors"
-                            onClick={() => setMobileOpen(p => !p)}
-                            aria-label="Toggle menu"
-                        >
-                            <span className={`block w-5 h-0.5 bg-gray-400 rounded-full transition-all duration-300 ${mobileOpen ? 'rotate-45 translate-y-2' : ''}`} />
-                            <span className={`block w-5 h-0.5 bg-gray-400 rounded-full transition-all duration-300 ${mobileOpen ? 'opacity-0' : ''}`} />
-                            <span className={`block w-5 h-0.5 bg-gray-400 rounded-full transition-all duration-300 ${mobileOpen ? '-rotate-45 -translate-y-2' : ''}`} />
-                        </button>
+                        {/* ── Mobile right: theme + hamburger ── */}
+                        <div className="md:hidden flex items-center gap-1">
+                            <button
+                                onClick={toggleTheme}
+                                className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
+                            >
+                                {isDark ? <SunIcon /> : <MoonIcon />}
+                            </button>
+                            <button
+                                className="w-9 h-9 flex flex-col items-center justify-center gap-1.5 rounded-lg hover:bg-white/5 transition-colors"
+                                onClick={() => setMobileOpen(p => !p)}
+                                aria-label="Toggle menu"
+                            >
+                                <span className={`block w-5 h-0.5 bg-gray-400 rounded-full transition-all duration-300 ${mobileOpen ? 'rotate-45 translate-y-2' : ''}`} />
+                                <span className={`block w-5 h-0.5 bg-gray-400 rounded-full transition-all duration-300 ${mobileOpen ? 'opacity-0' : ''}`} />
+                                <span className={`block w-5 h-0.5 bg-gray-400 rounded-full transition-all duration-300 ${mobileOpen ? '-rotate-45 -translate-y-2' : ''}`} />
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -160,6 +200,7 @@ const Navbar = () => {
                         {[
                             { to: '/',         label: 'Home'        },
                             { to: '/movies',   label: 'Movies'      },
+                            { to: '/genres',   label: 'Genres'      },
                             { to: '/upcoming', label: 'Coming Soon' },
                             { to: '/watchlist', label: 'Watchlist'  },
                         ].map(({ to, label }) => (

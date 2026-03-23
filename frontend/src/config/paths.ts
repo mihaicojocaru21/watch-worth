@@ -1,18 +1,19 @@
 export const PATHS = {
     public: {
-        home: "/",
-        login: "/login",
-        movies: "/movies",
+        home:        "/",
+        login:       "/login",
+        movies:      "/movies",
         movieDetail: "/movies/:id",
-        watchlist: "/watchlist",
-        upcoming: "/upcoming",
+        watchlist:   "/watchlist",
+        upcoming:    "/upcoming",
+        genres:      "/genres",
     },
     admin: {
         root: "/admin",
     },
     errors: {
         unauthorized: "/unauthorized",
-        forbidden: "/forbidden",
-        server: "/error",
+        forbidden:    "/forbidden",
+        server:       "/error",
     },
 };

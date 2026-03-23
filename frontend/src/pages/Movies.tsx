@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import MovieCard from '../components/MovieCard';
 import { useMovieList } from '../hooks/useMovieList';
 import ServerError from './ServerError';
@@ -28,6 +29,7 @@ const RATING_PRESETS = [
 
 export default function Movies() {
     const { movies, loading, error } = useMovieList('rating');
+    const [searchParams] = useSearchParams();
 
     const [search,    setSearch]    = useState('');
     const [sortBy,    setSortBy]    = useState<SortKey>('rating');
@@ -36,6 +38,15 @@ export default function Movies() {
     const [yearFrom,  setYearFrom]  = useState(MIN_YEAR);
     const [yearTo,    setYearTo]    = useState(MAX_YEAR);
     const [panel,     setPanel]     = useState(false);
+
+    // Read ?genre= from URL on mount (links from Genres page)
+    useEffect(() => {
+        const g = searchParams.get('genre');
+        if (g && ALL_GENRES.includes(g)) {
+            setGenre(g);
+            setPanel(true);
+        }
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const activeCount = [genre, minRating > 0, yearFrom !== MIN_YEAR || yearTo !== MAX_YEAR].filter(Boolean).length;
 

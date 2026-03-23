@@ -10,6 +10,7 @@ import Movies from '../pages/Movies';
 import MovieDetail from '../pages/MovieDetail';
 import Watchlist from '../pages/Watchlist';
 import Upcoming from '../pages/Upcoming';
+import Genres from '../pages/Genres';
 import Unauthorized from '../pages/Unauthorized';
 import Forbidden from '../pages/Forbidden';
 import ServerError from '../pages/ServerError';
@@ -24,6 +25,7 @@ export const router = createBrowserRouter([
             { path: PATHS.public.movieDetail, element: <MovieDetail /> },
             { path: PATHS.public.watchlist,   element: <Watchlist /> },
             { path: PATHS.public.upcoming,    element: <Upcoming /> },
+            { path: PATHS.public.genres,      element: <Genres /> },
 
             {
                 element: <Guard publicOnly />,
