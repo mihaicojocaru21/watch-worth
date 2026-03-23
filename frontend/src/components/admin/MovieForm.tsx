@@ -7,6 +7,7 @@ const movieSchema = z.object({
     year:        z.number({ invalid_type_error: 'Enter a valid year' }).min(1888).max(2099),
     genre:       z.string().min(1, 'Genre is required'),
     rating:      z.number({ invalid_type_error: 'Enter a rating' }).min(0).max(10),
+    tmdbId:      z.number({ invalid_type_error: 'Enter a number' }).int().min(0).optional(),
     image:       z.string().url('Enter a valid URL').or(z.literal('')).optional(),
     description: z.string().optional(),
 });
@@ -14,15 +15,20 @@ const movieSchema = z.object({
 export type MovieFormData = z.infer<typeof movieSchema>;
 
 interface Props {
-    onSubmit:      (data: MovieFormData) => Promise<void>;
+    onSubmit:       (data: MovieFormData) => Promise<void>;
     initialValues?: Partial<MovieFormData>;
-    submitLabel?:  string;
-    onCancel?:     () => void;
+    submitLabel?:   string;
+    onCancel?:      () => void;
 }
 
-const Field = ({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) => (
+const Field = ({ label, hint, error, children }: {
+    label: string; hint?: string; error?: string; children: React.ReactNode;
+}) => (
     <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-semibold uppercase tracking-wider text-gray-400">{label}</label>
+        <div className="flex items-center justify-between">
+            <label className="text-xs font-semibold uppercase tracking-wider text-gray-400">{label}</label>
+            {hint && <span className="text-[10px] text-gray-600">{hint}</span>}
+        </div>
         {children}
         {error && <p className="text-xs text-red-400 flex items-center gap-1"><span>⚠</span>{error}</p>}
     </div>
@@ -43,6 +49,7 @@ const MovieForm = ({ onSubmit, initialValues, submitLabel = 'Add Movie', onCance
             year:        initialValues?.year        ?? new Date().getFullYear(),
             genre:       initialValues?.genre       ?? '',
             rating:      initialValues?.rating      ?? 7.0,
+            tmdbId:      initialValues?.tmdbId      ?? undefined,
             image:       initialValues?.image       ?? '',
             description: initialValues?.description ?? '',
         },
@@ -89,7 +96,21 @@ const MovieForm = ({ onSubmit, initialValues, submitLabel = 'Add Movie', onCance
                 />
             </Field>
 
-            <Field label="Poster URL" error={errors.image?.message}>
+            <Field
+                label="TMDB ID"
+                hint="optional — enables auto poster"
+                error={errors.tmdbId?.message}
+            >
+                <input
+                    {...register('tmdbId', { setValueAs: v => v === '' ? undefined : Number(v) })}
+                    type="number"
+                    min="0"
+                    placeholder="e.g. 278"
+                    className={inputCls(!!errors.tmdbId)}
+                />
+            </Field>
+
+            <Field label="Poster URL" hint="fallback if no TMDB ID" error={errors.image?.message}>
                 <input
                     {...register('image')}
                     placeholder="https://image.tmdb.org/..."
@@ -108,7 +129,22 @@ const MovieForm = ({ onSubmit, initialValues, submitLabel = 'Add Movie', onCance
                 </Field>
             </div>
 
-            {/* Actions */}
+            {/* TMDB hint */}
+            <div className="sm:col-span-2 -mt-1">
+                <p className="text-[11px] text-gray-600">
+                    Find the TMDB ID at{' '}
+                    <a
+                        href="https://www.themoviedb.org"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-blue-500/70 hover:text-blue-400 transition-colors"
+                    >
+                        themoviedb.org
+                    </a>
+                    {' '}— it appears in the movie page URL (e.g. /movie/<strong>278</strong>-the-shawshank-redemption).
+                </p>
+            </div>
+
             <div className="sm:col-span-2 flex items-center gap-3 pt-2">
                 <button
                     type="submit"

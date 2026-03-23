@@ -33,7 +33,10 @@ const Admin = () => {
 
     const onSubmit = async (data: MovieFormData) => {
         if (editingMovie) {
-            await updateMovie(editingMovie.id, data);
+            await updateMovie(editingMovie.id, {
+                ...data,
+                tmdbId: data.tmdbId ?? editingMovie.tmdbId,
+            });
             toast.success(`"${data.title}" updated`);
             setEditingMovie(null);
             setFormOpen(false);
@@ -41,7 +44,7 @@ const Admin = () => {
         }
         await addMovie({
             ...data,
-            tmdbId: 0,                                          // ← fix: filmele adăugate manual nu au tmdbId
+            tmdbId:      data.tmdbId      ?? 0,
             description: data.description ?? 'No description available.',
             rating:      data.rating      ?? 7.0,
             image:       data.image       ?? PLACEHOLDER_IMAGE,
@@ -125,11 +128,10 @@ const Admin = () => {
                     <div className="mb-8 rounded-2xl border border-gray-700/60 bg-gray-800/40 backdrop-blur-sm overflow-hidden">
                         <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-700/50">
                             <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${editingMovie ? 'bg-blue-500/15 text-blue-400' : 'bg-green-500/15 text-green-400'}`}>
-                                {editingMovie ? (
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                                ) : (
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-                                )}
+                                {editingMovie
+                                    ? <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                    : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+                                }
                             </div>
                             <h2 className="text-base font-bold text-white">
                                 {editingMovie ? `Editing: ${editingMovie.title}` : 'Add New Movie'}
@@ -139,9 +141,13 @@ const Admin = () => {
                             <MovieForm
                                 onSubmit={onSubmit}
                                 initialValues={editingMovie ? {
-                                    title: editingMovie.title, year: editingMovie.year,
-                                    genre: editingMovie.genre, rating: editingMovie.rating,
-                                    image: editingMovie.image, description: editingMovie.description,
+                                    title:       editingMovie.title,
+                                    year:        editingMovie.year,
+                                    genre:       editingMovie.genre,
+                                    rating:      editingMovie.rating,
+                                    tmdbId:      editingMovie.tmdbId || undefined,
+                                    image:       editingMovie.image,
+                                    description: editingMovie.description,
                                 } : undefined}
                                 submitLabel={editingMovie ? 'Save Changes' : 'Add Movie'}
                                 onCancel={onCancel}
