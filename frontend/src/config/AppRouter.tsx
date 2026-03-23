@@ -10,6 +10,8 @@ import Movies from '../pages/Movies';
 import MovieDetail from '../pages/MovieDetail';
 import Watchlist from '../pages/Watchlist';
 import Upcoming from '../pages/Upcoming';
+import Genres from '../pages/Genres';
+import Unauthorized from '../pages/Unauthorized';
 import Forbidden from '../pages/Forbidden';
 import ServerError from '../pages/ServerError';
 import NotFound from '../pages/NotFound';
@@ -23,6 +25,7 @@ export const router = createBrowserRouter([
             { path: PATHS.public.movieDetail, element: <MovieDetail /> },
             { path: PATHS.public.watchlist,   element: <Watchlist /> },
             { path: PATHS.public.upcoming,    element: <Upcoming /> },
+            { path: PATHS.public.genres,      element: <Genres /> },
 
             {
                 element: <Guard publicOnly />,
@@ -38,8 +41,9 @@ export const router = createBrowserRouter([
                 ],
             },
 
-            { path: PATHS.errors.forbidden, element: <Forbidden /> },
-            { path: PATHS.errors.server,    element: <ServerError /> },
+            { path: PATHS.errors.unauthorized, element: <Unauthorized /> },
+            { path: PATHS.errors.forbidden,    element: <Forbidden /> },
+            { path: PATHS.errors.server,       element: <ServerError /> },
         ],
     },
     { path: '*', element: <NotFound /> },

@@ -61,6 +61,7 @@ const Navbar = () => {
                             {[
                                 { to: '/',         label: 'Home'        },
                                 { to: '/movies',   label: 'Movies'      },
+                                { to: '/genres',   label: 'Genres'      },
                                 { to: '/upcoming', label: 'Coming Soon' },
                             ].map(({ to, label }) => (
                                 <Link
@@ -199,6 +200,7 @@ const Navbar = () => {
                         {[
                             { to: '/',         label: 'Home'        },
                             { to: '/movies',   label: 'Movies'      },
+                            { to: '/genres',   label: 'Genres'      },
                             { to: '/upcoming', label: 'Coming Soon' },
                             { to: '/watchlist', label: 'Watchlist'  },
                         ].map(({ to, label }) => (
