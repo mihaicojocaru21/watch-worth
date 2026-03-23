@@ -8,6 +8,9 @@ export const PATHS = {
         upcoming:    "/upcoming",
         genres:      "/genres",
     },
+    private: {
+        profile: "/profile",
+    },
     admin: {
         root: "/admin",
     },
