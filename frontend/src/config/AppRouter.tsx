@@ -11,6 +11,7 @@ import MovieDetail from '../pages/MovieDetail';
 import Watchlist from '../pages/Watchlist';
 import Upcoming from '../pages/Upcoming';
 import Genres from '../pages/Genres';
+import Profile from '../pages/Profile';
 import Unauthorized from '../pages/Unauthorized';
 import Forbidden from '../pages/Forbidden';
 import ServerError from '../pages/ServerError';
@@ -31,6 +32,13 @@ export const router = createBrowserRouter([
                 element: <Guard publicOnly />,
                 children: [
                     { path: PATHS.public.login, element: <Login /> },
+                ],
+            },
+
+            {
+                element: <ProtectedRoute />,
+                children: [
+                    { path: PATHS.private.profile, element: <Profile /> },
                 ],
             },
 

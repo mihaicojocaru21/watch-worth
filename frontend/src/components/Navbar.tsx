@@ -4,18 +4,13 @@ import { useAuth } from '../context/AuthContext';
 import { useWatchlist } from '../context/WatchlistContext';
 import { useTheme } from '../context/ThemeContext';
 
-/* ── Sun / Moon icons ── */
 const SunIcon = () => (
     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
         <circle cx="12" cy="12" r="5"/>
-        <line x1="12" y1="1"  x2="12" y2="3"/>
-        <line x1="12" y1="21" x2="12" y2="23"/>
-        <line x1="4.22" y1="4.22"  x2="5.64" y2="5.64"/>
-        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-        <line x1="1"  y1="12" x2="3"  y2="12"/>
-        <line x1="21" y1="12" x2="23" y2="12"/>
-        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        <line x1="12" y1="1"  x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+        <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
     </svg>
 );
 
@@ -34,6 +29,11 @@ const Navbar = () => {
 
     const isActive = (path: string) => pathname === path;
 
+    // Display name may be overridden by the user on the profile page
+    const displayName = user
+        ? (localStorage.getItem(`watchworth_displayname_${user.id}`) ?? user.username)
+        : '';
+
     return (
         <>
             <header className="sticky top-0 z-50">
@@ -41,11 +41,7 @@ const Navbar = () => {
                     <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-6">
 
                         {/* ── Logo ── */}
-                        <Link
-                            to="/"
-                            className="flex items-center gap-2.5 shrink-0 group"
-                            onClick={() => setMobileOpen(false)}
-                        >
+                        <Link to="/" className="flex items-center gap-2.5 shrink-0 group" onClick={() => setMobileOpen(false)}>
                             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-shadow">
                                 <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V4h-4z"/>
@@ -56,7 +52,7 @@ const Navbar = () => {
                             </span>
                         </Link>
 
-                        {/* ── Desktop nav links ── */}
+                        {/* ── Desktop nav ── */}
                         <nav className="hidden md:flex items-center gap-1">
                             {[
                                 { to: '/',         label: 'Home'        },
@@ -90,11 +86,9 @@ const Navbar = () => {
                                 }`}
                             >
                                 <svg
-                                    className={`w-3.5 h-3.5 transition-colors ${watchlist.length > 0 ? 'text-red-400' : 'text-current'}`}
+                                    className={`w-3.5 h-3.5 ${watchlist.length > 0 ? 'text-red-400' : 'text-current'}`}
                                     fill={watchlist.length > 0 ? 'currentColor' : 'none'}
-                                    stroke="currentColor"
-                                    strokeWidth={2}
-                                    viewBox="0 0 24 24"
+                                    stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"
                                 >
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                 </svg>
@@ -128,10 +122,9 @@ const Navbar = () => {
                             )}
                         </nav>
 
-                        {/* ── Desktop right side ── */}
+                        {/* ── Desktop right ── */}
                         <div className="hidden md:flex items-center gap-2">
-
-                            {/* ── Theme toggle ── */}
+                            {/* Theme toggle */}
                             <button
                                 onClick={toggleTheme}
                                 title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
@@ -142,14 +135,22 @@ const Navbar = () => {
 
                             {user ? (
                                 <>
-                                    <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/8">
+                                    {/* Avatar → /profile */}
+                                    <Link
+                                        to="/profile"
+                                        className={`flex items-center gap-2.5 px-3 py-1.5 rounded-lg border transition-all ${
+                                            isActive('/profile')
+                                                ? 'bg-white/10 border-white/15'
+                                                : 'bg-white/5 border-white/8 hover:bg-white/10 hover:border-white/15'
+                                        }`}
+                                    >
                                         <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-xs font-black text-white shrink-0">
-                                            {user.username.charAt(0).toUpperCase()}
+                                            {displayName.charAt(0).toUpperCase()}
                                         </div>
                                         <span className="text-sm text-gray-300 font-medium max-w-[100px] truncate">
-                                            {user.username}
+                                            {displayName}
                                         </span>
-                                    </div>
+                                    </Link>
                                     <button
                                         onClick={logout}
                                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10 transition-all font-medium"
@@ -163,7 +164,7 @@ const Navbar = () => {
                             ) : (
                                 <Link
                                     to="/login"
-                                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-all shadow-lg shadow-blue-600/25 hover:shadow-blue-500/35"
+                                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-all shadow-lg shadow-blue-600/25"
                                 >
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
@@ -198,20 +199,18 @@ const Navbar = () => {
                 {mobileOpen && (
                     <div className="md:hidden bg-gray-900/95 backdrop-blur-md border-b border-white/5 px-4 py-4 space-y-1">
                         {[
-                            { to: '/',         label: 'Home'        },
-                            { to: '/movies',   label: 'Movies'      },
-                            { to: '/genres',   label: 'Genres'      },
-                            { to: '/upcoming', label: 'Coming Soon' },
-                            { to: '/watchlist', label: 'Watchlist'  },
+                            { to: '/',          label: 'Home'        },
+                            { to: '/movies',    label: 'Movies'      },
+                            { to: '/genres',    label: 'Genres'      },
+                            { to: '/upcoming',  label: 'Coming Soon' },
+                            { to: '/watchlist', label: 'Watchlist'   },
                         ].map(({ to, label }) => (
                             <Link
                                 key={to}
                                 to={to}
                                 onClick={() => setMobileOpen(false)}
                                 className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                                    isActive(to)
-                                        ? 'bg-white/10 text-white'
-                                        : 'text-gray-400 hover:text-white hover:bg-white/5'
+                                    isActive(to) ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white hover:bg-white/5'
                                 }`}
                             >
                                 {label}
@@ -236,12 +235,16 @@ const Navbar = () => {
                         <div className="pt-3 border-t border-white/5 mt-3">
                             {user ? (
                                 <div className="flex items-center justify-between px-4 py-2">
-                                    <div className="flex items-center gap-2">
+                                    <Link
+                                        to="/profile"
+                                        onClick={() => setMobileOpen(false)}
+                                        className="flex items-center gap-2"
+                                    >
                                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-sm font-black text-white">
-                                            {user.username.charAt(0).toUpperCase()}
+                                            {displayName.charAt(0).toUpperCase()}
                                         </div>
-                                        <span className="text-sm text-gray-300 font-medium">{user.username}</span>
-                                    </div>
+                                        <span className="text-sm text-gray-300 font-medium">{displayName}</span>
+                                    </Link>
                                     <button
                                         onClick={() => { logout(); setMobileOpen(false); }}
                                         className="text-sm text-gray-500 hover:text-white transition-colors"
