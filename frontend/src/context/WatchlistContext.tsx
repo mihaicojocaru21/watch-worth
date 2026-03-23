@@ -1,5 +1,8 @@
+// frontend/src/context/WatchlistContext.tsx
+
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useAuth } from './AuthContext';
+import { apiFetch } from '../services/api';
 
 interface WatchlistContextType {
     watchlist: number[];
@@ -10,47 +13,60 @@ interface WatchlistContextType {
 
 const WatchlistContext = createContext<WatchlistContextType>(null!);
 
-const storageKey = (userId: number | undefined) =>
-    userId ? `watchworth_watchlist_${userId}` : null;
-
 export const WatchlistProvider = ({ children }: { children: React.ReactNode }) => {
     const { user } = useAuth();
     const [watchlist, setWatchlist] = useState<number[]>([]);
 
-    // Load the correct watchlist whenever the logged-in user changes
+    // Încarcă watchlist-ul din API când utilizatorul se loghează
     useEffect(() => {
-        const key = storageKey(user?.id);
-        if (!key) {
+        if (!user) {
             setWatchlist([]);
             return;
         }
-        try {
-            const saved = localStorage.getItem(key);
-            setWatchlist(saved ? JSON.parse(saved) : []);
-        } catch {
-            setWatchlist([]);
-        }
+
+        apiFetch<number[]>('/watchlist')
+            .then(ids => setWatchlist(ids))
+            .catch(() => setWatchlist([]));
     }, [user?.id]);
 
-    // Persist to localStorage on every change (only when logged in)
-    useEffect(() => {
-        const key = storageKey(user?.id);
-        if (!key) return;
-        localStorage.setItem(key, JSON.stringify(watchlist));
-    }, [watchlist, user?.id]);
+    const isInWatchlist = useCallback(
+        (id: number) => watchlist.includes(id),
+        [watchlist]
+    );
 
-    const isInWatchlist = useCallback((id: number) => watchlist.includes(id), [watchlist]);
-
-    const toggleWatchlist = useCallback((id: number) => {
-        if (!user) return; // silently ignore if not logged in
-        setWatchlist(prev =>
-            prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-        );
-    }, [user]);
-
-    const clearWatchlist = useCallback(() => {
+    const toggleWatchlist = useCallback(async (id: number) => {
         if (!user) return;
-        setWatchlist([]);
+
+        if (watchlist.includes(id)) {
+            try {
+                const updated = await apiFetch<number[]>(`/watchlist/${id}`, {
+                    method: 'DELETE',
+                });
+                setWatchlist(updated);
+            } catch {
+                // fallback optimistic revert — nu facem nimic
+            }
+        } else {
+            // Adaugă în watchlist
+            try {
+                const updated = await apiFetch<number[]>(`/watchlist/${id}`, {
+                    method: 'POST',
+                });
+                setWatchlist(updated);
+            } catch {
+                // ignore
+            }
+        }
+    }, [user, watchlist]);
+
+    const clearWatchlist = useCallback(async () => {
+        if (!user) return;
+        try {
+            await apiFetch<number[]>('/watchlist', { method: 'DELETE' });
+            setWatchlist([]);
+        } catch {
+            // ignore
+        }
     }, [user]);
 
     return (

@@ -1,28 +1,42 @@
-import { MOCK_USERS } from '../data/mockData';
+// frontend/src/services/authService.ts
+
+import { apiFetch } from './api';
+
+interface SafeUser {
+    id: number;
+    username: string;
+    email: string;
+    role: string;
+}
+
+interface LoginResponse {
+    token: string;
+    user: SafeUser;
+}
 
 export const authService = {
-    login: async (email: string, password: string) => {
-        await new Promise(resolve => setTimeout(resolve, 500));
+    login: async (email: string, password: string): Promise<SafeUser | null> => {
+        try {
+            const data = await apiFetch<LoginResponse>('/auth/login', {
+                method: 'POST',
+                body: JSON.stringify({ email, password }),
+            });
+            
+            localStorage.setItem('watchworth_token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
 
-        const user = MOCK_USERS.find(
-            u => u.email === email && u.password === password
-        );
-
-        if (user) {
-            const { password: _pw, ...safeUser } = user;
-            void _pw;
-            localStorage.setItem('user', JSON.stringify(safeUser));
-            return safeUser;
+            return data.user;
+        } catch {
+            return null;
         }
-
-        return null;
     },
 
     logout: () => {
+        localStorage.removeItem('watchworth_token');
         localStorage.removeItem('user');
     },
 
-    getCurrentUser: () => {
+    getCurrentUser: (): SafeUser | null => {
         const saved = localStorage.getItem('user');
         return saved ? JSON.parse(saved) : null;
     },
