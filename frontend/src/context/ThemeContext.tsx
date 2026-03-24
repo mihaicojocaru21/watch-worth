@@ -5,7 +5,7 @@ interface ThemeContextType {
     toggleTheme: () => void;
 }
 
-const ThemeContext = createContext<ThemeContextType>(null!);
+const ThemeContext = createContext<ThemeContextType | null>(null);
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     const [isDark, setIsDark] = useState<boolean>(() => {
@@ -14,18 +14,12 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     useEffect(() => {
-        const root = document.documentElement;
-        root.setAttribute('data-theme', isDark ? 'dark' : 'light');
-        localStorage.setItem('watchworth_theme', isDark ? 'dark' : 'light');
+        const theme = isDark ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('watchworth_theme', theme);
     }, [isDark]);
 
-    // Apply on mount to avoid flash
-    useEffect(() => {
-        const saved = localStorage.getItem('watchworth_theme') ?? 'dark';
-        document.documentElement.setAttribute('data-theme', saved);
-    }, []);
-
-    const toggleTheme = () => setIsDark(p => !p);
+    const toggleTheme = () => setIsDark((prev) => !prev);
 
     return (
         <ThemeContext.Provider value={{ isDark, toggleTheme }}>
@@ -34,4 +28,10 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     );
 };
 
-export const useTheme = () => useContext(ThemeContext);
+export const useTheme = () => {
+    const ctx = useContext(ThemeContext);
+    if (!ctx) {
+        throw new Error('useTheme must be used within a ThemeProvider');
+    }
+    return ctx;
+};

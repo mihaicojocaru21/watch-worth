@@ -1,31 +1,20 @@
-export const API_BASE = 'http://localhost:5052/api';
+import { axiosClient } from '../lib/axios';
 
-export const authHeaders = (): HeadersInit => {
-    const token = localStorage.getItem('watchworth_token');
-    return {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    };
-};
+export async function apiFetch<T>(url: string): Promise<T> {
+    const response = await axiosClient.get<T>(url);
+    return response.data;
+}
 
-export async function apiFetch<T>(
-    path: string,
-    options?: RequestInit
-): Promise<T> {
-    const res = await fetch(`${API_BASE}${path}`, {
-        ...options,
-        headers: {
-            ...authHeaders(),
-            ...(options?.headers ?? {}),
-        },
-    });
+export async function apiPost<TReq, TRes>(url: string, body: TReq): Promise<TRes> {
+    const response = await axiosClient.post<TRes>(url, body);
+    return response.data;
+}
 
-    if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: res.statusText }));
-        throw new Error(err?.error ?? `HTTP ${res.status}`);
-    }
-    
-    if (res.status === 204) return undefined as T;
+export async function apiPut<TReq, TRes>(url: string, body: TReq): Promise<TRes> {
+    const response = await axiosClient.put<TRes>(url, body);
+    return response.data;
+}
 
-    return res.json() as Promise<T>;
+export async function apiDelete(url: string): Promise<void> {
+    await axiosClient.delete(url);
 }
