@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using WatchWorth.API.Services;
+using WatchWorth.BusinessLayer;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
@@ -38,6 +39,7 @@ builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
 builder.Services.AddSingleton<JsonDb>();
 builder.Services.AddSingleton<JwtService>();
 builder.Services.AddControllers();
+builder.Services.AddBusinessLogic();
 
 var app = builder.Build();
 
