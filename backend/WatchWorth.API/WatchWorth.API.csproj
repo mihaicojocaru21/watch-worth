@@ -13,4 +13,8 @@
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.4.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\WatchWorth.BusinessLayer\WatchWorth.BusinessLayer.csproj" />
+    </ItemGroup>
+
 </Project>

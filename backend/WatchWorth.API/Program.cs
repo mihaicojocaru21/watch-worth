@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using WatchWorth.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 
 // ── JWT ───────────────────────────────────────────────────────────────────────
 var jwtSecret = builder.Configuration["Jwt:Secret"]
