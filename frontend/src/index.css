@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+
 /* ── Light mode: remap gray scale + white/black ── */
 [data-theme="light"] {
     --color-gray-950: #e2e8f0;
