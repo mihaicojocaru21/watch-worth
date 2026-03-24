@@ -16,6 +16,7 @@ import Unauthorized from '../pages/Unauthorized';
 import Forbidden from '../pages/Forbidden';
 import ServerError from '../pages/ServerError';
 import NotFound from '../pages/NotFound';
+import Items from '../pages/Items';
 
 export const router = createBrowserRouter([
     {
@@ -27,6 +28,7 @@ export const router = createBrowserRouter([
             { path: PATHS.public.watchlist,   element: <Watchlist /> },
             { path: PATHS.public.upcoming,    element: <Upcoming /> },
             { path: PATHS.public.genres,      element: <Genres /> },
+            { path: 'items', element: <Items /> },
 
             {
                 element: <Guard publicOnly />,
