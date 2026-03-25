@@ -58,6 +58,7 @@ const MovieDetail = () => {
     const navigate  = useNavigate();
     const { user }  = useAuth();
     const { isInWatchlist, toggleWatchlist } = useWatchlist();
+    // ✅ DOAR O SINGURĂ DATĂ declari aceste variabile
     const { reviews, loadReviews, addReview, updateReview, deleteReview, getUserReview } = useReviews();
 
     const [movie, setMovie]     = useState<Movie | null>(null);
@@ -80,15 +81,49 @@ const MovieDetail = () => {
             setLoading(false);
         });
         loadReviews(movieId);
-    }, [id]);
+    }, [id, loadReviews, movieId]);
 
     // Fetch poster via TMDB API if key is available.
-    // We pass 0 / empty string until the movie loads, then re-resolve automatically.
     const posterSrc = usePoster(
         movie?.tmdbId ?? 0,
         movie?.title ?? '',
         movie?.image ?? ''
     );
+
+    // ✅ Funcția submitReview
+    const submitReview = async () => {
+        if (starValue === 0) {
+            setFormError('Please select a star rating.');
+            return;
+        }
+        if (reviewText.trim().length < 10) {
+            setFormError('Review must be at least 10 characters.');
+            return;
+        }
+        if (!user) return;
+
+        try {
+            if (editingId) {
+                await updateReview(editingId, starValue, reviewText.trim());
+            } else {
+                await addReview(movieId, starValue, reviewText.trim());
+            }
+            setFormOpen(false);
+            setEditingId(null);
+            setStarValue(0);
+            setReviewText('');
+        } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : 'Something went wrong.';
+            setFormError(msg);
+        }
+    };
+
+    // ✅ Funcția handleDelete - o singură dată
+    const handleDelete = (reviewId: string) => {
+        if (window.confirm('Delete your review?')) {
+            deleteReview(reviewId);
+        }
+    };
 
     if (loading) return (
         <div className="container mx-auto px-4 py-12 max-w-5xl">
@@ -121,28 +156,28 @@ const MovieDetail = () => {
         : null;
 
     const openAddForm = () => {
-        setEditingId(null); setStarValue(0); setReviewText(''); setFormError(''); setFormOpen(true);
+        setEditingId(null);
+        setStarValue(0);
+        setReviewText('');
+        setFormError('');
+        setFormOpen(true);
     };
+
     const openEditForm = () => {
         if (!myReview) return;
-        setEditingId(myReview.id); setStarValue(myReview.rating); setReviewText(myReview.text); setFormError(''); setFormOpen(true);
-    };
-    const cancelForm = () => { setFormOpen(false); setEditingId(null); };
-
-    const submitReview = () => {
-        if (starValue === 0) { setFormError('Please select a star rating.'); return; }
-        if (reviewText.trim().length < 10) { setFormError('Review must be at least 10 characters.'); return; }
-        if (!user) return;
-        if (editingId) {
-            updateReview(editingId, movieId, starValue, reviewText.trim());
-        } else {
-            addReview(movieId, user.id, user.username, starValue, reviewText.trim());
-        }
-        setFormOpen(false); setEditingId(null);
+        setEditingId(myReview.id);
+        setStarValue(myReview.rating);
+        setReviewText(myReview.text);
+        setFormError('');
+        setFormOpen(true);
     };
 
-    const handleDelete = (reviewId: string) => {
-        if (window.confirm('Delete your review?')) deleteReview(reviewId, movieId);
+    const cancelForm = () => {
+        setFormOpen(false);
+        setEditingId(null);
+        setStarValue(0);
+        setReviewText('');
+        setFormError('');
     };
 
     return (

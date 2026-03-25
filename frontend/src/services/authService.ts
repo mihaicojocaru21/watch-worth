@@ -1,6 +1,5 @@
 // frontend/src/services/authService.ts
-
-import { apiFetch } from './api';
+import { apiPost } from './api';
 
 interface SafeUser {
     id: number;
@@ -17,14 +16,13 @@ interface LoginResponse {
 export const authService = {
     login: async (email: string, password: string): Promise<SafeUser | null> => {
         try {
-            const data = await apiFetch<LoginResponse>('/auth/login', {
-                method: 'POST',
-                body: JSON.stringify({ email, password }),
-            });
-            
+            const data = await apiPost<{ email: string; password: string }, LoginResponse>(
+                '/auth/login',
+                { email, password }
+            );
+
             localStorage.setItem('watchworth_token', data.token);
             localStorage.setItem('user', JSON.stringify(data.user));
-
             return data.user;
         } catch {
             return null;
