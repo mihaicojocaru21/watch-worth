@@ -8,6 +8,23 @@ namespace WatchWorth.API.Controllers;
 [ApiController]
 public class ReviewsController(JsonDb db) : ControllerBase
 {
+    // GET /api/reviews/summary  → { movieId, count, avgRating }[]
+    [HttpGet("api/reviews/summary")]
+    public IActionResult GetSummary()
+    {
+        var summary = db.GetReviews()
+            .GroupBy(r => r.MovieId)
+            .Select(g => new
+            {
+                movieId   = g.Key,
+                count     = g.Count(),
+                avgRating = Math.Round(g.Average(r => r.Rating), 1),
+            })
+            .ToList();
+
+        return Ok(summary);
+    }
+
     // GET /api/movies/:movieId/reviews
     [HttpGet("api/movies/{movieId:int}/reviews")]
     public IActionResult GetByMovie(int movieId)

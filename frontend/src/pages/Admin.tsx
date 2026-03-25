@@ -10,6 +10,57 @@ import { MOCK_MOVIES } from '../data/mockData';
 const PLACEHOLDER_IMAGE = 'https://placehold.co/300x450/1f2937/6b7280?text=No+Poster';
 const GENRES = Array.from(new Set(MOCK_MOVIES.map(m => m.genre)));
 
+// ── Styled confirm dialog ─────────────────────────────────────────────────────
+const ConfirmDialog = ({
+                           title,
+                           message,
+                           confirmLabel = 'Delete',
+                           onConfirm,
+                           onCancel,
+                       }: {
+    title:        string;
+    message:      string;
+    confirmLabel?: string;
+    onConfirm:    () => void;
+    onCancel:     () => void;
+}) => (
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+        {/* Backdrop */}
+        <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={onCancel}
+        />
+        {/* Dialog */}
+        <div className="relative bg-gray-800 border border-gray-700/80 rounded-2xl p-6 max-w-sm w-full shadow-2xl shadow-black/60 animate-page-in">
+            {/* Icon */}
+            <div className="w-11 h-11 rounded-xl bg-red-500/15 border border-red-500/25 flex items-center justify-center mb-4">
+                <svg className="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+            </div>
+
+            <h3 className="text-lg font-black text-white mb-1">{title}</h3>
+            <p className="text-gray-400 text-sm leading-relaxed mb-6">{message}</p>
+
+            <div className="flex items-center gap-3 justify-end">
+                <button
+                    onClick={onCancel}
+                    className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-400 hover:text-white hover:bg-white/5 border border-transparent hover:border-gray-600 transition-all"
+                >
+                    Cancel
+                </button>
+                <button
+                    onClick={onConfirm}
+                    className="px-5 py-2 rounded-xl text-sm font-semibold bg-red-600 hover:bg-red-500 text-white transition-all shadow-lg shadow-red-600/25"
+                >
+                    {confirmLabel}
+                </button>
+            </div>
+        </div>
+    </div>
+);
+
+// ── Stat card ─────────────────────────────────────────────────────────────────
 const StatCard = ({ label, value, sub, accent, icon }: {
     label: string; value: string | number; sub?: string; accent: string; icon: React.ReactNode;
 }) => (
@@ -26,17 +77,16 @@ const StatCard = ({ label, value, sub, accent, icon }: {
     </div>
 );
 
+// ── Main ──────────────────────────────────────────────────────────────────────
 const Admin = () => {
     const { movies, addMovie, updateMovie, deleteMovie } = useMovies();
-    const [editingMovie, setEditingMovie] = useState<Movie | null>(null);
-    const [formOpen, setFormOpen] = useState(false);
+    const [editingMovie,  setEditingMovie]  = useState<Movie | null>(null);
+    const [formOpen,      setFormOpen]      = useState(false);
+    const [confirmTarget, setConfirmTarget] = useState<Movie | null>(null);
 
     const onSubmit = async (data: MovieFormData) => {
         if (editingMovie) {
-            await updateMovie(editingMovie.id, {
-                ...data,
-                tmdbId: data.tmdbId ?? editingMovie.tmdbId,
-            });
+            await updateMovie(editingMovie.id, { ...data, tmdbId: data.tmdbId ?? editingMovie.tmdbId });
             toast.success(`"${data.title}" updated`);
             setEditingMovie(null);
             setFormOpen(false);
@@ -59,11 +109,14 @@ const Admin = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const onDelete = async (id: number) => {
-        if (window.confirm('Delete this movie?')) {
-            await deleteMovie(id);
-            toast.info('Movie deleted');
-        }
+    // Show styled confirm dialog instead of window.confirm
+    const onDelete = (movie: Movie) => setConfirmTarget(movie);
+
+    const handleConfirmDelete = async () => {
+        if (!confirmTarget) return;
+        await deleteMovie(confirmTarget.id);
+        toast.info(`"${confirmTarget.title}" deleted`);
+        setConfirmTarget(null);
     };
 
     const onCancel = () => { setEditingMovie(null); setFormOpen(false); };
@@ -75,6 +128,19 @@ const Admin = () => {
 
     return (
         <div className="min-h-screen">
+
+            {/* ── Confirm dialog ── */}
+            {confirmTarget && (
+                <ConfirmDialog
+                    title="Delete movie"
+                    message={`Are you sure you want to delete "${confirmTarget.title}"? This action cannot be undone.`}
+                    confirmLabel="Delete"
+                    onConfirm={handleConfirmDelete}
+                    onCancel={() => setConfirmTarget(null)}
+                />
+            )}
+
+            {/* ── Header ── */}
             <div className="relative overflow-hidden border-b border-gray-800">
                 <div className="absolute -top-16 right-0 w-80 h-64 bg-yellow-500/6 rounded-full blur-3xl pointer-events-none" />
                 <div className="relative container mx-auto px-4 pt-12 pb-10">
@@ -91,7 +157,7 @@ const Admin = () => {
                             <p className="text-gray-500 mt-2 text-sm">Manage your movie catalogue</p>
                         </div>
                         <button
-                            onClick={() => { if (formOpen && !editingMovie) { onCancel(); } else { setEditingMovie(null); setFormOpen(true); } }}
+                            onClick={() => { if (formOpen && !editingMovie) onCancel(); else { setEditingMovie(null); setFormOpen(true); } }}
                             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all self-start sm:self-end ${
                                 formOpen && !editingMovie
                                     ? 'bg-gray-700 text-gray-300 border border-gray-600 hover:bg-gray-600'
@@ -109,6 +175,8 @@ const Admin = () => {
             </div>
 
             <div className="container mx-auto px-4 pb-16">
+
+                {/* ── Stats ── */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 py-7">
                     <StatCard label="Total Movies" value={movies.length} sub={`${GENRES.length} genres`} accent="bg-blue-600/20 text-blue-400"
                               icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" /></svg>}
@@ -124,6 +192,7 @@ const Admin = () => {
                     />
                 </div>
 
+                {/* ── Add / Edit form ── */}
                 {(formOpen || editingMovie) && (
                     <div className="mb-8 rounded-2xl border border-gray-700/60 bg-gray-800/40 backdrop-blur-sm overflow-hidden">
                         <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-700/50">
@@ -156,6 +225,7 @@ const Admin = () => {
                     </div>
                 )}
 
+                {/* ── Movie table ── */}
                 <div className="rounded-2xl border border-gray-700/60 bg-gray-800/30 overflow-hidden">
                     <div className="flex items-center justify-between px-6 py-4 border-b border-gray-700/50">
                         <h2 className="text-sm font-bold text-gray-300 uppercase tracking-widest flex items-center gap-2">

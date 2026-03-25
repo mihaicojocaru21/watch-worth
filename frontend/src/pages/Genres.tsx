@@ -1,9 +1,9 @@
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MOCK_MOVIES } from '../data/mockData';
+import { useMovieList } from '../hooks/useMovieList';
 
 // ── One visual identity per genre ──────────────────────────────────────────
-const GENRE_META: Record<string, { color: string; border: string; glow: string; icon: JSX.Element }> = {
+const GENRE_META: Record<string, { color: string; border: string; glow: string; icon: React.ReactNode }> = {
     Drama: {
         color: 'from-blue-500/20 to-transparent',
         border: 'border-blue-500/30 hover:border-blue-400/60',
@@ -96,8 +96,7 @@ const GENRE_META: Record<string, { color: string; border: string; glow: string; 
     },
 };
 
-// Fallback pentru genuri fără metadata
-const DEFAULT_META = {
+const DEFAULT_META: { color: string; border: string; glow: string; icon: React.ReactNode } = {
     color: 'from-gray-500/20 to-transparent',
     border: 'border-gray-500/30 hover:border-gray-400/60',
     glow:   'bg-gray-500/10',
@@ -106,28 +105,34 @@ const DEFAULT_META = {
 
 const Genres = () => {
     const navigate = useNavigate();
+    const { movies, loading } = useMovieList('rating');
 
     const genreStats = useMemo(() => {
-        const map: Record<string, { count: number; topRated: string; avgRating: number }> = {};
-        for (const m of MOCK_MOVIES) {
-            if (!map[m.genre]) map[m.genre] = { count: 0, topRated: m.title, avgRating: 0 };
+        if (!movies.length) return [];
+
+        const map: Record<string, { count: number; topRated: string; topRating: number; avgRating: number }> = {};
+
+        for (const m of movies) {
+            if (!map[m.genre]) {
+                map[m.genre] = { count: 0, topRated: m.title, topRating: m.rating, avgRating: 0 };
+            }
             map[m.genre].count++;
             map[m.genre].avgRating += m.rating;
-            if (m.rating > MOCK_MOVIES.find(x => x.title === map[m.genre].topRated)!.rating) {
-                map[m.genre].topRated = m.title;
+            if (m.rating > map[m.genre].topRating) {
+                map[m.genre].topRated  = m.title;
+                map[m.genre].topRating = m.rating;
             }
         }
+
         return Object.entries(map)
             .map(([genre, s]) => ({
                 genre,
-                count: s.count,
-                topRated: s.topRated,
+                count:     s.count,
+                topRated:  s.topRated,
                 avgRating: +(s.avgRating / s.count).toFixed(1),
             }))
             .sort((a, b) => b.count - a.count);
-    }, []);
-
-    const totalMovies = MOCK_MOVIES.length;
+    }, [movies]);
 
     return (
         <div className="min-h-screen">
@@ -149,65 +154,79 @@ const Genres = () => {
                         </span>
                     </h1>
                     <p className="text-gray-500 text-sm">
-                        {genreStats.length} genres across {totalMovies} films
+                        {loading
+                            ? 'Loading genres…'
+                            : `${genreStats.length} genres across ${movies.length} films`}
                     </p>
                 </div>
             </div>
 
             {/* ── Grid ── */}
             <div className="container mx-auto px-4 py-10 pb-16">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {genreStats.map(({ genre, count, topRated, avgRating }) => {
-                        const meta = GENRE_META[genre] ?? DEFAULT_META;
-                        return (
-                            <button
-                                key={genre}
-                                onClick={() => navigate(`/movies?genre=${encodeURIComponent(genre)}`)}
-                                className={`group relative overflow-hidden rounded-2xl border bg-gray-800/40 hover:bg-gray-800/70 p-6 text-left transition-all duration-300 ${meta.border}`}
-                            >
-                                {/* Gradient glow top-left */}
-                                <div className={`absolute top-0 left-0 w-40 h-40 rounded-full blur-3xl -translate-x-10 -translate-y-10 opacity-60 group-hover:opacity-100 transition-opacity ${meta.glow}`} />
 
-                                <div className="relative flex items-start justify-between gap-4">
-                                    <div className="flex-1 min-w-0">
-                                        {/* Icon + title */}
-                                        <div className="flex items-center gap-3 mb-4">
-                                            <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${meta.glow} border border-white/5`}>
-                                                {meta.icon}
+                {/* Loading skeletons */}
+                {loading && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {Array.from({ length: 9 }).map((_, i) => (
+                            <div key={i} className="h-44 rounded-2xl bg-gray-800/50 animate-pulse border border-gray-700/50" />
+                        ))}
+                    </div>
+                )}
+
+                {!loading && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {genreStats.map(({ genre, count, topRated, avgRating }) => {
+                            const meta = GENRE_META[genre] ?? DEFAULT_META;
+                            return (
+                                <button
+                                    key={genre}
+                                    onClick={() => navigate(`/movies?genre=${encodeURIComponent(genre)}`)}
+                                    className={`group relative overflow-hidden rounded-2xl border bg-gray-800/40 hover:bg-gray-800/70 p-6 text-left transition-all duration-300 ${meta.border}`}
+                                >
+                                    {/* Gradient glow top-left */}
+                                    <div className={`absolute top-0 left-0 w-40 h-40 rounded-full blur-3xl -translate-x-10 -translate-y-10 opacity-60 group-hover:opacity-100 transition-opacity ${meta.glow}`} />
+
+                                    <div className="relative flex items-start justify-between gap-4">
+                                        <div className="flex-1 min-w-0">
+                                            {/* Icon + title */}
+                                            <div className="flex items-center gap-3 mb-4">
+                                                <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${meta.glow} border border-white/5`}>
+                                                    {meta.icon}
+                                                </div>
+                                                <h2 className="text-lg font-black text-white">{genre}</h2>
                                             </div>
-                                            <h2 className="text-lg font-black text-white">{genre}</h2>
+
+                                            {/* Top rated */}
+                                            <p className="text-xs text-gray-600 mb-0.5 uppercase tracking-wider">Top rated</p>
+                                            <p className="text-sm text-gray-400 font-medium truncate mb-4">{topRated}</p>
+
+                                            {/* Stats row */}
+                                            <div className="flex items-center gap-4">
+                                                <div>
+                                                    <p className="text-xl font-black text-white leading-none">{count}</p>
+                                                    <p className="text-[10px] text-gray-600 uppercase tracking-widest mt-0.5">films</p>
+                                                </div>
+                                                <div className="w-px h-8 bg-gray-700" />
+                                                <div>
+                                                    <p className="text-xl font-black text-white leading-none">★ {avgRating}</p>
+                                                    <p className="text-[10px] text-gray-600 uppercase tracking-widest mt-0.5">avg rating</p>
+                                                </div>
+                                            </div>
                                         </div>
 
-                                        {/* Top rated */}
-                                        <p className="text-xs text-gray-600 mb-0.5 uppercase tracking-wider">Top rated</p>
-                                        <p className="text-sm text-gray-400 font-medium truncate mb-4">{topRated}</p>
-
-                                        {/* Stats row */}
-                                        <div className="flex items-center gap-4">
-                                            <div>
-                                                <p className="text-xl font-black text-white leading-none">{count}</p>
-                                                <p className="text-[10px] text-gray-600 uppercase tracking-widest mt-0.5">films</p>
-                                            </div>
-                                            <div className="w-px h-8 bg-gray-700" />
-                                            <div>
-                                                <p className="text-xl font-black text-white leading-none">★ {avgRating}</p>
-                                                <p className="text-[10px] text-gray-600 uppercase tracking-widest mt-0.5">avg rating</p>
-                                            </div>
-                                        </div>
+                                        {/* Arrow */}
+                                        <svg className="w-4 h-4 text-gray-700 group-hover:text-white mt-1 shrink-0 translate-x-0 group-hover:translate-x-1 transition-all duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                        </svg>
                                     </div>
 
-                                    {/* Arrow */}
-                                    <svg className="w-4 h-4 text-gray-700 group-hover:text-white mt-1 shrink-0 translate-x-0 group-hover:translate-x-1 transition-all duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                    </svg>
-                                </div>
-
-                                {/* Bottom sweep */}
-                                <div className={`absolute bottom-0 left-0 h-px w-0 group-hover:w-full transition-all duration-500 bg-gradient-to-r ${meta.color}`} />
-                            </button>
-                        );
-                    })}
-                </div>
+                                    {/* Bottom sweep */}
+                                    <div className={`absolute bottom-0 left-0 h-px w-0 group-hover:w-full transition-all duration-500 bg-gradient-to-r ${meta.color}`} />
+                                </button>
+                            );
+                        })}
+                    </div>
+                )}
             </div>
         </div>
     );
