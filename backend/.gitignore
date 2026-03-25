@@ -4,3 +4,4 @@ obj/
 .vs/
 appsettings.Development.json
 WatchWorth.API/data/*.json
+appsettings.json
