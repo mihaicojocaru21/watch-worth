@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import MovieCard from '../components/MovieCard';
 import { useMovieList } from '../hooks/useMovieList';
 import { usePoster } from '../hooks/usePoster';
+import { useAuth } from '../context/AuthContext';
 import ServerError from './ServerError';
 import type { Movie } from '../types';
 
@@ -105,6 +106,7 @@ const WHY_FEATURES = [
 
 const Home = () => {
     const { movies, loading, error } = useMovieList('rating');
+    const { user } = useAuth();
 
     const featuredMovies = movies.slice(0, 9);
 
@@ -137,12 +139,14 @@ const Home = () => {
                     >
                         Explore Movies
                     </Link>
-                    <Link
-                        to="/login"
-                        className="px-8 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-full font-bold transition-all"
-                    >
-                        Sign In
-                    </Link>
+                    {!user && (
+                        <Link
+                            to="/login"
+                            className="px-8 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-full font-bold transition-all"
+                        >
+                            Sign In
+                        </Link>
+                    )}
                 </div>
 
                 <div className="mt-14 flex flex-wrap justify-center gap-10 text-center">
