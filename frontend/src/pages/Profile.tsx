@@ -4,7 +4,9 @@ import { useAuth } from '../context/AuthContext';
 import { useWatchlist } from '../context/WatchlistContext';
 import { useUserStats } from '../hooks/useUserStats';
 import { usePoster } from '../hooks/usePoster';
-import { MOCK_MOVIES } from '../data/mockData';
+import { useReviews } from '../context/ReviewContext';
+import { useMovieList } from '../hooks/useMovieList';
+import type { Movie } from '../types';
 
 // ── Avatar with big initials ────────────────────────────────────────────────
 const Avatar = ({ name, size = 'lg' }: { name: string; size?: 'sm' | 'lg' }) => {
@@ -31,21 +33,15 @@ const Stars = ({ value }: { value: number }) => (
 );
 
 // ── Watchlist movie card (small) ─────────────────────────────────────────────
-const WatchlistCard = ({ movieId }: { movieId: number }) => {
-    const movie = MOCK_MOVIES.find(m => m.id === movieId);
+const WatchlistCard = ({ movie }: { movie: Movie }) => {
     const navigate = useNavigate();
-    const posterSrc = usePoster(movie?.tmdbId ?? 0, movie?.title ?? '', movie?.image ?? '');
-    if (!movie) return null;
+    const posterSrc = usePoster(movie.tmdbId, movie.title, movie.image);
     return (
         <button
             onClick={() => navigate(`/movies/${movie.id}`)}
             className="group relative aspect-[2/3] rounded-xl overflow-hidden border border-white/5 hover:border-white/20 transition-all hover:-translate-y-1 duration-200"
         >
-            <img
-                src={posterSrc}
-                alt={movie.title}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            />
+            <img src={posterSrc} alt={movie.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="absolute bottom-0 left-0 right-0 p-2 translate-y-2 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
                 <p className="text-white text-[10px] font-bold leading-tight line-clamp-2">{movie.title}</p>
@@ -71,12 +67,18 @@ const StatCard = ({ label, value, sub, icon }: { label: string; value: string | 
 // ── Main component ────────────────────────────────────────────────────────────
 const Profile = () => {
     const { user } = useAuth();
-    const navigate  = useNavigate();
+    const navigate = useNavigate();
     const { watchlist } = useWatchlist();
-    const stats = useUserStats(user?.id, watchlist);
+
+    // Move hooks BEFORE they're used in useUserStats
+    const { reviews } = useReviews();
+    const { movies } = useMovieList('rating');
+
+    // Now useUserStats has access to reviews and movies
+    const stats = useUserStats(user?.id, watchlist, reviews);
 
     const [editingName, setEditingName] = useState(false);
-    const [nameInput,   setNameInput]   = useState(user?.username ?? '');
+    const [nameInput, setNameInput] = useState(user?.username ?? '');
     const [displayName, setDisplayName] = useState(() =>
         localStorage.getItem(`watchworth_displayname_${user?.id}`) ?? user?.username ?? ''
     );
@@ -255,9 +257,15 @@ const Profile = () => {
                             )}
                         </div>
                         <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3">
-                            {watchlistPreview.map(id => (
-                                <WatchlistCard key={id} movieId={id} />
-                            ))}
+                            {watchlistPreview
+                                .map(id => {
+                                    // Handle both string and number id types
+                                    const movie = movies.find(m => String(m.id) === String(id));
+                                    return movie;
+                                })
+                                .filter(Boolean)
+                                .map(movie => <WatchlistCard key={movie!.id} movie={movie!} />)
+                            }
                         </div>
                     </div>
                 )}

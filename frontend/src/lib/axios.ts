@@ -1,3 +1,4 @@
+// frontend/src/lib/axios.ts
 import axios, { AxiosError } from 'axios';
 
 const API_BASE_URL =
@@ -24,7 +25,8 @@ axiosClient.interceptors.response.use(
 
         if (status === 401) window.location.href = '/login';
         else if (status === 403) window.location.href = '/forbidden';
-        else if (status && status >= 500) window.location.href = '/server-error';
+
+        else if (status && status >= 500) window.location.href = '/error';
 
         return Promise.reject(error);
     }

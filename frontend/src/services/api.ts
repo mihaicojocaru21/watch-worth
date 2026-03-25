@@ -1,7 +1,22 @@
 import { axiosClient } from '../lib/axios';
 
-export async function apiFetch<T>(url: string): Promise<T> {
-    const response = await axiosClient.get<T>(url);
+interface RequestOptions {
+    method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+    body?: string;
+}
+
+export async function apiFetch<T>(url: string, options?: RequestOptions): Promise<T> {
+    const method = options?.method ?? 'GET';
+    const data   = options?.body ? JSON.parse(options.body) : undefined;
+
+    let response;
+    switch (method) {
+        case 'POST':   response = await axiosClient.post<T>(url, data);   break;
+        case 'PUT':    response = await axiosClient.put<T>(url, data);    break;
+        case 'PATCH':  response = await axiosClient.patch<T>(url, data);  break;
+        case 'DELETE': response = await axiosClient.delete<T>(url);       break;
+        default:       response = await axiosClient.get<T>(url);
+    }
     return response.data;
 }
 

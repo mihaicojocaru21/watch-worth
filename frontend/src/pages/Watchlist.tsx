@@ -1,20 +1,21 @@
+// frontend/src/pages/Watchlist.tsx
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import MovieCard from '../components/MovieCard';
 import { useWatchlist } from '../context/WatchlistContext';
 import { useAuth } from '../context/AuthContext';
-import { MOCK_MOVIES } from '../data/mockData';
+import { useMovieList } from '../hooks/useMovieList';
 
 const Watchlist = () => {
     const { user } = useAuth();
     const { watchlist, clearWatchlist } = useWatchlist();
+    const { movies } = useMovieList('rating'); // ← filme din API, nu MOCK
 
     const watchlistMovies = useMemo(
-        () => MOCK_MOVIES.filter(m => watchlist.includes(m.id)),
-        [watchlist]
+        () => movies.filter(m => watchlist.includes(m.id)),
+        [movies, watchlist]
     );
 
-    // Not logged in
     if (!user) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
@@ -27,10 +28,7 @@ const Watchlist = () => {
                 <p className="text-gray-500 text-sm max-w-xs mb-8">
                     Your watchlist is saved per account. Login to start saving movies.
                 </p>
-                <Link
-                    to="/login"
-                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-bold transition-all shadow-lg shadow-blue-500/25"
-                >
+                <Link to="/login" className="inline-flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-bold transition-all shadow-lg shadow-blue-500/25">
                     Sign In
                 </Link>
             </div>
@@ -39,8 +37,6 @@ const Watchlist = () => {
 
     return (
         <div className="container mx-auto px-4 pb-12">
-
-            {/* Header */}
             <div className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
                 <div>
                     <p className="text-xs font-semibold uppercase tracking-widest text-red-400 mb-2">Your list</p>
@@ -51,14 +47,9 @@ const Watchlist = () => {
                             : `${watchlistMovies.length} movie${watchlistMovies.length !== 1 ? 's' : ''} saved`}
                     </p>
                 </div>
-
                 {watchlistMovies.length > 0 && (
                     <button
-                        onClick={() => {
-                            if (window.confirm('Clear your entire watchlist?')) {
-                                clearWatchlist();
-                            }
-                        }}
+                        onClick={() => { if (window.confirm('Clear your entire watchlist?')) clearWatchlist(); }}
                         className="self-start sm:self-auto flex items-center gap-2 px-4 py-2 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 text-sm font-medium transition-all"
                     >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -69,7 +60,6 @@ const Watchlist = () => {
                 )}
             </div>
 
-            {/* Empty state */}
             {watchlistMovies.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-32 text-center">
                     <div className="w-20 h-20 mb-6 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center">
@@ -78,13 +68,8 @@ const Watchlist = () => {
                         </svg>
                     </div>
                     <h2 className="text-xl font-bold text-white mb-2">Your watchlist is empty</h2>
-                    <p className="text-gray-500 text-sm max-w-xs mb-8">
-                        Hit the ♥ button on any movie card to save it here for later.
-                    </p>
-                    <Link
-                        to="/movies"
-                        className="inline-flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-bold transition-all shadow-lg shadow-blue-500/25"
-                    >
+                    <p className="text-gray-500 text-sm max-w-xs mb-8">Hit the ♥ button on any movie card to save it here for later.</p>
+                    <Link to="/movies" className="inline-flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-bold transition-all shadow-lg shadow-blue-500/25">
                         Browse Movies
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -93,7 +78,6 @@ const Watchlist = () => {
                 </div>
             )}
 
-            {/* Grid */}
             {watchlistMovies.length > 0 && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {watchlistMovies.map(movie => (

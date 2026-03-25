@@ -3,21 +3,21 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import { RouterProvider } from 'react-router-dom';
 import { router } from './config/AppRouter';
-import { AxiosProvider } from './providers/AxiosProvider';
+import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { WatchlistProvider } from './context/WatchlistContext';
-import { ThemeProvider } from './context/ThemeContext'; // ajustează path-ul dacă e altul
+import { ReviewProvider } from './context/ReviewContext';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
-        <AxiosProvider>
-            <ThemeProvider>
-                <AuthProvider>
-                    <WatchlistProvider>
+        <ThemeProvider>
+            <AuthProvider>
+                <WatchlistProvider>
+                    <ReviewProvider>
                         <RouterProvider router={router} />
-                    </WatchlistProvider>
-                </AuthProvider>
-            </ThemeProvider>
-        </AxiosProvider>
+                    </ReviewProvider>
+                </WatchlistProvider>
+            </AuthProvider>
+        </ThemeProvider>
     </React.StrictMode>
 );
