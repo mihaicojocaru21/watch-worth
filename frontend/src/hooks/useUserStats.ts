@@ -1,38 +1,43 @@
 // frontend/src/hooks/useUserStats.ts
-import { useMemo } from 'react';
-import type { Review } from '../types';
-import type { Movie } from '../types';
+import { useMemo }       from 'react';
+import { MOCK_MOVIES }   from '../data/mockData';
+import type { Review }   from '../types';
 
 interface UserStats {
-    watchlistCount: number;
-    reviewCount: number;
-    avgRatingGiven: number | null;
-    favoriteGenre: string | null;
+    watchlistCount:  number;
+    reviewCount:     number;
+    avgRatingGiven:  number | null;
+    favoriteGenre:   string | null;
     reviews: {
-        movieId: number;
+        movieId:    number;
         movieTitle: string;
-        genre: string;
-        rating: number;
-        text: string;
-        createdAt: string;
+        genre:      string;
+        rating:     number;
+        text:       string;
+        createdAt:  string;
     }[];
 }
 
 export function useUserStats(
-    userId: number | undefined,
+    userId:   number | undefined,
     watchlist: number[],
-    allReviews: Review[],   // ← primit din ReviewContext
-    allMovies: Movie[],     // ← primit din API
+    allReviews: Review[]
 ): UserStats {
     return useMemo(() => {
         if (!userId) {
-            return { watchlistCount: 0, reviewCount: 0, avgRatingGiven: null, favoriteGenre: null, reviews: [] };
+            return {
+                watchlistCount: 0,
+                reviewCount:    0,
+                avgRatingGiven: null,
+                favoriteGenre:  null,
+                reviews:        [],
+            };
         }
 
         const userReviews = allReviews
             .filter(r => r.userId === userId)
             .map(r => {
-                const movie = allMovies.find(m => m.id === r.movieId);
+                const movie = MOCK_MOVIES.find(m => m.id === r.movieId);
                 return {
                     movieId:    r.movieId,
                     movieTitle: movie?.title ?? 'Unknown',
@@ -42,22 +47,27 @@ export function useUserStats(
                     createdAt:  r.createdAt,
                 };
             })
-            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+            .sort((a, b) =>
+                new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
 
         const avgRatingGiven = userReviews.length
-            ? Math.round((userReviews.reduce((s, r) => s + r.rating, 0) / userReviews.length) * 10) / 10
+            ? Math.round(
+            (userReviews.reduce((s, r) => s + r.rating, 0) / userReviews.length) * 10
+        ) / 10
             : null;
 
         const genreCount: Record<string, number> = {};
-        const watchlistMovies = allMovies.filter(m => watchlist.includes(m.id));
-        for (const m of watchlistMovies) {
-            genreCount[m.genre] = (genreCount[m.genre] ?? 0) + 1;
-        }
+        MOCK_MOVIES
+            .filter(m => watchlist.includes(m.id))
+            .forEach(m => { genreCount[m.genre] = (genreCount[m.genre] ?? 0) + 1; });
+
         if (Object.keys(genreCount).length === 0) {
-            for (const r of userReviews) {
+            userReviews.forEach(r => {
                 genreCount[r.genre] = (genreCount[r.genre] ?? 0) + 1;
-            }
+            });
         }
+
         const favoriteGenre = Object.keys(genreCount).length
             ? Object.entries(genreCount).sort((a, b) => b[1] - a[1])[0][0]
             : null;
@@ -69,5 +79,5 @@ export function useUserStats(
             favoriteGenre,
             reviews:        userReviews,
         };
-    }, [userId, watchlist, allReviews, allMovies]);
+    }, [userId, watchlist, allReviews]);
 }

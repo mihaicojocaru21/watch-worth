@@ -75,7 +75,7 @@ const Profile = () => {
     const { movies } = useMovieList('rating');
 
     // Now useUserStats has access to reviews and movies
-    const stats = useUserStats(user?.id, watchlist, reviews, movies);
+    const stats = useUserStats(user?.id, watchlist, reviews);
 
     const [editingName, setEditingName] = useState(false);
     const [nameInput, setNameInput] = useState(user?.username ?? '');

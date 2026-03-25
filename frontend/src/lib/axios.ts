@@ -25,7 +25,8 @@ axiosClient.interceptors.response.use(
 
         if (status === 401) window.location.href = '/login';
         else if (status === 403) window.location.href = '/forbidden';
-        else if (status && status >= 500) window.location.href = '/error'; // ← fix: era /server-error
+
+        else if (status && status >= 500) window.location.href = '/error';
 
         return Promise.reject(error);
     }
