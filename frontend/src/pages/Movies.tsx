@@ -27,60 +27,86 @@ const RATING_PRESETS = [
     { label: '9+',   value: 9   },
 ];
 
+/* ── Dismissible filter chip ── */
+const FilterChip = ({ label, onRemove }: { label: string; onRemove: () => void }) => (
+    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/15 border border-blue-500/30 text-blue-300">
+        {label}
+        <button
+            onClick={onRemove}
+            className="w-3.5 h-3.5 rounded-full flex items-center justify-center hover:bg-blue-400/30 transition-colors"
+            aria-label={`Remove ${label} filter`}
+        >
+            <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+    </span>
+);
+
 export default function Movies() {
     const { movies, loading, error } = useMovieList('rating');
     const [searchParams] = useSearchParams();
 
-    const [search,    setSearch]    = useState('');
-    const [sortBy,    setSortBy]    = useState<SortKey>('rating');
-    const [genre,     setGenre]     = useState('');
-    const [minRating, setMinRating] = useState(0);
-    const [yearFrom,  setYearFrom]  = useState(MIN_YEAR);
-    const [yearTo,    setYearTo]    = useState(MAX_YEAR);
-    const [panel,     setPanel]     = useState(false);
+    const [search,         setSearch]         = useState('');
+    const [debouncedSearch, setDebouncedSearch] = useState('');
+    const [sortBy,         setSortBy]         = useState<SortKey>('rating');
+    const [genre,          setGenre]          = useState('');
+    const [minRating,      setMinRating]      = useState(0);
+    const [yearFrom,       setYearFrom]       = useState(MIN_YEAR);
+    const [yearTo,         setYearTo]         = useState(MAX_YEAR);
+    const [panel,          setPanel]          = useState(false);
 
-    // Read ?genre= from URL on mount (links from Genres page)
+    // Debounce search input by 300ms to avoid jumpy re-renders on every keystroke
+    useEffect(() => {
+        const id = setTimeout(() => setDebouncedSearch(search), 300);
+        return () => clearTimeout(id);
+    }, [search]);
+
+    // Read ?genre= from URL on mount
     useEffect(() => {
         const g = searchParams.get('genre');
-        if (g && ALL_GENRES.includes(g)) {
-            setGenre(g);
-            setPanel(true);
-        }
+        if (g && ALL_GENRES.includes(g)) { setGenre(g); setPanel(true); }
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const activeCount = [genre, minRating > 0, yearFrom !== MIN_YEAR || yearTo !== MAX_YEAR].filter(Boolean).length;
+    const activeFilters = useMemo(() => {
+        const chips: { label: string; onRemove: () => void }[] = [];
+        if (genre)                                chips.push({ label: genre,                  onRemove: () => setGenre('')       });
+        if (minRating > 0)                        chips.push({ label: `${minRating}+ stars`,  onRemove: () => setMinRating(0)    });
+        if (yearFrom !== MIN_YEAR || yearTo !== MAX_YEAR)
+            chips.push({ label: `${yearFrom}–${yearTo}`, onRemove: () => { setYearFrom(MIN_YEAR); setYearTo(MAX_YEAR); } });
+        return chips;
+    }, [genre, minRating, yearFrom, yearTo]);
 
     const reset = () => {
-        setSearch(''); setSortBy('rating'); setGenre('');
+        setSearch(''); setDebouncedSearch(''); setSortBy('rating'); setGenre('');
         setMinRating(0); setYearFrom(MIN_YEAR); setYearTo(MAX_YEAR);
     };
 
     const filtered = useMemo(() => {
         let r = [...movies];
-        const q = search.trim().toLowerCase();
-        if (q) r = r.filter(m => m.title.toLowerCase().includes(q) || m.genre.toLowerCase().includes(q));
-        if (genre) r = r.filter(m => m.genre === genre);
+        const q = debouncedSearch.trim().toLowerCase();
+        if (q)          r = r.filter(m => m.title.toLowerCase().includes(q) || m.genre.toLowerCase().includes(q));
+        if (genre)       r = r.filter(m => m.genre === genre);
         r = r.filter(m => m.rating >= minRating && m.year >= yearFrom && m.year <= yearTo);
         if (sortBy === 'rating') r.sort((a, b) => b.rating - a.rating);
-        if (sortBy === 'year')   r.sort((a, b) => b.year - a.year);
+        if (sortBy === 'year')   r.sort((a, b) => b.year   - a.year);
         if (sortBy === 'title')  r.sort((a, b) => a.title.localeCompare(b.title));
         if (sortBy === 'genre')  r.sort((a, b) => a.genre.localeCompare(b.genre));
         return r;
-    }, [movies, search, genre, minRating, yearFrom, yearTo, sortBy]);
+    }, [movies, debouncedSearch, genre, minRating, yearFrom, yearTo, sortBy]);
 
     if (error) return <ServerError />;
 
     return (
         <div className="min-h-screen">
 
-            {/* ── Cinematic page header ── */}
+            {/* ── Page header ── */}
             <div className="relative overflow-hidden border-b border-gray-800">
                 <div className="absolute -top-20 -left-20 w-72 h-72 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
                 <div className="absolute -top-10 right-0 w-96 h-64 bg-purple-600/8 rounded-full blur-3xl pointer-events-none" />
 
                 <div className="relative container mx-auto px-4 pt-12 pb-10">
                     <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
-
                         <div>
                             <div className="flex items-center gap-2.5 mb-3">
                                 <div className="h-px w-8 bg-blue-500 rounded-full" />
@@ -88,14 +114,10 @@ export default function Movies() {
                             </div>
                             <h1 className="text-5xl font-black text-white tracking-tight leading-none mb-3">
                                 Movie{' '}
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
-                                    Collection
-                                </span>
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Collection</span>
                             </h1>
                             <p className="text-gray-500 text-sm">
-                                {loading
-                                    ? 'Loading catalogue…'
-                                    : <>{filtered.length} <span className="text-gray-600">of</span> {movies.length} films</>}
+                                {loading ? 'Loading catalogue…' : <>{filtered.length} <span className="text-gray-600">of</span> {movies.length} films</>}
                             </p>
                         </div>
 
@@ -150,7 +172,7 @@ export default function Movies() {
                     <button
                         onClick={() => setPanel(p => !p)}
                         className={`flex items-center gap-2.5 px-5 py-3 rounded-xl border text-sm font-semibold whitespace-nowrap transition-all ${
-                            panel || activeCount > 0
+                            panel || activeFilters.length > 0
                                 ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-600/20'
                                 : 'bg-gray-800/70 border-gray-700/80 text-gray-400 hover:text-white hover:border-gray-600'
                         }`}
@@ -159,13 +181,29 @@ export default function Movies() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h18M6 8h12M10 12h4" />
                         </svg>
                         Filters
-                        {activeCount > 0 && (
+                        {activeFilters.length > 0 && (
                             <span className="bg-white text-blue-600 text-[10px] font-black rounded-full w-5 h-5 flex items-center justify-center leading-none">
-                                {activeCount}
+                                {activeFilters.length}
                             </span>
                         )}
                     </button>
                 </div>
+
+                {/* ── Active filter chips ── */}
+                {activeFilters.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-2 mb-4 -mt-1">
+                        <span className="text-xs text-gray-600 font-semibold uppercase tracking-wider">Active:</span>
+                        {activeFilters.map(chip => (
+                            <FilterChip key={chip.label} label={chip.label} onRemove={chip.onRemove} />
+                        ))}
+                        <button
+                            onClick={reset}
+                            className="text-xs text-gray-600 hover:text-red-400 font-semibold transition-colors ml-1 underline underline-offset-2"
+                        >
+                            Clear all
+                        </button>
+                    </div>
+                )}
 
                 {/* ── Filter panel ── */}
                 {panel && (
@@ -228,18 +266,6 @@ export default function Movies() {
                                 </div>
                             </div>
                         </div>
-
-                        {activeCount > 0 && (
-                            <div className="px-6 py-3 border-t border-gray-700/50 bg-gray-900/30 flex items-center justify-between">
-                                <span className="text-xs text-gray-500">{activeCount} filter{activeCount !== 1 ? 's' : ''} active</span>
-                                <button onClick={reset} className="flex items-center gap-1.5 text-xs text-red-400 hover:text-red-300 font-semibold transition-colors">
-                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                    Reset all
-                                </button>
-                            </div>
-                        )}
                     </div>
                 )}
 
@@ -249,10 +275,6 @@ export default function Movies() {
                         {Array.from({ length: 10 }).map((_, i) => (
                             <div key={i} className="rounded-2xl overflow-hidden bg-gray-800/50 border border-gray-700/50 animate-pulse">
                                 <div className="aspect-[2/3] bg-gray-700/50" />
-                                <div className="p-3 space-y-2">
-                                    <div className="h-3 bg-gray-700/60 rounded-full w-3/4" />
-                                    <div className="h-3 bg-gray-700/40 rounded-full w-1/2" />
-                                </div>
                             </div>
                         ))}
                     </div>
