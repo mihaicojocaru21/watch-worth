@@ -1,7 +1,5 @@
-// frontend/src/hooks/useUserStats.ts
-import { useMemo }       from 'react';
-import { MOCK_MOVIES }   from '../data/mockData';
-import type { Review }   from '../types';
+import { useMemo }     from 'react';
+import type { Movie, Review } from '../types';
 
 interface UserStats {
     watchlistCount:  number;
@@ -19,9 +17,10 @@ interface UserStats {
 }
 
 export function useUserStats(
-    userId:   number | undefined,
-    watchlist: number[],
-    allReviews: Review[]
+    userId:     number | undefined,
+    watchlist:  number[],
+    allReviews: Review[],
+    movies:     Movie[]
 ): UserStats {
     return useMemo(() => {
         if (!userId) {
@@ -37,7 +36,7 @@ export function useUserStats(
         const userReviews = allReviews
             .filter(r => r.userId === userId)
             .map(r => {
-                const movie = MOCK_MOVIES.find(m => m.id === r.movieId);
+                const movie = movies.find(m => m.id === r.movieId);
                 return {
                     movieId:    r.movieId,
                     movieTitle: movie?.title ?? 'Unknown',
@@ -58,7 +57,7 @@ export function useUserStats(
             : null;
 
         const genreCount: Record<string, number> = {};
-        MOCK_MOVIES
+        movies
             .filter(m => watchlist.includes(m.id))
             .forEach(m => { genreCount[m.genre] = (genreCount[m.genre] ?? 0) + 1; });
 
@@ -79,5 +78,5 @@ export function useUserStats(
             favoriteGenre,
             reviews:        userReviews,
         };
-    }, [userId, watchlist, allReviews]);
+    }, [userId, watchlist, allReviews, movies]);
 }

@@ -69,13 +69,11 @@ const Profile = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
     const { watchlist } = useWatchlist();
-
-    // Move hooks BEFORE they're used in useUserStats
     const { reviews } = useReviews();
     const { movies } = useMovieList('rating');
 
-    // Now useUserStats has access to reviews and movies
-    const stats = useUserStats(user?.id, watchlist, reviews);
+    // Pass API movies so stats are always in sync with the real catalogue
+    const stats = useUserStats(user?.id, watchlist, reviews, movies);
 
     const [editingName, setEditingName] = useState(false);
     const [nameInput, setNameInput] = useState(user?.username ?? '');
@@ -258,11 +256,7 @@ const Profile = () => {
                         </div>
                         <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3">
                             {watchlistPreview
-                                .map(id => {
-                                    // Handle both string and number id types
-                                    const movie = movies.find(m => String(m.id) === String(id));
-                                    return movie;
-                                })
+                                .map(id => movies.find(m => String(m.id) === String(id)))
                                 .filter(Boolean)
                                 .map(movie => <WatchlistCard key={movie!.id} movie={movie!} />)
                             }
