@@ -1,8 +1,10 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using WatchWorth.API.Repositories;
 using WatchWorth.API.Services;
 using WatchWorth.BusinessLayer;
+using WatchWorth.BusinessLayer.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
@@ -18,10 +20,10 @@ builder.Services
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
-            ValidateIssuer = false,
-            ValidateAudience = false,
-            ClockSkew = TimeSpan.Zero,
+            IssuerSigningKey         = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
+            ValidateIssuer           = false,
+            ValidateAudience         = false,
+            ClockSkew                = TimeSpan.Zero,
         };
     });
 
@@ -43,6 +45,11 @@ builder.Services.AddCors(options =>
 // ── Services ──────────────────────────────────────────────────────────────────
 builder.Services.AddSingleton<JsonDb>();
 builder.Services.AddSingleton<JwtService>();
+
+// Register the repository in the API layer (it depends on JsonDb)
+builder.Services.AddScoped<IMovieRepository, JsonMovieRepository>();
+
+// Register BL services (IMovieService, IItemService, BusinessLogic factory)
 builder.Services.AddBusinessLogic();
 
 builder.Services.AddControllers();

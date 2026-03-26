@@ -1,26 +1,22 @@
 @import "tailwindcss";
 
-
 /* ── Page transition ── */
 @keyframes pageIn {
-    from {
-        opacity: 0;
-        transform: translateY(14px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0);    }
 }
-
 .animate-page-in {
     animation: pageIn 0.35s ease forwards;
 }
 
-
-/* ── Light mode: remap gray scale + white/black ── */
+/* ════════════════════════════════════════════════════════════
+   LIGHT THEME
+   Remaps Tailwind's CSS color variables so every bg-gray-*
+   and text-gray-* class automatically inverts.
+   ════════════════════════════════════════════════════════════ */
 [data-theme="light"] {
-    --color-gray-950: #e2e8f0;
+    /* Gray scale — fully inverted */
+    --color-gray-950: #f1f5f9;
     --color-gray-900: #f8fafc;
     --color-gray-800: #ffffff;
     --color-gray-700: #e2e8f0;
@@ -30,34 +26,78 @@
     --color-gray-300: #334155;
     --color-gray-200: #1e293b;
     --color-gray-100: #0f172a;
-    --color-white:    #0f172a;
-    --color-black:    #f8fafc;
+    --color-gray-50:  #020617;
+
+    /* black / white swap */
+    --color-white: #0f172a;
+    --color-black: #f8fafc;
+
+    /* page background */
+    background-color: #f1f5f9;
+    color: #0f172a;
 }
 
-/* Restore white text on solid colored buttons/badges */
-[data-theme="light"] .bg-blue-600.text-white,
-[data-theme="light"] .bg-blue-500.text-white,
-[data-theme="light"] .bg-red-500.text-white,
-[data-theme="light"] .bg-red-600.text-white,
-[data-theme="light"] .bg-green-600.text-white,
-[data-theme="light"] .bg-yellow-500.text-white,
-[data-theme="light"] .bg-indigo-600.text-white {
-    color: #ffffff;
+/* ── Preserve white text on coloured buttons & badges ── */
+[data-theme="light"] .text-white {
+    --tw-text-opacity: 1;
 }
 
-/* Gradient text clips need the text color reset */
-[data-theme="light"] .text-transparent {
-    color: transparent !important;
-}
+[data-theme="light"] .bg-blue-600  .text-white,
+[data-theme="light"] .bg-blue-500  .text-white,
+[data-theme="light"] .bg-red-500   .text-white,
+[data-theme="light"] .bg-green-600 .text-white,
+[data-theme="light"] .bg-yellow-500 .text-white,
+[data-theme="light"] .bg-indigo-600 .text-white { color: #ffffff !important; }
 
-/* Animate theme transition smoothly */
-*, *::before, *::after {
+/* Buttons and badges that must always be white-on-color */
+[data-theme="light"] button.bg-blue-600,
+[data-theme="light"] button.bg-blue-500,
+[data-theme="light"] a.bg-blue-600,
+[data-theme="light"] a.bg-blue-500 { color: #ffffff !important; }
+
+[data-theme="light"] button.bg-red-600,
+[data-theme="light"] button.bg-red-500 { color: #ffffff !important; }
+
+[data-theme="light"] button.bg-green-600,
+[data-theme="light"] button.bg-green-500 { color: #ffffff !important; }
+
+/* ── Gradient text must stay transparent ── */
+[data-theme="light"] .text-transparent { color: transparent !important; }
+
+/* ── Navbar needs a visible border in light mode ── */
+[data-theme="light"] .border-white\/5  { border-color: #e2e8f0; }
+[data-theme="light"] .border-white\/10 { border-color: #cbd5e1; }
+[data-theme="light"] .border-white\/15 { border-color: #94a3b8; }
+
+/* ── Frosted glass / backdrop panels ── */
+[data-theme="light"] .bg-gray-900\/80 { background-color: rgba(248,250,252,0.92) !important; }
+[data-theme="light"] .bg-gray-800\/40 { background-color: rgba(255,255,255,0.7)  !important; }
+[data-theme="light"] .bg-gray-800\/60 { background-color: rgba(255,255,255,0.85) !important; }
+[data-theme="light"] .bg-gray-900\/60 { background-color: rgba(241,245,249,0.85) !important; }
+[data-theme="light"] .bg-gray-900\/70 { background-color: rgba(241,245,249,0.9)  !important; }
+[data-theme="light"] .bg-gray-900\/30 { background-color: rgba(241,245,249,0.5)  !important; }
+
+/* ── Movie card overlays keep dark so text stays readable ── */
+[data-theme="light"] .bg-black\/40  { background-color: rgba(0,0,0,0.40)  !important; }
+[data-theme="light"] .bg-black\/50  { background-color: rgba(0,0,0,0.50)  !important; }
+[data-theme="light"] .bg-black\/70  { background-color: rgba(0,0,0,0.70)  !important; }
+[data-theme="light"] .bg-black\/95  { background-color: rgba(0,0,0,0.95)  !important; }
+
+/* ── Yellow rating badge always black text ── */
+[data-theme="light"] .bg-yellow-500.text-gray-900 { color: #111827 !important; }
+
+/* ── Smooth theme transition ── */
+*,
+*::before,
+*::after {
     transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
-/* But don't transition transforms/opacity (breaks animations) */
+/* Don't override transform / opacity transitions (breaks animations) */
 [class*="animate-"],
-[class*="transition-"],
+[class*="hover:-translate"],
+[class*="hover:scale"],
+[class*="group-hover:"],
 [class*="duration-"] {
-    transition: unset;
+    transition-property: color, background-color, border-color, opacity, transform, filter, box-shadow;
 }

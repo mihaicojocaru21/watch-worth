@@ -8,7 +8,12 @@ namespace WatchWorth.BusinessLayer
     {
         public static IServiceCollection AddBusinessLogic(this IServiceCollection services)
         {
-            services.AddScoped<IItemService, ItemService>();
+            // IMovieRepository is registered in the API layer (it depends on JsonDb)
+            // so we only register the BL services here.
+
+            services.AddScoped<IMovieService, MovieBL>();
+            services.AddScoped<IItemService,  ItemService>();
+
             return services;
         }
     }

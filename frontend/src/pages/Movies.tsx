@@ -1,13 +1,8 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import MovieCard from '../components/MovieCard';
 import { useMovieList } from '../hooks/useMovieList';
 import ServerError from './ServerError';
-import { MOCK_MOVIES } from '../data/mockData';
-
-const ALL_GENRES = Array.from(new Set(MOCK_MOVIES.map(m => m.genre))).sort();
-const MIN_YEAR   = Math.min(...MOCK_MOVIES.map(m => m.year));
-const MAX_YEAR   = Math.max(...MOCK_MOVIES.map(m => m.year));
 
 type SortKey = 'rating' | 'year' | 'title' | 'genre';
 
@@ -27,73 +22,81 @@ const RATING_PRESETS = [
     { label: '9+',   value: 9   },
 ];
 
-/* ── Dismissible filter chip ── */
-const FilterChip = ({ label, onRemove }: { label: string; onRemove: () => void }) => (
-    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/15 border border-blue-500/30 text-blue-300">
-        {label}
-        <button
-            onClick={onRemove}
-            className="w-3.5 h-3.5 rounded-full flex items-center justify-center hover:bg-blue-400/30 transition-colors"
-            aria-label={`Remove ${label} filter`}
-        >
-            <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-        </button>
-    </span>
-);
-
 export default function Movies() {
     const { movies, loading, error } = useMovieList('rating');
     const [searchParams] = useSearchParams();
 
-    const [search,         setSearch]         = useState('');
-    const [debouncedSearch, setDebouncedSearch] = useState('');
-    const [sortBy,         setSortBy]         = useState<SortKey>('rating');
-    const [genre,          setGenre]          = useState('');
-    const [minRating,      setMinRating]      = useState(0);
-    const [yearFrom,       setYearFrom]       = useState(MIN_YEAR);
-    const [yearTo,         setYearTo]         = useState(MAX_YEAR);
-    const [panel,          setPanel]          = useState(false);
+    // Derived from API — no more mockData dependency
+    const ALL_GENRES = useMemo(
+        () => Array.from(new Set(movies.map(m => m.genre))).sort(),
+        [movies]
+    );
+    const MIN_YEAR = useMemo(
+        () => (movies.length ? Math.min(...movies.map(m => m.year)) : 1900),
+        [movies]
+    );
+    const MAX_YEAR = useMemo(
+        () => (movies.length ? Math.max(...movies.map(m => m.year)) : new Date().getFullYear()),
+        [movies]
+    );
 
-    // Debounce search input by 300ms to avoid jumpy re-renders on every keystroke
+    const [searchInput, setSearchInput] = useState('');
+    const [search,      setSearch]      = useState('');
+    const [sortBy,      setSortBy]      = useState<SortKey>('rating');
+    const [genre,       setGenre]       = useState('');
+    const [minRating,   setMinRating]   = useState(0);
+    const [yearFrom,    setYearFrom]    = useState(0);
+    const [yearTo,      setYearTo]      = useState(9999);
+    const [panel,       setPanel]       = useState(false);
+    const [yearsReady,  setYearsReady]  = useState(false);
+
+    // Initialise year range once movies have loaded
     useEffect(() => {
-        const id = setTimeout(() => setDebouncedSearch(search), 300);
-        return () => clearTimeout(id);
-    }, [search]);
+        if (movies.length && !yearsReady) {
+            setYearFrom(MIN_YEAR);
+            setYearTo(MAX_YEAR);
+            setYearsReady(true);
+        }
+    }, [movies.length, MIN_YEAR, MAX_YEAR, yearsReady]);
 
     // Read ?genre= from URL on mount
     useEffect(() => {
         const g = searchParams.get('genre');
-        if (g && ALL_GENRES.includes(g)) { setGenre(g); setPanel(true); }
+        if (g) { setGenre(g); setPanel(true); }
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // Debounce search 300ms
+    useEffect(() => {
+        const t = setTimeout(() => setSearch(searchInput), 300);
+        return () => clearTimeout(t);
+    }, [searchInput]);
 
     const activeFilters = useMemo(() => {
         const chips: { label: string; onRemove: () => void }[] = [];
-        if (genre)                                chips.push({ label: genre,                  onRemove: () => setGenre('')       });
-        if (minRating > 0)                        chips.push({ label: `${minRating}+ stars`,  onRemove: () => setMinRating(0)    });
-        if (yearFrom !== MIN_YEAR || yearTo !== MAX_YEAR)
-            chips.push({ label: `${yearFrom}–${yearTo}`, onRemove: () => { setYearFrom(MIN_YEAR); setYearTo(MAX_YEAR); } });
+        if (genre)                             chips.push({ label: genre,             onRemove: () => setGenre('') });
+        if (minRating > 0)                     chips.push({ label: `★ ${minRating}+`, onRemove: () => setMinRating(0) });
+        if (yearsReady && yearFrom !== MIN_YEAR) chips.push({ label: `From ${yearFrom}`, onRemove: () => setYearFrom(MIN_YEAR) });
+        if (yearsReady && yearTo   !== MAX_YEAR) chips.push({ label: `Until ${yearTo}`,  onRemove: () => setYearTo(MAX_YEAR) });
         return chips;
-    }, [genre, minRating, yearFrom, yearTo]);
+    }, [genre, minRating, yearFrom, yearTo, MIN_YEAR, MAX_YEAR, yearsReady]);
 
-    const reset = () => {
-        setSearch(''); setDebouncedSearch(''); setSortBy('rating'); setGenre('');
+    const reset = useCallback(() => {
+        setSearchInput(''); setSearch(''); setSortBy('rating'); setGenre('');
         setMinRating(0); setYearFrom(MIN_YEAR); setYearTo(MAX_YEAR);
-    };
+    }, [MIN_YEAR, MAX_YEAR]);
 
     const filtered = useMemo(() => {
         let r = [...movies];
-        const q = debouncedSearch.trim().toLowerCase();
-        if (q)          r = r.filter(m => m.title.toLowerCase().includes(q) || m.genre.toLowerCase().includes(q));
-        if (genre)       r = r.filter(m => m.genre === genre);
+        const q = search.trim().toLowerCase();
+        if (q)     r = r.filter(m => m.title.toLowerCase().includes(q) || m.genre.toLowerCase().includes(q));
+        if (genre) r = r.filter(m => m.genre === genre);
         r = r.filter(m => m.rating >= minRating && m.year >= yearFrom && m.year <= yearTo);
         if (sortBy === 'rating') r.sort((a, b) => b.rating - a.rating);
-        if (sortBy === 'year')   r.sort((a, b) => b.year   - a.year);
+        if (sortBy === 'year')   r.sort((a, b) => b.year - a.year);
         if (sortBy === 'title')  r.sort((a, b) => a.title.localeCompare(b.title));
         if (sortBy === 'genre')  r.sort((a, b) => a.genre.localeCompare(b.genre));
         return r;
-    }, [movies, debouncedSearch, genre, minRating, yearFrom, yearTo, sortBy]);
+    }, [movies, search, genre, minRating, yearFrom, yearTo, sortBy]);
 
     if (error) return <ServerError />;
 
@@ -114,10 +117,14 @@ export default function Movies() {
                             </div>
                             <h1 className="text-5xl font-black text-white tracking-tight leading-none mb-3">
                                 Movie{' '}
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Collection</span>
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
+                                    Collection
+                                </span>
                             </h1>
                             <p className="text-gray-500 text-sm">
-                                {loading ? 'Loading catalogue…' : <>{filtered.length} <span className="text-gray-600">of</span> {movies.length} films</>}
+                                {loading
+                                    ? 'Loading catalogue…'
+                                    : <>{filtered.length} <span className="text-gray-600">of</span> {movies.length} films</>}
                             </p>
                         </div>
 
@@ -155,13 +162,16 @@ export default function Movies() {
                             </svg>
                         </span>
                         <input
-                            value={search}
-                            onChange={e => setSearch(e.target.value)}
+                            value={searchInput}
+                            onChange={e => setSearchInput(e.target.value)}
                             placeholder="Search titles, genres…"
                             className="w-full pl-11 pr-10 py-3 bg-gray-800/70 border border-gray-700/80 rounded-xl text-white text-sm placeholder-gray-600 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-all"
                         />
-                        {search && (
-                            <button onClick={() => setSearch('')} className="absolute inset-y-0 right-3.5 flex items-center text-gray-600 hover:text-gray-300 transition-colors">
+                        {searchInput && (
+                            <button
+                                onClick={() => { setSearchInput(''); setSearch(''); }}
+                                className="absolute inset-y-0 right-3.5 flex items-center text-gray-600 hover:text-gray-300 transition-colors"
+                            >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                 </svg>
@@ -191,15 +201,21 @@ export default function Movies() {
 
                 {/* ── Active filter chips ── */}
                 {activeFilters.length > 0 && (
-                    <div className="flex flex-wrap items-center gap-2 mb-4 -mt-1">
-                        <span className="text-xs text-gray-600 font-semibold uppercase tracking-wider">Active:</span>
+                    <div className="flex flex-wrap items-center gap-2 mb-4">
+                        <span className="text-xs text-gray-600 font-semibold uppercase tracking-widest">Active:</span>
                         {activeFilters.map(chip => (
-                            <FilterChip key={chip.label} label={chip.label} onRemove={chip.onRemove} />
+                            <button
+                                key={chip.label}
+                                onClick={chip.onRemove}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-500/15 border border-blue-500/30 text-blue-400 text-xs font-semibold hover:bg-red-500/15 hover:border-red-500/30 hover:text-red-400 transition-all group"
+                            >
+                                {chip.label}
+                                <svg className="w-3 h-3 group-hover:rotate-90 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
                         ))}
-                        <button
-                            onClick={reset}
-                            className="text-xs text-gray-600 hover:text-red-400 font-semibold transition-colors ml-1 underline underline-offset-2"
-                        >
+                        <button onClick={reset} className="px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-500 hover:text-red-400 transition-colors">
                             Clear all
                         </button>
                     </div>
@@ -215,7 +231,7 @@ export default function Movies() {
                                     <button
                                         onClick={() => setGenre('')}
                                         className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
-                                            !genre ? 'bg-gray-200 border-gray-200 text-gray-900' : 'bg-gray-900/50 border-gray-700 text-gray-400 hover:border-gray-500 hover:text-white'
+                                            !genre ? 'bg-blue-600 border-blue-500 text-white' : 'bg-gray-900/50 border-gray-700 text-gray-400 hover:border-gray-500 hover:text-white'
                                         }`}
                                     >All</button>
                                     {ALL_GENRES.map(g => (
@@ -266,6 +282,18 @@ export default function Movies() {
                                 </div>
                             </div>
                         </div>
+
+                        {activeFilters.length > 0 && (
+                            <div className="px-6 py-3 border-t border-gray-700/50 bg-gray-900/30 flex items-center justify-between">
+                                <span className="text-xs text-gray-500">{activeFilters.length} filter{activeFilters.length !== 1 ? 's' : ''} active</span>
+                                <button onClick={reset} className="flex items-center gap-1.5 text-xs text-red-400 hover:text-red-300 font-semibold transition-colors">
+                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                    Reset all
+                                </button>
+                            </div>
+                        )}
                     </div>
                 )}
 
@@ -285,7 +313,7 @@ export default function Movies() {
                     <div className="flex flex-col items-center justify-center py-36 text-center">
                         <div className="w-20 h-20 mb-6 rounded-2xl bg-gray-800/80 border border-gray-700 flex items-center justify-center text-3xl">🎬</div>
                         <p className="text-xl font-black text-white mb-2">No results</p>
-                        <p className="text-gray-500 text-sm mb-7 max-w-xs">No movies match your current filters. Try broadening your search.</p>
+                        <p className="text-gray-500 text-sm mb-7 max-w-xs">No movies match your current filters.</p>
                         <button onClick={reset} className="px-6 py-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 border border-gray-700 text-sm font-semibold text-gray-300 transition-all">
                             Reset filters
                         </button>

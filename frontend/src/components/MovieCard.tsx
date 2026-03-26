@@ -2,7 +2,6 @@ import { useNavigate } from 'react-router-dom';
 import type { Movie } from '../types';
 import { useWatchlist } from '../context/WatchlistContext';
 import { useAuth } from '../context/AuthContext';
-import { useReviews } from '../context/ReviewContext';
 import { usePoster } from '../hooks/usePoster';
 
 interface MovieCardProps {
@@ -14,16 +13,14 @@ const MovieCard = ({ movie, rank }: MovieCardProps) => {
     const navigate = useNavigate();
     const { user } = useAuth();
     const { isInWatchlist, toggleWatchlist } = useWatchlist();
-    const { getSummary } = useReviews();
+    const saved = isInWatchlist(movie.id);
 
-    const saved   = isInWatchlist(movie.id);
-    const summary = getSummary(movie.id);
     const posterSrc = usePoster(movie.tmdbId, movie.title, movie.image);
 
     const handleWatchlist = (e: React.MouseEvent) => {
         e.stopPropagation();
         if (!user) { navigate('/login'); return; }
-        toggleWatchlist(movie.id);
+        toggleWatchlist(movie.id, movie.title);
     };
 
     return (
@@ -31,7 +28,6 @@ const MovieCard = ({ movie, rank }: MovieCardProps) => {
             onClick={() => navigate(`/movies/${movie.id}`)}
             className="group relative aspect-[2/3] rounded-2xl overflow-hidden cursor-pointer border border-white/5 shadow-xl shadow-black/30 hover:shadow-black/50 hover:border-white/10 transition-all duration-300 hover:-translate-y-1"
         >
-            {/* Poster */}
             {posterSrc ? (
                 <img
                     src={posterSrc}
@@ -42,15 +38,11 @@ const MovieCard = ({ movie, rank }: MovieCardProps) => {
                 <div className="absolute inset-0 bg-gray-800 animate-pulse" />
             )}
 
-            {/* Persistent top vignette */}
             <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-transparent" />
-
-            {/* Hover bottom overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-            {/* ── Top row: heart + rating ── */}
+            {/* Top row */}
             <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-3">
-                {/* Heart */}
                 <button
                     onClick={handleWatchlist}
                     title={!user ? 'Login to save' : saved ? 'Remove from watchlist' : 'Add to watchlist'}
@@ -71,23 +63,15 @@ const MovieCard = ({ movie, rank }: MovieCardProps) => {
                     )}
                 </button>
 
-                {/* Rating + review count */}
-                <div className="flex flex-col items-end gap-0.5 bg-black/50 backdrop-blur-sm px-2 py-1 rounded-lg">
-                    <div className="flex items-center gap-1">
-                        <svg className="w-3 h-3 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                        </svg>
-                        <span className="text-white text-xs font-black">{movie.rating.toFixed(1)}</span>
-                    </div>
-                    {summary && summary.count > 0 && (
-                        <span className="text-gray-400 text-[9px] leading-none">
-                            {summary.count} review{summary.count !== 1 ? 's' : ''}
-                        </span>
-                    )}
+                <div className="flex items-center gap-1 bg-black/50 backdrop-blur-sm px-2 py-1 rounded-lg">
+                    <svg className="w-3 h-3 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                    <span className="text-white text-xs font-black">{movie.rating.toFixed(1)}</span>
                 </div>
             </div>
 
-            {/* ── Bottom info — hover only ── */}
+            {/* Bottom info on hover */}
             <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-2 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
                 <div className="flex items-center gap-2 mb-1.5">
                     {rank !== undefined && (
