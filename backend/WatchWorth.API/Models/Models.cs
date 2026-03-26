@@ -71,14 +71,3 @@ public class UpdateReviewRequest
     public int?    Rating { get; set; }
     public string? Text   { get; set; }
 }
-
-public class CreateMovieRequest
-{
-    public int    TmdbId      { get; set; }
-    public string Title       { get; set; } = "";
-    public int    Year        { get; set; }
-    public string Description { get; set; } = "";
-    public double Rating      { get; set; }
-    public string Image       { get; set; } = "";
-    public string Genre       { get; set; } = "";
-}
