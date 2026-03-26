@@ -12,10 +12,16 @@
         <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.4.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.4.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.11">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\WatchWorth.BusinessLayer\WatchWorth.BusinessLayer.csproj" />
+        <ProjectReference Include="..\WatchWorth.BusinessLayer\WatchWorth.BusinessLayer.csproj" />
+        <ProjectReference Include="..\WatchWorth.DataAccessLayer\WatchWorth.DataAccessLayer.csproj" />
+        <ProjectReference Include="..\WatchWorth.Domain\WatchWorth.Domain.csproj" />
     </ItemGroup>
 
 </Project>

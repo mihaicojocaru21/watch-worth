@@ -10,5 +10,9 @@ namespace WatchWorth.Domain.Entities
         public double Rating      { get; set; }
         public string Image       { get; set; } = "";
         public string Genre       { get; set; } = "";
+
+        // Navigation
+        public ICollection<Review>       Reviews       { get; set; } = [];
+        public ICollection<WatchlistItem> WatchlistItems { get; set; } = [];
     }
 }

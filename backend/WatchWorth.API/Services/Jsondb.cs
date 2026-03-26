@@ -1,5 +1,6 @@
 using System.Text.Json;
 using WatchWorth.API.Models;
+using WatchWorth.Domain.Entities;
 
 namespace WatchWorth.API.Services;
 

@@ -1,5 +1,4 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -10,6 +9,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WatchWorth.BusinessLayer", "backend\WatchWorth.BusinessLayer\WatchWorth.BusinessLayer.csproj", "{26C680CE-02DB-4BF2-8F79-748B48D52626}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WatchWorth.Domain", "backend\WatchWorth.Domain\WatchWorth.Domain.csproj", "{0B6841A9-13C8-4179-8288-F17012728E31}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WatchWorth.DataAccessLayer", "backend\WatchWorth.DataAccessLayer\WatchWorth.DataAccessLayer.csproj", "{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,10 +33,15 @@ Global
 		{0B6841A9-13C8-4179-8288-F17012728E31}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B6841A9-13C8-4179-8288-F17012728E31}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B6841A9-13C8-4179-8288-F17012728E31}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{1EF51633-3DB7-4F54-AF22-84F46D2DB74B} = {FA0B6776-FD89-45B8-B7EC-2FA4EF03908D}
 		{26C680CE-02DB-4BF2-8F79-748B48D52626} = {FA0B6776-FD89-45B8-B7EC-2FA4EF03908D}
 		{0B6841A9-13C8-4179-8288-F17012728E31} = {FA0B6776-FD89-45B8-B7EC-2FA4EF03908D}
+		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890} = {FA0B6776-FD89-45B8-B7EC-2FA4EF03908D}
 	EndGlobalSection
 EndGlobal

@@ -3,7 +3,7 @@ using WatchWorth.BusinessLayer.Interfaces;
 
 namespace WatchWorth.BusinessLayer.Services
 {
-    public class MovieBL : UserApi, IMovieService
+    public class MovieBL : MovieApi, IMovieService
     {
         public MovieBL(IMovieRepository repo) : base(repo) { }
 

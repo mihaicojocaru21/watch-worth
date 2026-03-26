@@ -1,17 +1,18 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using WatchWorth.API.Repositories;
 using WatchWorth.API.Services;
 using WatchWorth.BusinessLayer;
-using WatchWorth.BusinessLayer.Interfaces;
+using WatchWorth.DataAccessLayer;
+using WatchWorth.DataAccessLayer.SeedData;
+using WatchWorth.DataAccessLayer.Context;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 
 // ── JWT ───────────────────────────────────────────────────────────────────────
 var jwtSecret = builder.Configuration["Jwt:Secret"]
-                ?? throw new InvalidOperationException("Jwt:Secret not configured in appsettings.json");
+                ?? throw new InvalidOperationException("Jwt:Secret not configured");
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -43,13 +44,12 @@ builder.Services.AddCors(options =>
 });
 
 // ── Services ──────────────────────────────────────────────────────────────────
-builder.Services.AddSingleton<JsonDb>();
 builder.Services.AddSingleton<JwtService>();
 
-// Register the repository in the API layer (it depends on JsonDb)
-builder.Services.AddScoped<IMovieRepository, JsonMovieRepository>();
+// DataAccessLayer — registers DbContext + all 4 EF repositories
+builder.Services.AddDataAccessLayer(builder.Configuration);
 
-// Register BL services (IMovieService, IItemService, BusinessLogic factory)
+// BusinessLayer — registers IMovieService (MovieBL), IItemService
 builder.Services.AddBusinessLogic();
 
 builder.Services.AddControllers();
@@ -58,21 +58,25 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Swagger
+// ── Seed database on startup ──────────────────────────────────────────────────
+using (var scope = app.Services.CreateScope())
+{
+    var ctx = scope.ServiceProvider.GetRequiredService<WatchWorthDbContext>();
+    DatabaseSeeder.Seed(ctx);
+}
+
+// ── Pipeline ──────────────────────────────────────────────────────────────────
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// Pipeline
 app.UseCors("FrontendPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
-// Health check
 app.MapGet("/api/health", () => Results.Ok(new { ok = true }));
 
 app.Run();

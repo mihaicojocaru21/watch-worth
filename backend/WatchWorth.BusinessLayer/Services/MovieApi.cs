@@ -4,21 +4,14 @@ using WatchWorth.Domain.Entities;
 
 namespace WatchWorth.BusinessLayer.Services
 {
-    /// <summary>
-    /// Base class that holds the real implementation logic ("Action" methods).
-    /// Concrete BL classes inherit from this and delegate to these methods,
-    /// following the pattern: XxxBL : UserApi, IXxx
-    /// </summary>
-    public class UserApi
+    public class MovieApi
     {
         private readonly IMovieRepository _repo;
 
-        public UserApi(IMovieRepository repo)
+        public MovieApi(IMovieRepository repo)
         {
             _repo = repo;
         }
-
-        // ── Movie actions ─────────────────────────────────────────────────────
 
         protected IEnumerable<MovieDto> GetAllMoviesAction(string? search, string? sort)
         {
@@ -45,6 +38,7 @@ namespace WatchWorth.BusinessLayer.Services
 
         protected MovieDto? GetMovieByIdAction(int id)
         {
+            // Folosim GetAll() ca să găsim filmul în listă
             var movie = _repo.GetAll().FirstOrDefault(m => m.Id == id);
             return movie is null ? null : ToDto(movie);
         }
@@ -66,7 +60,7 @@ namespace WatchWorth.BusinessLayer.Services
             };
 
             movies.Insert(0, newMovie);
-            _repo.Save(movies);
+            _repo.Save(movies); // Salvăm toată lista actualizată
 
             return ToDto(newMovie);
         }
@@ -99,11 +93,10 @@ namespace WatchWorth.BusinessLayer.Services
             var movies  = _repo.GetAll();
             var removed = movies.RemoveAll(m => m.Id == id);
             if (removed == 0) return false;
+            
             _repo.Save(movies);
             return true;
         }
-
-        // ── Mapping helper ────────────────────────────────────────────────────
 
         private static MovieDto ToDto(Movie m) => new()
         {
