@@ -4,6 +4,11 @@ using WatchWorth.Domain.Entities;
 
 namespace WatchWorth.BusinessLayer.Services
 {
+    /// <summary>
+    /// Base class that holds the real implementation logic ("Action" methods).
+    /// MovieBL inherits from this and delegates to these methods,
+    /// following the pattern: MovieBL : MovieApi, IMovieService
+    /// </summary>
     public class MovieApi
     {
         private readonly IMovieRepository _repo;
@@ -38,18 +43,14 @@ namespace WatchWorth.BusinessLayer.Services
 
         protected MovieDto? GetMovieByIdAction(int id)
         {
-            // Folosim GetAll() ca să găsim filmul în listă
-            var movie = _repo.GetAll().FirstOrDefault(m => m.Id == id);
+            var movie = _repo.GetById(id);
             return movie is null ? null : ToDto(movie);
         }
 
         protected MovieDto CreateMovieAction(CreateMovieDto dto)
         {
-            var movies = _repo.GetAll();
-
-            var newMovie = new Movie
+            var movie = new Movie
             {
-                Id          = (int)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
                 TmdbId      = dto.TmdbId,
                 Title       = dto.Title,
                 Year        = dto.Year,
@@ -59,44 +60,29 @@ namespace WatchWorth.BusinessLayer.Services
                 Genre       = dto.Genre,
             };
 
-            movies.Insert(0, newMovie);
-            _repo.Save(movies); // Salvăm toată lista actualizată
-
-            return ToDto(newMovie);
+            _repo.Add(movie);  // EF Core assigns the Id after insert
+            return ToDto(movie);
         }
 
         protected MovieDto? UpdateMovieAction(int id, UpdateMovieDto dto)
         {
-            var movies = _repo.GetAll();
-            var idx    = movies.FindIndex(m => m.Id == id);
-            if (idx == -1) return null;
+            var existing = _repo.GetById(id);
+            if (existing is null) return null;
 
-            var existing = movies[idx];
-            movies[idx] = new Movie
-            {
-                Id          = existing.Id,
-                TmdbId      = dto.TmdbId      ?? existing.TmdbId,
-                Title       = dto.Title       ?? existing.Title,
-                Year        = dto.Year        ?? existing.Year,
-                Description = dto.Description ?? existing.Description,
-                Rating      = dto.Rating      ?? existing.Rating,
-                Image       = dto.Image       ?? existing.Image,
-                Genre       = dto.Genre       ?? existing.Genre,
-            };
+            existing.TmdbId      = dto.TmdbId      ?? existing.TmdbId;
+            existing.Title       = dto.Title       ?? existing.Title;
+            existing.Year        = dto.Year        ?? existing.Year;
+            existing.Description = dto.Description ?? existing.Description;
+            existing.Rating      = dto.Rating      ?? existing.Rating;
+            existing.Image       = dto.Image       ?? existing.Image;
+            existing.Genre       = dto.Genre       ?? existing.Genre;
 
-            _repo.Save(movies);
-            return ToDto(movies[idx]);
+            _repo.Update(existing);
+            return ToDto(existing);
         }
 
-        protected bool DeleteMovieAction(int id)
-        {
-            var movies  = _repo.GetAll();
-            var removed = movies.RemoveAll(m => m.Id == id);
-            if (removed == 0) return false;
-            
-            _repo.Save(movies);
-            return true;
-        }
+        protected bool DeleteMovieAction(int id) =>
+            _repo.Delete(id);
 
         private static MovieDto ToDto(Movie m) => new()
         {

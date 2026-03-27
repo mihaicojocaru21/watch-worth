@@ -17,13 +17,6 @@ namespace WatchWorth.DataAccessLayer.Repositories
         public List<Movie> GetAll() =>
             _ctx.Movies.AsNoTracking().ToList();
 
-        // Aceasta este metoda pe care interfața o cere pentru JSON.
-        // O adăugăm aici doar ca să respectăm contractul și să trecem de compilare.
-        public void Save(List<Movie> movies)
-        {
-            // Nu face nimic aici. EF Core își gestionează salvarea prin Add/Update/Delete.
-        }
-
         public Movie? GetById(int id) =>
             _ctx.Movies.AsNoTracking().FirstOrDefault(m => m.Id == id);
 

@@ -5,6 +5,9 @@ namespace WatchWorth.BusinessLayer.Interfaces
     public interface IMovieRepository
     {
         List<Movie> GetAll();
-        void        Save(List<Movie> movies);
+        Movie?      GetById(int id);
+        void        Add(Movie movie);
+        void        Update(Movie movie);
+        bool        Delete(int id);
     }
 }
