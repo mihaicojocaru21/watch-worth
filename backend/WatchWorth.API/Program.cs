@@ -1,82 +1,48 @@
-using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using WatchWorth.API.Services;
-using WatchWorth.BusinessLayer;
 using WatchWorth.DataAccessLayer;
-using WatchWorth.DataAccessLayer.SeedData;
 using WatchWorth.DataAccessLayer.Context;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 
-// ── JWT ───────────────────────────────────────────────────────────────────────
-var jwtSecret = builder.Configuration["Jwt:Secret"]
-                ?? throw new InvalidOperationException("Jwt:Secret not configured");
+// ── eBookStore pattern: set connection string once, statically ──
+DbSession.ConnectionString =
+    builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? "Data Source=watchworth.db";
 
-builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey         = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
-            ValidateIssuer           = false,
-            ValidateAudience         = false,
-            ClockSkew                = TimeSpan.Zero,
-        };
-    });
-
-builder.Services.AddAuthorization();
-
-// ── CORS ──────────────────────────────────────────────────────────────────────
-var frontendUrl = builder.Configuration["FrontendUrl"] ?? "http://localhost:5173";
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("FrontendPolicy", policy =>
-    {
-        policy.WithOrigins(frontendUrl)
-              .AllowAnyHeader()
-              .AllowAnyMethod();
-    });
-});
-
-// ── Services ──────────────────────────────────────────────────────────────────
-builder.Services.AddSingleton<JwtService>();
-
-// DataAccessLayer — registers DbContext + all 4 EF repositories
-builder.Services.AddDataAccessLayer(builder.Configuration);
-
-// BusinessLayer — registers IMovieService (MovieBL), IItemService
-builder.Services.AddBusinessLogic();
-
+// ── Services ──────────────────────────────────────────────────
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// JwtService uses DI because it reads config (Jwt:Secret)
+builder.Services.AddSingleton<JwtService>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
+
 var app = builder.Build();
 
-// ── Seed database on startup ──────────────────────────────────────────────────
-using (var scope = app.Services.CreateScope())
+// ── Ensure DB exists (EnsureCreated handles schema) ──────────
+using (var db = new WatchWorthDbContext())
 {
-    var ctx = scope.ServiceProvider.GetRequiredService<WatchWorthDbContext>();
-    DatabaseSeeder.Seed(ctx);
+    db.Database.EnsureCreated();
 }
 
-// ── Pipeline ──────────────────────────────────────────────────────────────────
+// ── Middleware ────────────────────────────────────────────────
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseCors("FrontendPolicy");
-app.UseAuthentication();
+app.UseCors("AllowFrontend");
+app.UseHttpsRedirection();
 app.UseAuthorization();
-
 app.MapControllers();
-app.MapGet("/api/health", () => Results.Ok(new { ok = true }));
 
 app.Run();

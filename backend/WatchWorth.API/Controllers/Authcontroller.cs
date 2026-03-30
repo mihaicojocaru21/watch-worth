@@ -1,40 +1,45 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WatchWorth.API.Models;
 using WatchWorth.API.Services;
+using WatchWorth.BusinessLayer;
 using WatchWorth.BusinessLayer.Interfaces;
+using WatchWorth.Domain.Models.Auth;
 
-namespace WatchWorth.API.Controllers;
-
-[ApiController]
-[Route("api/auth")]
-public class AuthController(IUserRepository userRepo, JwtService jwt) : ControllerBase
+namespace WatchWorth.API.Controllers
 {
-    // POST /api/auth/login
-    [HttpPost("login")]
-    public IActionResult Login([FromBody] LoginRequest req)
+    [Route("api/auth")]
+    [ApiController]
+    public class AuthController : ControllerBase
     {
-        if (string.IsNullOrWhiteSpace(req.Email) || string.IsNullOrWhiteSpace(req.Password))
-            return BadRequest(new { error = "Email and password required" });
+        private readonly IUserAction _users;
+        private readonly JwtService  _jwt;
 
-        var user = userRepo.GetByEmailAndPassword(req.Email, req.Password);
-        if (user is null)
-            return Unauthorized(new { error = "Invalid email or password" });
-
-        var safe  = new SafeUser
+        public AuthController(JwtService jwt)
         {
-            Id       = user.Id,
-            Username = user.Username,
-            Email    = user.Email,
-            Role     = user.Role,
-        };
-        var token = jwt.GenerateToken(safe);
+            var bl = new BusinessLogic();
+            _users = bl.UserAction();
+            _jwt   = jwt;
+        }
 
-        return Ok(new LoginResponse { Token = token, User = safe });
+        // POST api/auth/login
+        [HttpPost("login")]
+        public IActionResult Login([FromBody] LoginDto dto)
+        {
+            var user = _users.GetByEmailAndPasswordAction(dto.Email, dto.Password);
+            if (user is null)
+                return Unauthorized(new { message = "Invalid email or password." });
+
+            // JwtService expects SafeUser — map from User entity
+            var safeUser = new SafeUser
+            {
+                Id       = user.Id,
+                Username = user.Username,
+                Email    = user.Email,
+                Role     = user.Role,
+            };
+
+            var token = _jwt.GenerateToken(safeUser);
+            return Ok(new { token, user = safeUser });
+        }
     }
-
-    // GET /api/auth/me
-    [HttpGet("me")]
-    [Authorize]
-    public IActionResult Me() => Ok(new { user = User.GetCurrentUser() });
 }
