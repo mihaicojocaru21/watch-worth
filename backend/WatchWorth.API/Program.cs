@@ -4,6 +4,7 @@ using System.Text;
 using WatchWorth.API.Services;
 using WatchWorth.DataAccessLayer;
 using WatchWorth.DataAccessLayer.Context;
+using WatchWorth.DataAccessLayer.SeedData;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,7 +45,7 @@ var app = builder.Build();
 // ── Ensure DB exists (EnsureCreated handles schema) ──────────
 using (var db = new WatchWorthDbContext())
 {
-    db.Database.EnsureCreated();
+    DatabaseSeeder.Seed(db);
 }
 
 // ── Middleware ────────────────────────────────────────────────

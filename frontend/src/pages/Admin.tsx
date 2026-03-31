@@ -5,10 +5,9 @@ import type { MovieFormData } from '../components/admin/MovieForm';
 import MovieTable from '../components/admin/MovieTable';
 import { useMovies } from '../hooks/useMovies';
 import type { Movie } from '../types';
-import { MOCK_MOVIES } from '../data/mockData';
+import { useMemo } from 'react';
 
 const PLACEHOLDER_IMAGE = 'https://placehold.co/300x450/1f2937/6b7280?text=No+Poster';
-const GENRES = Array.from(new Set(MOCK_MOVIES.map(m => m.genre)));
 
 // ── Styled confirm dialog ─────────────────────────────────────────────────────
 const ConfirmDialog = ({
@@ -80,6 +79,10 @@ const StatCard = ({ label, value, sub, accent, icon }: {
 // ── Main ──────────────────────────────────────────────────────────────────────
 const Admin = () => {
     const { movies, addMovie, updateMovie, deleteMovie } = useMovies();
+    const GENRES = useMemo(
+        () => Array.from(new Set(movies.map(m => m.genre))).sort(),
+        [movies]
+    );
     const [editingMovie,  setEditingMovie]  = useState<Movie | null>(null);
     const [formOpen,      setFormOpen]      = useState(false);
     const [confirmTarget, setConfirmTarget] = useState<Movie | null>(null);
