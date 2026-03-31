@@ -22,15 +22,3 @@ public class LoginResponse
     public string   Token { get; set; } = "";
     public SafeUser User  { get; set; } = new();
 }
-
-public class CreateReviewRequest
-{
-    public int    Rating { get; set; }
-    public string Text   { get; set; } = "";
-}
-
-public class UpdateReviewRequest
-{
-    public int?    Rating { get; set; }
-    public string? Text   { get; set; }
-}

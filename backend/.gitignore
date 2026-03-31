@@ -5,3 +5,7 @@ obj/
 appsettings.Development.json
 WatchWorth.API/data/*.json
 appsettings.json
+
+*.db-shm
+*.db-wal
+*.db
