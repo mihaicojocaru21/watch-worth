@@ -1,11 +1,12 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WatchWorth.API.Services;
 using WatchWorth.BusinessLayer;
 using WatchWorth.BusinessLayer.Interfaces;
 using WatchWorth.Domain.Entities;
 
 namespace WatchWorth.API.Controllers
 {
-    [Route("api/reviews")]
     [ApiController]
     public class ReviewsController : ControllerBase
     {
@@ -17,64 +18,91 @@ namespace WatchWorth.API.Controllers
             _reviews = bl.ReviewAction();
         }
 
-        // GET api/reviews/movie/5
-        [HttpGet("movie/{movieId:int}")]
-        public IActionResult GetByMovie(int movieId)
+        // GET /api/reviews/summary
+        [HttpGet("api/reviews/summary")]
+        public IActionResult GetSummary() =>
+            Ok(_reviews.GetSummaryAction());
+
+        // GET /api/movies/{movieId}/reviews
+        [HttpGet("api/movies/{movieId:int}/reviews")]
+        public IActionResult GetByMovie(int movieId) =>
+            Ok(_reviews.GetByMovieIdAction(movieId));
+
+        // POST /api/movies/{movieId}/reviews  (auth required)
+        [HttpPost("api/movies/{movieId:int}/reviews")]
+        [Authorize]
+        public IActionResult Create(int movieId, [FromBody] CreateReviewRequest req)
         {
-            var result = _reviews.GetByMovieIdAction(movieId);
-            return Ok(result);
+            if (req.Rating < 1 || req.Rating > 5)
+                return BadRequest(new { error = "rating must be 1–5" });
+
+            if (string.IsNullOrWhiteSpace(req.Text) || req.Text.Trim().Length < 10)
+                return BadRequest(new { error = "review must be at least 10 characters" });
+
+            var currentUser = User.GetCurrentUser();
+
+            if (_reviews.ExistsForUserAction(movieId, currentUser.Id))
+                return Conflict(new { error = "You already reviewed this movie" });
+
+            var review = new Review
+            {
+                Id        = $"{currentUser.Id}-{movieId}-{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}",
+                MovieId   = movieId,
+                UserId    = currentUser.Id,
+                Username  = currentUser.Username,
+                Rating    = req.Rating,
+                Text      = req.Text.Trim(),
+                CreatedAt = DateTime.UtcNow.ToString("o"),
+            };
+
+            _reviews.AddReviewAction(review);
+            return Created("", review);
         }
 
-        // GET api/reviews/summary
-        [HttpGet("summary")]
-        public IActionResult GetSummary()
+        // PUT /api/reviews/{id}
+        [HttpPut("api/reviews/{id}")]
+        [Authorize]
+        public IActionResult Update(string id, [FromBody] UpdateReviewRequest req)
         {
-            var result = _reviews.GetSummaryAction();
-            return Ok(result);
-        }
+            var currentUser = User.GetCurrentUser();
+            var review = _reviews.GetReviewByIdAction(id);
 
-        // GET api/reviews/exists?movieId=5&userId=1
-        [HttpGet("exists")]
-        public IActionResult Exists([FromQuery] int movieId, [FromQuery] int userId)
-        {
-            var exists = _reviews.ExistsForUserAction(movieId, userId);
-            return Ok(new { exists });
-        }
+            if (review is null) return NotFound(new { error = "Review not found" });
+            if (review.UserId != currentUser.Id) return Forbid();
 
-        // POST api/reviews
-        [HttpPost]
-        public IActionResult Add([FromBody] Review review)
-        {
+            if (req.Rating.HasValue) review.Rating = req.Rating.Value;
+            if (req.Text != null)    review.Text   = req.Text.Trim();
             review.CreatedAt = DateTime.UtcNow.ToString("o");
-            var response = _reviews.AddReviewAction(review);
-            return Ok(response);
+
+            _reviews.UpdateReviewAction(review);
+            return Ok(review);
         }
 
-        // PUT api/reviews
-        [HttpPut]
-        public IActionResult Update([FromBody] Review review)
-        {
-            var existing = _reviews.GetReviewByIdAction(review.Id);
-            if (existing is null)
-                return NotFound(new { isSuccess = false, message = "Review not found." });
-
-            existing.Rating = review.Rating;
-            existing.Text   = review.Text;
-
-            var response = _reviews.UpdateReviewAction(existing);
-            return Ok(response);
-        }
-
-        // DELETE api/reviews/{id}
-        [HttpDelete("{id}")]
+        // DELETE /api/reviews/{id}
+        [HttpDelete("api/reviews/{id}")]
+        [Authorize]
         public IActionResult Delete(string id)
         {
-            var existing = _reviews.GetReviewByIdAction(id);
-            if (existing is null)
-                return NotFound(new { isSuccess = false, message = "Review not found." });
+            var currentUser = User.GetCurrentUser();
+            var review = _reviews.GetReviewByIdAction(id);
 
-            var response = _reviews.DeleteReviewAction(existing);
-            return Ok(response);
+            if (review is null) return NotFound(new { error = "Review not found" });
+            if (review.UserId != currentUser.Id && currentUser.Role != "admin") return Forbid();
+
+            _reviews.DeleteReviewAction(review);
+            return Ok(new { success = true });
         }
+    }
+
+    public class CreateReviewRequest
+    {
+        public int    Rating { get; set; }
+        public string Text   { get; set; } = "";
+    }
+
+    public class UpdateReviewRequest
+    {
+        public int?    Rating { get; set; }
+        public string? Text   { get; set; }
     }
 }

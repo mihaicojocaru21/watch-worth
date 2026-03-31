@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WatchWorth.API.Services;
 using WatchWorth.BusinessLayer;
 using WatchWorth.BusinessLayer.Interfaces;
 
@@ -6,6 +8,7 @@ namespace WatchWorth.API.Controllers
 {
     [Route("api/watchlist")]
     [ApiController]
+    [Authorize]
     public class WatchlistController : ControllerBase
     {
         private readonly IWatchlistAction _watchlist;
@@ -16,36 +19,39 @@ namespace WatchWorth.API.Controllers
             _watchlist = bl.WatchlistAction();
         }
 
-        // GET api/watchlist/{userId}
-        [HttpGet("{userId:int}")]
-        public IActionResult Get(int userId)
+        // GET /api/watchlist
+        [HttpGet]
+        public IActionResult Get()
         {
-            var movieIds = _watchlist.GetMovieIdsAction(userId);
-            return Ok(movieIds);
+            var userId = User.GetCurrentUser().Id;
+            return Ok(_watchlist.GetMovieIdsAction(userId));
         }
 
-        // POST api/watchlist/{userId}/{movieId}
-        [HttpPost("{userId:int}/{movieId:int}")]
-        public IActionResult Add(int userId, int movieId)
+        // POST /api/watchlist/{movieId}
+        [HttpPost("{movieId:int}")]
+        public IActionResult Add(int movieId)
         {
+            var userId = User.GetCurrentUser().Id;
             _watchlist.AddMovieAction(userId, movieId);
-            return Ok(new { isSuccess = true, message = "Movie added to watchlist." });
+            return Ok(_watchlist.GetMovieIdsAction(userId));
         }
 
-        // DELETE api/watchlist/{userId}/{movieId}
-        [HttpDelete("{userId:int}/{movieId:int}")]
-        public IActionResult Remove(int userId, int movieId)
+        // DELETE /api/watchlist/{movieId}
+        [HttpDelete("{movieId:int}")]
+        public IActionResult Remove(int movieId)
         {
+            var userId = User.GetCurrentUser().Id;
             _watchlist.RemoveMovieAction(userId, movieId);
-            return Ok(new { isSuccess = true, message = "Movie removed from watchlist." });
+            return Ok(_watchlist.GetMovieIdsAction(userId));
         }
 
-        // DELETE api/watchlist/{userId}
-        [HttpDelete("{userId:int}")]
-        public IActionResult Clear(int userId)
+        // DELETE /api/watchlist
+        [HttpDelete]
+        public IActionResult Clear()
         {
+            var userId = User.GetCurrentUser().Id;
             _watchlist.ClearWatchlistAction(userId);
-            return Ok(new { isSuccess = true, message = "Watchlist cleared." });
+            return Ok(new List<int>());
         }
     }
 }
