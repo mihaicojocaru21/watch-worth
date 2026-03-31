@@ -22,10 +22,15 @@ axiosClient.interceptors.response.use(
     (response) => response,
     (error: AxiosError) => {
         const status = error.response?.status;
+        const url = error.config?.url; // Aflăm la ce URL s-a făcut request-ul
 
-        if (status === 401) window.location.href = '/login';
+        // NU da redirect dacă 401 vine de la endpoint-ul de login
+        if (status === 401 && url !== '/auth/login') {
+            localStorage.removeItem('watchworth_token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+        }
         else if (status === 403) window.location.href = '/forbidden';
-
         else if (status && status >= 500) window.location.href = '/error';
 
         return Promise.reject(error);
