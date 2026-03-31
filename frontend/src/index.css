@@ -16,81 +16,125 @@
    ════════════════════════════════════════════════════════════ */
 [data-theme="light"] {
     /* Gray scale — fully inverted */
-    --color-gray-950: #f1f5f9;
-    --color-gray-900: #f8fafc;
+    --color-gray-950: #e8edf2;
+    --color-gray-900: #f0f4f8;
     --color-gray-800: #ffffff;
-    --color-gray-700: #e2e8f0;
-    --color-gray-600: #94a3b8;
-    --color-gray-500: #64748b;
-    --color-gray-400: #475569;
-    --color-gray-300: #334155;
-    --color-gray-200: #1e293b;
-    --color-gray-100: #0f172a;
-    --color-gray-50:  #020617;
+    --color-gray-700: #dde3ea;
+    --color-gray-600: #8896a5;
+    --color-gray-500: #5a6a7a;
+    --color-gray-400: #3a4a5a;
+    --color-gray-300: #1e2d3d;
+    --color-gray-200: #0f1e2d;
+    --color-gray-100: #071525;
+    --color-gray-50:  #020c17;
 
-    /* black / white swap */
     --color-white: #0f172a;
     --color-black: #f8fafc;
 
-    /* page background */
-    background-color: #f1f5f9;
+    background-color: #eef2f7;
     color: #0f172a;
 }
 
-/* ── Preserve white text on coloured buttons & badges ── */
-[data-theme="light"] .text-white {
-    --tw-text-opacity: 1;
+/* ── Navbar ── */
+[data-theme="light"] .bg-gray-900\/80 {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    border-bottom: 1px solid #dde3ea !important;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.08) !important;
 }
 
-[data-theme="light"] .bg-blue-600  .text-white,
-[data-theme="light"] .bg-blue-500  .text-white,
-[data-theme="light"] .bg-red-500   .text-white,
-[data-theme="light"] .bg-green-600 .text-white,
-[data-theme="light"] .bg-yellow-500 .text-white,
-[data-theme="light"] .bg-indigo-600 .text-white { color: #ffffff !important; }
+/* ── Hero section pe Home ── */
+[data-theme="light"] section.bg-gray-900 {
+    background: linear-gradient(135deg, #dbeafe 0%, #ede9fe 100%) !important;
+    border: 1px solid #bfdbfe !important;
+}
 
-/* Buttons and badges that must always be white-on-color */
+/* ── Hero movie card gradient — rămâne întunecat pentru lizibilitate ── */
+[data-theme="light"] .bg-gradient-to-r.from-gray-900\/95 {
+    background: linear-gradient(to right,
+    rgba(15, 23, 42, 0.92),
+    rgba(15, 23, 42, 0.70),
+    transparent) !important;
+}
+
+/* ── Carduri și panouri ── */
+[data-theme="light"] .bg-gray-800\/40 {
+    background-color: rgba(255, 255, 255, 0.85) !important;
+    border-color: #dde3ea !important;
+}
+[data-theme="light"] .bg-gray-800\/50 {
+    background-color: rgba(255, 255, 255, 0.9) !important;
+}
+[data-theme="light"] .bg-gray-800\/60 {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+}
+[data-theme="light"] .bg-gray-800\/70 {
+    background-color: rgba(255, 255, 255, 0.97) !important;
+}
+[data-theme="light"] .bg-gray-800\/30 {
+    background-color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* ── Fundal frosted glass ── */
+[data-theme="light"] .bg-gray-900\/60 {
+    background-color: rgba(240, 244, 248, 0.88) !important;
+}
+[data-theme="light"] .bg-gray-900\/70 {
+    background-color: rgba(240, 244, 248, 0.92) !important;
+}
+[data-theme="light"] .bg-gray-900\/30 {
+    background-color: rgba(240, 244, 248, 0.55) !important;
+}
+
+/* ── Borders mai vizibile ── */
+[data-theme="light"] .border-white\/5  { border-color: #dde3ea !important; }
+[data-theme="light"] .border-white\/10 { border-color: #c8d2dc !important; }
+[data-theme="light"] .border-white\/15 { border-color: #b0bec9 !important; }
+[data-theme="light"] .border-gray-800  { border-color: #dde3ea !important; }
+[data-theme="light"] .border-gray-700\/60 { border-color: #c5d0db !important; }
+[data-theme="light"] .border-gray-700\/50 { border-color: #cdd7e1 !important; }
+
+/* ── Inputs și form-uri ── */
+[data-theme="light"] input,
+[data-theme="light"] textarea,
+[data-theme="light"] select {
+    background-color: #ffffff !important;
+    border-color: #c8d2dc !important;
+    color: #0f172a !important;
+}
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder {
+    color: #8896a5 !important;
+}
+
+/* ── Overlays pe movie cards — rămân întunecate ── */
+[data-theme="light"] .bg-black\/40  { background-color: rgba(0,0,0,0.40) !important; }
+[data-theme="light"] .bg-black\/50  { background-color: rgba(0,0,0,0.50) !important; }
+[data-theme="light"] .bg-black\/70  { background-color: rgba(0,0,0,0.70) !important; }
+[data-theme="light"] .bg-black\/95  { background-color: rgba(0,0,0,0.95) !important; }
+
+/* ── Butoane albe pe fond colorat ── */
+[data-theme="light"] .text-white { --tw-text-opacity: 1; }
 [data-theme="light"] button.bg-blue-600,
-[data-theme="light"] button.bg-blue-500,
 [data-theme="light"] a.bg-blue-600,
-[data-theme="light"] a.bg-blue-500 { color: #ffffff !important; }
-
+[data-theme="light"] button.bg-blue-500,
+[data-theme="light"] a.bg-blue-500  { color: #ffffff !important; }
 [data-theme="light"] button.bg-red-600,
-[data-theme="light"] button.bg-red-500 { color: #ffffff !important; }
-
+[data-theme="light"] button.bg-red-500  { color: #ffffff !important; }
 [data-theme="light"] button.bg-green-600,
 [data-theme="light"] button.bg-green-500 { color: #ffffff !important; }
-
-/* ── Gradient text must stay transparent ── */
 [data-theme="light"] .text-transparent { color: transparent !important; }
 
-/* ── Navbar needs a visible border in light mode ── */
-[data-theme="light"] .border-white\/5  { border-color: #e2e8f0; }
-[data-theme="light"] .border-white\/10 { border-color: #cbd5e1; }
-[data-theme="light"] .border-white\/15 { border-color: #94a3b8; }
+/* ── Table rows în Admin ── */
+[data-theme="light"] .bg-gray-700\/20 { background-color: rgba(200, 210, 220, 0.25) !important; }
+[data-theme="light"] .bg-gray-700\/60 { background-color: #e8edf2 !important; }
 
-/* ── Frosted glass / backdrop panels ── */
-[data-theme="light"] .bg-gray-900\/80 { background-color: rgba(248,250,252,0.92) !important; }
-[data-theme="light"] .bg-gray-800\/40 { background-color: rgba(255,255,255,0.7)  !important; }
-[data-theme="light"] .bg-gray-800\/60 { background-color: rgba(255,255,255,0.85) !important; }
-[data-theme="light"] .bg-gray-900\/60 { background-color: rgba(241,245,249,0.85) !important; }
-[data-theme="light"] .bg-gray-900\/70 { background-color: rgba(241,245,249,0.9)  !important; }
-[data-theme="light"] .bg-gray-900\/30 { background-color: rgba(241,245,249,0.5)  !important; }
-
-/* ── Movie card overlays keep dark so text stays readable ── */
-[data-theme="light"] .bg-black\/40  { background-color: rgba(0,0,0,0.40)  !important; }
-[data-theme="light"] .bg-black\/50  { background-color: rgba(0,0,0,0.50)  !important; }
-[data-theme="light"] .bg-black\/70  { background-color: rgba(0,0,0,0.70)  !important; }
-[data-theme="light"] .bg-black\/95  { background-color: rgba(0,0,0,0.95)  !important; }
-
-/* ── Yellow rating badge always black text ── */
-[data-theme="light"] .bg-yellow-500.text-gray-900 { color: #111827 !important; }
-
-/* ── Smooth theme transition ── */
-*,
-*::before,
-*::after {
+/* ── Smooth transition ── */
+*, *::before, *::after {
     transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+[class*="animate-"], [class*="hover:-translate"],
+[class*="hover:scale"], [class*="group-hover:"], [class*="duration-"] {
+    transition-property: color, background-color, border-color, opacity, transform, filter, box-shadow;
 }
 
 /* Don't override transform / opacity transitions (breaks animations) */
