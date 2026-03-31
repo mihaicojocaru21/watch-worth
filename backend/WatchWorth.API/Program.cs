@@ -30,6 +30,7 @@ builder.Services.AddHttpClient();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
 // JwtService uses DI because it reads config (Jwt:Secret)
 builder.Services.AddSingleton<JwtService>();
 

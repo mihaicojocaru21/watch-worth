@@ -22,6 +22,8 @@ const RATING_PRESETS = [
     { label: '9+',   value: 9   },
 ];
 
+const MOVIES_PER_PAGE = 20;
+
 export default function Movies() {
     const { movies, loading, error } = useMovieList('rating');
     const [searchParams] = useSearchParams();
@@ -50,6 +52,9 @@ export default function Movies() {
     const [panel,       setPanel]       = useState(false);
     const [yearsReady,  setYearsReady]  = useState(false);
 
+    // Pagination state
+    const [page, setPage] = useState(1);
+
     // Initialise year range once movies have loaded
     useEffect(() => {
         if (movies.length && !yearsReady) {
@@ -71,6 +76,11 @@ export default function Movies() {
         return () => clearTimeout(t);
     }, [searchInput]);
 
+    // Reset pagination to page 1 whenever filters or search change
+    useEffect(() => {
+        setPage(1);
+    }, [search, genre, minRating, yearFrom, yearTo, sortBy]);
+
     const activeFilters = useMemo(() => {
         const chips: { label: string; onRemove: () => void }[] = [];
         if (genre)                             chips.push({ label: genre,             onRemove: () => setGenre('') });
@@ -83,8 +93,10 @@ export default function Movies() {
     const reset = useCallback(() => {
         setSearchInput(''); setSearch(''); setSortBy('rating'); setGenre('');
         setMinRating(0); setYearFrom(MIN_YEAR); setYearTo(MAX_YEAR);
+        setPage(1);
     }, [MIN_YEAR, MAX_YEAR]);
 
+    // Filter and sort movies
     const filtered = useMemo(() => {
         let r = [...movies];
         const q = search.trim().toLowerCase();
@@ -97,6 +109,17 @@ export default function Movies() {
         if (sortBy === 'genre')  r.sort((a, b) => a.genre.localeCompare(b.genre));
         return r;
     }, [movies, search, genre, minRating, yearFrom, yearTo, sortBy]);
+
+    // Pagination calculations
+    const totalPages = Math.max(1, Math.ceil(filtered.length / MOVIES_PER_PAGE));
+    const safePage   = Math.min(page, totalPages);
+    const startIdx   = (safePage - 1) * MOVIES_PER_PAGE;
+    const pageMovies = filtered.slice(startIdx, startIdx + MOVIES_PER_PAGE);
+
+    const handlePageChange = (newPage: number) => {
+        setPage(newPage);
+        window.scrollTo({ top: 300, behavior: 'smooth' }); // Scroll back up slightly
+    };
 
     if (error) return <ServerError />;
 
@@ -124,7 +147,7 @@ export default function Movies() {
                             <p className="text-gray-500 text-sm">
                                 {loading
                                     ? 'Loading catalogue…'
-                                    : <>{filtered.length} <span className="text-gray-600">of</span> {movies.length} films</>}
+                                    : <>{filtered.length} <span className="text-gray-600">films found</span></>}
                             </p>
                         </div>
 
@@ -321,12 +344,68 @@ export default function Movies() {
                 )}
 
                 {/* ── Grid ── */}
-                {!loading && filtered.length > 0 && (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
-                        {filtered.map(movie => (
-                            <MovieCard key={movie.id} movie={movie} />
-                        ))}
-                    </div>
+                {!loading && pageMovies.length > 0 && (
+                    <>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
+                            {pageMovies.map(movie => (
+                                <MovieCard key={movie.id} movie={movie} />
+                            ))}
+                        </div>
+
+                        {/* ── Pagination ── */}
+                        {totalPages > 1 && (
+                            <div className="mt-12 flex items-center justify-center gap-2">
+                                {/* Prev Button */}
+                                <button
+                                    onClick={() => handlePageChange(Math.max(1, safePage - 1))}
+                                    disabled={safePage === 1}
+                                    className="flex items-center justify-center px-4 py-2.5 rounded-xl bg-gray-800 border border-gray-700 text-sm font-bold text-gray-400 hover:text-white hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                >
+                                    <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/></svg>
+                                    Prev
+                                </button>
+
+                                {/* Page Numbers (Hidden on very small screens) */}
+                                <div className="hidden sm:flex items-center gap-1.5 mx-2">
+                                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                                        .filter(p => p === 1 || p === totalPages || Math.abs(p - safePage) <= 1)
+                                        .reduce<(number | '…')[]>((acc, p, i, arr) => {
+                                            if (i > 0 && (p as number) - (arr[i - 1] as number) > 1) acc.push('…');
+                                            acc.push(p);
+                                            return acc;
+                                        }, [])
+                                        .map((p, i) =>
+                                            p === '…'
+                                                ? <span key={`e${i}`} className="w-10 h-10 flex items-center justify-center text-gray-600 text-sm font-bold">…</span>
+                                                : <button key={p} onClick={() => handlePageChange(p as number)}
+                                                          className={`w-10 h-10 flex items-center justify-center rounded-xl text-sm font-bold transition-all ${
+                                                              safePage === p
+                                                                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20'
+                                                                  : 'bg-gray-800 border border-gray-700 text-gray-400 hover:text-white hover:bg-gray-700'
+                                                          }`}>
+                                                    {p}
+                                                </button>
+                                        )
+                                    }
+                                </div>
+
+                                {/* Mobile page indicator */}
+                                <div className="sm:hidden text-sm font-bold text-gray-400 px-3">
+                                    {safePage} / {totalPages}
+                                </div>
+
+                                {/* Next Button */}
+                                <button
+                                    onClick={() => handlePageChange(Math.min(totalPages, safePage + 1))}
+                                    disabled={safePage === totalPages}
+                                    className="flex items-center justify-center px-4 py-2.5 rounded-xl bg-gray-800 border border-gray-700 text-sm font-bold text-gray-400 hover:text-white hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                >
+                                    Next
+                                    <svg className="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
+                                </button>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
         </div>
