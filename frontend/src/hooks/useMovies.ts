@@ -33,5 +33,5 @@ export const useMovies = () => {
         await loadMovies();
     };
 
-    return { movies, addMovie, updateMovie, deleteMovie };
+    return { movies, addMovie, updateMovie, deleteMovie, refresh: loadMovies };
 };
