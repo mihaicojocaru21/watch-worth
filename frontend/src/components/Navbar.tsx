@@ -41,15 +41,34 @@ const Navbar = () => {
                     <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-6">
 
                         {/* ── Logo ── */}
-                        <Link to="/" className="flex items-center gap-2.5 shrink-0 group" onClick={() => setMobileOpen(false)}>
-                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-shadow">
-                                <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V4h-4z"/>
+                        <Link to="/" className="flex items-center gap-3 shrink-0 group" onClick={() => setMobileOpen(false)}>
+
+                            {/* Clapperboard icon */}
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-800 to-slate-600 flex items-center justify-center shadow-lg shadow-black/30 group-hover:shadow-black/50 transition-all duration-300 group-hover:scale-105 shrink-0">
+                                <svg width="24" height="22" viewBox="0 0 24 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    {/* Body */}
+                                    <rect x="2" y="8" width="20" height="13" rx="2" fill="white" fillOpacity="0.12" stroke="white" strokeWidth="1.4"/>
+                                    {/* Top strip */}
+                                    <path d="M2 8 L22 8 L19 3 L2 3 Z" fill="white" fillOpacity="0.9"/>
+                                    {/* Diagonal lines on strip */}
+                                    <line x1="6"  y1="3" x2="5"  y2="8" stroke="#1e293b" strokeWidth="1.5"/>
+                                    <line x1="11" y1="3" x2="10" y2="8" stroke="#1e293b" strokeWidth="1.5"/>
+                                    <line x1="16" y1="3" x2="15" y2="8" stroke="#1e293b" strokeWidth="1.5"/>
+                                    {/* Play triangle */}
+                                    <polygon points="10,12 10,19 17,15.5" fill="#f59e0b"/>
                                 </svg>
                             </div>
-                            <span className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 tracking-tight">
-                                WatchWorth
-                            </span>
+
+                            {/* Brand name */}
+                            <div className="flex items-baseline gap-0">
+        <span className="text-xl font-extrabold tracking-tight text-white">
+            Watch
+        </span>
+                                <span className="text-xl font-light tracking-tight text-gray-400">
+            Worth
+        </span>
+
+                            </div>
                         </Link>
 
                         {/* ── Desktop nav ── */}
