@@ -108,7 +108,7 @@ const Home = () => {
     const { movies, loading, error } = useMovieList('rating');
     const { user } = useAuth();
 
-    const featuredMovies = movies.slice(0, 9);
+    const featuredMovies = movies.slice(0, 17);
 
     if (error) return <ServerError />;
 
