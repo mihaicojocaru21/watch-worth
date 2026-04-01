@@ -23,7 +23,7 @@ namespace WatchWorth.DataAccessLayer.Configurations
                 .HasMaxLength(1000);
 
             builder.Property(m => m.Image)
-                .HasMaxLength(500);
+                .HasMaxLength(1000);
 
             // Reviews: one Movie → many Reviews
             builder.HasMany(m => m.Reviews)
