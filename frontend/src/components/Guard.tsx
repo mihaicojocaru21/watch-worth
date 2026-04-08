@@ -3,8 +3,10 @@ import { useAuth } from '../context/AuthContext';
 import { PATHS } from '../config/paths';
 
 export function Guard({ requireAuth = false, publicOnly = false }) {
-    const { user } = useAuth();
+    const { user, isLoading } = useAuth();
     const location = useLocation();
+
+    if (isLoading) return null;
 
     if (publicOnly && user) {
         return <Navigate to={PATHS.public.home} replace />;

@@ -153,7 +153,7 @@ const Home = () => {
                     {[
                         { label: 'Movies',  value: '500+'   },
                         { label: 'Genres',  value: '20+'    },
-                        { label: 'Reviews', value: '1 200+' },
+                        { label: 'Reviews', value: '1,200+' },
                     ].map(({ label, value }) => (
                         <div key={label}>
                             <p className="text-2xl font-extrabold text-white">{value}</p>

@@ -4,6 +4,7 @@ import type { User } from '../types';
 
 interface AuthContextType {
     user: Omit<User, 'password'> | null;
+    isLoading: boolean;
     login: (email: string, password: string) => Promise<boolean>;
     register: (username: string, email: string, password: string) => Promise<{ success: boolean; error: string | null }>;
     logout: () => void;
@@ -13,10 +14,12 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<Omit<User, 'password'> | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const savedUser = authService.getCurrentUser();
         if (savedUser) setUser(savedUser);
+        setIsLoading(false);
     }, []);
 
     const login = async (email: string, password: string) => {
@@ -43,7 +46,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, register, logout }}>
+        <AuthContext.Provider value={{ user, isLoading, login, register, logout }}>
             {children}
         </AuthContext.Provider>
     );

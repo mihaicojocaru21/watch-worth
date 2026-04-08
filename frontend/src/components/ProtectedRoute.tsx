@@ -7,8 +7,10 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
-    const { user } = useAuth();
+    const { user, isLoading } = useAuth();
     const location = useLocation();
+
+    if (isLoading) return null;
 
     if (!user) {
         return <Navigate to={PATHS.public.login} state={{ from: location }} replace />;
