@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using WatchWorth.BusinessLayer.Interfaces;
@@ -40,11 +41,20 @@ public class JwtService : IJwtService
             issuer:             _issuer,
             audience:           _audience,
             claims:             claims,
-            expires:            DateTime.UtcNow.AddDays(7),
+            expires:            DateTime.UtcNow.AddMinutes(15),
             signingCredentials: creds
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    // ── Generare refresh token ────────────────────────────────────────────────
+    public string GenerateRefreshToken()
+    {
+        var bytes = new byte[32];
+        RandomNumberGenerator.Fill(bytes);
+        return Convert.ToBase64String(bytes)
+                      .Replace('+', '-').Replace('/', '_').TrimEnd('=');
     }
 
     // ── Validare token ────────────────────────────────────────────────────────

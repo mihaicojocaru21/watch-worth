@@ -10,6 +10,7 @@ namespace WatchWorth.DataAccessLayer.Context
         public DbSet<Review>        Reviews        { get; set; }
         public DbSet<Watchlist>     Watchlists     { get; set; }
         public DbSet<WatchlistItem> WatchlistItems { get; set; }
+        public DbSet<RefreshToken>  RefreshTokens  { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

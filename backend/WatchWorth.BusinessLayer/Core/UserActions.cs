@@ -41,5 +41,51 @@ namespace WatchWorth.BusinessLayer.Core
             db.SaveChanges();
             return (user, null);
         }
+
+        // ── Refresh token CRUD ────────────────────────────────────────────────
+
+        protected void StoreRefreshTokenExecution(int userId, string token, DateTime expiresAt)
+        {
+            using var db = new WatchWorthDbContext();
+            db.RefreshTokens.Add(new RefreshToken
+            {
+                Token     = token,
+                UserId    = userId,
+                ExpiresAt = expiresAt,
+                CreatedAt = DateTime.UtcNow,
+            });
+            db.SaveChanges();
+        }
+
+        protected RefreshToken? GetValidRefreshTokenExecution(string token)
+        {
+            using var db = new WatchWorthDbContext();
+            var rt = db.RefreshTokens
+                       .FirstOrDefault(r => r.Token == token);
+            if (rt is null || rt.IsExpired) return null;
+            return rt;
+        }
+
+        protected void RevokeRefreshTokenExecution(string token)
+        {
+            using var db = new WatchWorthDbContext();
+            var rt = db.RefreshTokens.FirstOrDefault(r => r.Token == token);
+            if (rt is not null)
+            {
+                db.RefreshTokens.Remove(rt);
+                db.SaveChanges();
+            }
+        }
+
+        protected void RevokeAllUserRefreshTokensExecution(int userId)
+        {
+            using var db = new WatchWorthDbContext();
+            var tokens = db.RefreshTokens.Where(r => r.UserId == userId).ToList();
+            if (tokens.Count > 0)
+            {
+                db.RefreshTokens.RemoveRange(tokens);
+                db.SaveChanges();
+            }
+        }
     }
 }

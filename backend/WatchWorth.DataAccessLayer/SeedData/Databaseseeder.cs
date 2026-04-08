@@ -1,4 +1,5 @@
 using BCrypt.Net;
+using Microsoft.EntityFrameworkCore;
 using WatchWorth.DataAccessLayer.Context;
 using WatchWorth.Domain.Entities;
 
@@ -9,6 +10,17 @@ namespace WatchWorth.DataAccessLayer.SeedData
         public static void Seed(WatchWorthDbContext ctx)
         {
             ctx.Database.EnsureCreated();
+
+            // ── RefreshTokens table (idempotent — handles existing DBs) ─────────
+            ctx.Database.ExecuteSqlRaw(@"
+                CREATE TABLE IF NOT EXISTS RefreshTokens (
+                    Id        INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Token     TEXT    NOT NULL UNIQUE,
+                    UserId    INTEGER NOT NULL,
+                    ExpiresAt TEXT    NOT NULL,
+                    CreatedAt TEXT    NOT NULL,
+                    FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE
+                )");
 
             // ── Users ─────────────────────────────────────────────────────────
             if (!ctx.Users.Any())
