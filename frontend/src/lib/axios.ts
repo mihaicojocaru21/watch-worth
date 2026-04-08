@@ -25,7 +25,8 @@ axiosClient.interceptors.response.use(
         const url = error.config?.url; // Aflăm la ce URL s-a făcut request-ul
 
         // NU da redirect dacă 401 vine de la endpoint-ul de login
-        if (status === 401 && url !== '/auth/login') {
+        const isLoginEndpoint = url?.split('?')[0] === '/auth/login';
+        if (status === 401 && !isLoginEndpoint) {
             localStorage.removeItem('watchworth_token');
             localStorage.removeItem('user');
             window.location.href = '/login';

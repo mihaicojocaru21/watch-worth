@@ -21,7 +21,7 @@ export const WatchlistProvider = ({ children }: { children: React.ReactNode }) =
         apiFetch<number[]>('/watchlist')
             .then(ids => setWatchlist(ids))
             .catch(() => setWatchlist([]));
-    }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [user]);
 
     const isInWatchlist = useCallback(
         (id: number) => watchlist.includes(id),

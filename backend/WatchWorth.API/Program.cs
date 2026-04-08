@@ -10,8 +10,9 @@ using WatchWorth.DataAccessLayer.SeedData;
 var builder = WebApplication.CreateBuilder(args);
 
 // ── eBookStore pattern: set connection string once, statically ──
-DbSession.ConnectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
-    ?? "Data Source=watchworth.db";
+var dbPath = Path.Combine(AppContext.BaseDirectory, "watchworth.db");
+DbSession.ConnectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? $"Data Source={dbPath}";
 
 // ── Authentication ──────────────────────────────────────────────
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -20,8 +21,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]!)),
-            ValidateIssuer = false,
-            ValidateAudience = false,
+            ValidateIssuer   = true,
+            ValidIssuer      = builder.Configuration["Jwt:Issuer"],
+            ValidateAudience = true,
+            ValidAudience    = builder.Configuration["Jwt:Audience"],
         };
     });
 
@@ -34,7 +37,10 @@ builder.Services.AddSwaggerGen();
 
 // IJwtService este implementat în BusinessLayer — înregistrat aici pentru DI
 builder.Services.AddSingleton<IJwtService>(
-    new BusinessLogic().JwtService(builder.Configuration["Jwt:Secret"]!));
+    new BusinessLogic().JwtService(
+        builder.Configuration["Jwt:Secret"]!,
+        builder.Configuration["Jwt:Issuer"]!,
+        builder.Configuration["Jwt:Audience"]!));
 
 builder.Services.AddCors(options =>
 {

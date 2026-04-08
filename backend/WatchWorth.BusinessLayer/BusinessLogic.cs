@@ -20,7 +20,7 @@ namespace WatchWorth.BusinessLayer
         public IWatchlistAction WatchlistAction()
             => new WatchlistExecution();
 
-        public IJwtService JwtService(string secret)
-            => new JwtService(secret);
+        public IJwtService JwtService(string secret, string issuer, string audience)
+            => new JwtService(secret, issuer, audience);
     }
 }

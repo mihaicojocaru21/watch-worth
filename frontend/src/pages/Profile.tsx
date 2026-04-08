@@ -77,15 +77,16 @@ const Profile = () => {
 
     const [editingName, setEditingName] = useState(false);
     const [nameInput, setNameInput] = useState(user?.username ?? '');
-    const [displayName, setDisplayName] = useState(() =>
-        localStorage.getItem(`watchworth_displayname_${user?.id}`) ?? user?.username ?? ''
-    );
+    const [displayName, setDisplayName] = useState(() => {
+        if (!user?.id) return user?.username ?? '';
+        return localStorage.getItem(`watchworth_displayname_${user.id}`) ?? user?.username ?? '';
+    });
 
     const saveName = () => {
         const trimmed = nameInput.trim();
-        if (!trimmed) return;
+        if (!trimmed || !user?.id) return;
         setDisplayName(trimmed);
-        localStorage.setItem(`watchworth_displayname_${user?.id}`, trimmed);
+        localStorage.setItem(`watchworth_displayname_${user.id}`, trimmed);
         setEditingName(false);
     };
 

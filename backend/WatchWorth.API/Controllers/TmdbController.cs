@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -35,6 +36,7 @@ namespace WatchWorth.API.Controllers
 
         // POST /api/tmdb/import?pages=3&category=popular
         [HttpPost("import")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Import(
             [FromQuery] int    pages    = 1,
             [FromQuery] string category = "popular")

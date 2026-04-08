@@ -17,9 +17,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const savedUser = authService.getCurrentUser();
-        if (savedUser) setUser(savedUser);
-        setIsLoading(false);
+        try {
+            const savedUser = authService.getCurrentUser();
+            if (savedUser) setUser(savedUser);
+        } catch (err) {
+            console.error('[AuthContext] Failed to restore session:', err);
+        } finally {
+            setIsLoading(false);
+        }
     }, []);
 
     const login = async (email: string, password: string) => {

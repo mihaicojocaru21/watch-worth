@@ -30,8 +30,8 @@ export const ReviewProvider = ({ children }: { children: React.ReactNode }) => {
         try {
             const data = await apiFetch<ReviewSummary[]>('/reviews/summary');
             setSummaries(new Map(data.map(s => [s.movieId, s])));
-        } catch {
-            // silently ignore — cards will just show no count
+        } catch (err) {
+            console.error('[ReviewContext] Failed to load summaries:', err);
         }
     }, []);
 
@@ -43,7 +43,7 @@ export const ReviewProvider = ({ children }: { children: React.ReactNode }) => {
     const loadReviews = useCallback((movieId: number) => {
         apiFetch<Review[]>(`/movies/${movieId}/reviews`)
             .then(data => setReviews(data))
-            .catch(() => setReviews([]));
+            .catch(err => { console.error('[ReviewContext] Failed to load reviews:', err); setReviews([]); });
     }, []);
 
     const addReview = useCallback(async (movieId: number, rating: number, text: string) => {

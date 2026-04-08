@@ -55,7 +55,8 @@ namespace WatchWorth.API.Controllers
                 CreatedAt = DateTime.UtcNow.ToString("o"),
             };
 
-            _reviews.AddReviewAction(review);
+            try { _reviews.AddReviewAction(review); }
+            catch { return StatusCode(500, new { error = "Failed to save review" }); }
             return Created("", review);
         }
 
@@ -84,7 +85,8 @@ namespace WatchWorth.API.Controllers
             }
             review.CreatedAt = DateTime.UtcNow.ToString("o");
 
-            _reviews.UpdateReviewAction(review);
+            try { _reviews.UpdateReviewAction(review); }
+            catch { return StatusCode(500, new { error = "Failed to update review" }); }
             return Ok(review);
         }
 
@@ -99,7 +101,8 @@ namespace WatchWorth.API.Controllers
             if (review is null) return NotFound(new { error = "Review not found" });
             if (review.UserId != currentUser.Id && currentUser.Role != "admin") return Forbid();
 
-            _reviews.DeleteReviewAction(review);
+            try { _reviews.DeleteReviewAction(review); }
+            catch { return StatusCode(500, new { error = "Failed to delete review" }); }
             return Ok(new { success = true });
         }
     }

@@ -10,13 +10,17 @@ namespace WatchWorth.BusinessLayer.Services;
 public class JwtService : IJwtService
 {
     private readonly SymmetricSecurityKey _key;
+    private readonly string _issuer;
+    private readonly string _audience;
 
-    public JwtService(string secret)
+    public JwtService(string secret, string issuer, string audience)
     {
         if (string.IsNullOrWhiteSpace(secret))
             throw new ArgumentException("JWT secret must not be empty.", nameof(secret));
 
-        _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
+        _key      = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
+        _issuer   = issuer;
+        _audience = audience;
     }
 
     // ── Generare token ────────────────────────────────────────────────────────
@@ -33,6 +37,8 @@ public class JwtService : IJwtService
         };
 
         var token = new JwtSecurityToken(
+            issuer:             _issuer,
+            audience:           _audience,
             claims:             claims,
             expires:            DateTime.UtcNow.AddDays(7),
             signingCredentials: creds
@@ -52,8 +58,10 @@ public class JwtService : IJwtService
             {
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey         = _key,
-                ValidateIssuer           = false,
-                ValidateAudience         = false,
+                ValidateIssuer           = true,
+                ValidIssuer              = _issuer,
+                ValidateAudience         = true,
+                ValidAudience            = _audience,
                 ClockSkew                = TimeSpan.Zero,
             }, out _);
         }
