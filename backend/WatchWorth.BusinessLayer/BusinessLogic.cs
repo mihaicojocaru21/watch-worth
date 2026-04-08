@@ -1,4 +1,5 @@
 using WatchWorth.BusinessLayer.Interfaces;
+using WatchWorth.BusinessLayer.Services;
 using WatchWorth.BusinessLayer.Structure;
 
 namespace WatchWorth.BusinessLayer
@@ -18,5 +19,8 @@ namespace WatchWorth.BusinessLayer
 
         public IWatchlistAction WatchlistAction()
             => new WatchlistExecution();
+
+        public IJwtService JwtService(string secret)
+            => new JwtService(secret);
     }
 }

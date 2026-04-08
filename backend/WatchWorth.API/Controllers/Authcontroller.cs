@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using WatchWorth.API.Models;
-using WatchWorth.API.Services;
 using WatchWorth.BusinessLayer;
 using WatchWorth.BusinessLayer.Interfaces;
 using WatchWorth.Domain.Models.Auth;
@@ -12,9 +11,9 @@ namespace WatchWorth.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IUserAction _users;
-        private readonly JwtService  _jwt;
+        private readonly IJwtService _jwt;
 
-        public AuthController(JwtService jwt)
+        public AuthController(IJwtService jwt)
         {
             var bl = new BusinessLogic();
             _users = bl.UserAction();
@@ -29,6 +28,7 @@ namespace WatchWorth.API.Controllers
             if (user is null)
                 return Unauthorized(new { message = "Invalid email or password." });
 
+            var token    = _jwt.GenerateToken(user);
             var safeUser = new SafeUser
             {
                 Id       = user.Id,
@@ -37,7 +37,6 @@ namespace WatchWorth.API.Controllers
                 Role     = user.Role,
             };
 
-            var token = _jwt.GenerateToken(safeUser);
             return Ok(new { token, user = safeUser });
         }
 
@@ -49,6 +48,7 @@ namespace WatchWorth.API.Controllers
             if (user is null)
                 return Conflict(new { message = error });
 
+            var token    = _jwt.GenerateToken(user);
             var safeUser = new SafeUser
             {
                 Id       = user.Id,
@@ -57,7 +57,6 @@ namespace WatchWorth.API.Controllers
                 Role     = user.Role,
             };
 
-            var token = _jwt.GenerateToken(safeUser);
             return Ok(new { token, user = safeUser });
         }
     }

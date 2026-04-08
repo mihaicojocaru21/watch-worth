@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using WatchWorth.API.Services;
+using WatchWorth.BusinessLayer;
+using WatchWorth.BusinessLayer.Interfaces;
 using WatchWorth.DataAccessLayer;
 using WatchWorth.DataAccessLayer.Context;
 using WatchWorth.DataAccessLayer.SeedData;
@@ -31,8 +32,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 
-// JwtService uses DI because it reads config (Jwt:Secret)
-builder.Services.AddSingleton<JwtService>();
+// IJwtService este implementat în BusinessLayer — înregistrat aici pentru DI
+builder.Services.AddSingleton<IJwtService>(
+    new BusinessLogic().JwtService(builder.Configuration["Jwt:Secret"]!));
 
 builder.Services.AddCors(options =>
 {
