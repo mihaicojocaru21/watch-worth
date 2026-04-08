@@ -11,41 +11,43 @@ namespace WatchWorth.BusinessLayer.Core
 
         protected IEnumerable<MovieDto> GetAllMoviesActionExecution(string? search, string? sort)
         {
-            List<Movie> movies;
-            using (var db = new WatchWorthDbContext())
-            {
-                movies = db.Movies.ToList();
-            }
+            using var db = new WatchWorthDbContext();
 
-            var result = movies.AsEnumerable();
+            IQueryable<Movie> query = db.Movies;
 
             if (!string.IsNullOrWhiteSpace(search))
             {
                 var q = search.ToLower();
-                result = result.Where(m =>
+                query = query.Where(m =>
                     m.Title.ToLower().Contains(q) ||
                     m.Genre.ToLower().Contains(q));
             }
 
-            result = sort switch
+            query = sort switch
             {
-                "year"  => result.OrderByDescending(m => m.Year),
-                "genre" => result.OrderBy(m => m.Genre),
-                "title" => result.OrderBy(m => m.Title),
-                _       => result.OrderByDescending(m => m.Rating),
+                "year"  => query.OrderByDescending(m => m.Year),
+                "genre" => query.OrderBy(m => m.Genre),
+                "title" => query.OrderBy(m => m.Title),
+                _       => query.OrderByDescending(m => m.Rating),
             };
 
-            return result.Select(ToDto);
+            return query.Select(m => new MovieDto
+            {
+                Id          = m.Id,
+                TmdbId      = m.TmdbId,
+                Title       = m.Title,
+                Year        = m.Year,
+                Description = m.Description,
+                Rating      = m.Rating,
+                Image       = m.Image,
+                Genre       = m.Genre,
+            }).ToList();
         }
 
         protected MovieDto? GetMovieByIdActionExecution(int id)
         {
-            Movie? movie;
-            using (var db = new WatchWorthDbContext())
-            {
-                movie = db.Movies.FirstOrDefault(m => m.Id == id);
-            }
-
+            using var db = new WatchWorthDbContext();
+            var movie = db.Movies.FirstOrDefault(m => m.Id == id);
             return movie is null ? null : ToDto(movie);
         }
 

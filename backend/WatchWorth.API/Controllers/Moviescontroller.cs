@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WatchWorth.BusinessLayer;
 using WatchWorth.BusinessLayer.DTOs;
@@ -35,6 +36,7 @@ namespace WatchWorth.API.Controllers
         }
 
         // POST api/movies
+        [Authorize(Roles = "admin")]
         [HttpPost]
         public IActionResult Create([FromBody] CreateMovieDto dto)
         {
@@ -43,6 +45,7 @@ namespace WatchWorth.API.Controllers
         }
 
         // PUT api/movies/5
+        [Authorize(Roles = "admin")]
         [HttpPut("{id:int}")]
         public IActionResult Update(int id, [FromBody] UpdateMovieDto dto)
         {
@@ -52,6 +55,7 @@ namespace WatchWorth.API.Controllers
         }
 
         // DELETE api/movies/5
+        [Authorize(Roles = "admin")]
         [HttpDelete("{id:int}")]
         public IActionResult Delete(int id)
         {
