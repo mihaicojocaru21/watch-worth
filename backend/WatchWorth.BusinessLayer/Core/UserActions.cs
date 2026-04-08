@@ -11,8 +11,10 @@ namespace WatchWorth.BusinessLayer.Core
         {
             using (var db = new WatchWorthDbContext())
             {
-                return db.Users.FirstOrDefault(u =>
-                    u.Email == email && u.Password == password);
+                var user = db.Users.FirstOrDefault(u => u.Email == email);
+                if (user is null || !BCrypt.Net.BCrypt.Verify(password, user.Password))
+                    return null;
+                return user;
             }
         }
 

@@ -1,3 +1,4 @@
+using BCrypt.Net;
 using WatchWorth.DataAccessLayer.Context;
 using WatchWorth.Domain.Entities;
 
@@ -13,8 +14,8 @@ namespace WatchWorth.DataAccessLayer.SeedData
             if (!ctx.Users.Any())
             {
                 ctx.Users.AddRange(
-                    new User { Id = 1, Username = "Admin", Email = "admin@watchworth.com", Role = "admin", Password = "admin123" },
-                    new User { Id = 2, Username = "User",  Email = "user@watchworth.com",  Role = "user",  Password = "user123"  }
+                    new User { Id = 1, Username = "Admin", Email = "admin@watchworth.com", Role = "admin", Password = BCrypt.Net.BCrypt.HashPassword("admin123") },
+                    new User { Id = 2, Username = "User",  Email = "user@watchworth.com",  Role = "user",  Password = BCrypt.Net.BCrypt.HashPassword("user123")  }
                 );
                 ctx.SaveChanges();
             }
