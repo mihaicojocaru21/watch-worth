@@ -22,3 +22,10 @@ public class LoginResponse
     public string   Token { get; set; } = "";
     public SafeUser User  { get; set; } = new();
 }
+
+public class RegisterRequest
+{
+    public string Username { get; set; } = "";
+    public string Email    { get; set; } = "";
+    public string Password { get; set; } = "";
+}

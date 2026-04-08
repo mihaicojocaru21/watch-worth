@@ -11,5 +11,8 @@ namespace WatchWorth.BusinessLayer.Structure
 
         public User? GetUserByIdAction(int id)
             => GetUserByIdActionExecution(id);
+
+        public (User? user, string? error) RegisterUserAction(string username, string email, string password)
+            => RegisterUserActionExecution(username, email, password);
     }
 }

@@ -2,6 +2,7 @@ export const PATHS = {
     public: {
         home:        "/",
         login:       "/login",
+        register:    "/register",
         movies:      "/movies",
         movieDetail: "/movies/:id",
         watchlist:   "/watchlist",

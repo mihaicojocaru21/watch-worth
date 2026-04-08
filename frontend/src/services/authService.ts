@@ -29,6 +29,24 @@ export const authService = {
         }
     },
 
+    register: async (username: string, email: string, password: string): Promise<{ user: SafeUser | null; error: string | null }> => {
+        try {
+            const data = await apiPost<{ username: string; email: string; password: string }, LoginResponse>(
+                '/auth/register',
+                { username, email, password }
+            );
+
+            localStorage.setItem('watchworth_token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            return { user: data.user, error: null };
+        } catch (err: unknown) {
+            const message =
+                (err as { response?: { data?: { message?: string } } })?.response?.data?.message
+                ?? 'Registration failed.';
+            return { user: null, error: message };
+        }
+    },
+
     logout: () => {
         localStorage.removeItem('watchworth_token');
         localStorage.removeItem('user');

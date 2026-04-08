@@ -6,5 +6,6 @@ namespace WatchWorth.BusinessLayer.Interfaces
     {
         User? GetByEmailAndPasswordAction(string email, string password);
         User? GetUserByIdAction(int id);
+        (User? user, string? error) RegisterUserAction(string username, string email, string password);
     }
 }

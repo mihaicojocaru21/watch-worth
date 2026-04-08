@@ -29,7 +29,26 @@ namespace WatchWorth.API.Controllers
             if (user is null)
                 return Unauthorized(new { message = "Invalid email or password." });
 
-            // JwtService expects SafeUser — map from User entity
+            var safeUser = new SafeUser
+            {
+                Id       = user.Id,
+                Username = user.Username,
+                Email    = user.Email,
+                Role     = user.Role,
+            };
+
+            var token = _jwt.GenerateToken(safeUser);
+            return Ok(new { token, user = safeUser });
+        }
+
+        // POST api/auth/register
+        [HttpPost("register")]
+        public IActionResult Register([FromBody] RegisterRequest dto)
+        {
+            var (user, error) = _users.RegisterUserAction(dto.Username, dto.Email, dto.Password);
+            if (user is null)
+                return Conflict(new { message = error });
+
             var safeUser = new SafeUser
             {
                 Id       = user.Id,

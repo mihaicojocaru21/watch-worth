@@ -5,6 +5,7 @@ import type { User } from '../types';
 interface AuthContextType {
     user: Omit<User, 'password'> | null;
     login: (email: string, password: string) => Promise<boolean>;
+    register: (username: string, email: string, password: string) => Promise<{ success: boolean; error: string | null }>;
     logout: () => void;
 }
 
@@ -27,13 +28,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return false;
     };
 
+    const register = async (username: string, email: string, password: string) => {
+        const { user: newUser, error } = await authService.register(username, email, password);
+        if (newUser) {
+            setUser(newUser);
+            return { success: true, error: null };
+        }
+        return { success: false, error };
+    };
+
     const logout = () => {
         authService.logout();
         setUser(null);
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout }}>
+        <AuthContext.Provider value={{ user, login, register, logout }}>
             {children}
         </AuthContext.Provider>
     );

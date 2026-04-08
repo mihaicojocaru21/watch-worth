@@ -5,6 +5,7 @@ import ProtectedRoute from '../components/ProtectedRoute';
 import Layout from '../layout/Layout';
 import Home from '../pages/Home';
 import Login from '../pages/Login';
+import Register from '../pages/Register';
 import Admin from '../pages/Admin';
 import Movies from '../pages/Movies';
 import MovieDetail from '../pages/MovieDetail';
@@ -33,7 +34,8 @@ export const router = createBrowserRouter([
             {
                 element: <Guard publicOnly />,
                 children: [
-                    { path: PATHS.public.login, element: <Login /> },
+                    { path: PATHS.public.login,     element: <Login /> },
+                    { path: PATHS.public.register,  element: <Register /> },
                 ],
             },
 
