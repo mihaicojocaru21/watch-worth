@@ -70,8 +70,18 @@ namespace WatchWorth.API.Controllers
             if (review is null) return NotFound(new { error = "Review not found" });
             if (review.UserId != currentUser.Id) return Forbid();
 
-            if (req.Rating.HasValue) review.Rating = req.Rating.Value;
-            if (req.Text != null)    review.Text   = req.Text.Trim();
+            if (req.Rating.HasValue)
+            {
+                if (req.Rating.Value < 1 || req.Rating.Value > 5)
+                    return BadRequest(new { error = "rating must be 1–5" });
+                review.Rating = req.Rating.Value;
+            }
+            if (req.Text != null)
+            {
+                if (req.Text.Trim().Length < 10)
+                    return BadRequest(new { error = "review must be at least 10 characters" });
+                review.Text = req.Text.Trim();
+            }
             review.CreatedAt = DateTime.UtcNow.ToString("o");
 
             _reviews.UpdateReviewAction(review);

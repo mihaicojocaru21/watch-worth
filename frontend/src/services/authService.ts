@@ -54,6 +54,12 @@ export const authService = {
 
     getCurrentUser: (): SafeUser | null => {
         const saved = localStorage.getItem('user');
-        return saved ? JSON.parse(saved) : null;
+        if (!saved) return null;
+        try {
+            return JSON.parse(saved);
+        } catch {
+            localStorage.removeItem('user');
+            return null;
+        }
     },
 };

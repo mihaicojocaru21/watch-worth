@@ -59,7 +59,9 @@ namespace WatchWorth.API.Controllers
 
             for (int page = 1; page <= pages; page++)
             {
-                var url      = $"https://api.themoviedb.org/3/movie/{category}?api_key={apiKey}&language=en-US&page={page}";
+                var url      = $"https://api.themoviedb.org/3/movie/{category}?language=en-US&page={page}";
+                client.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
                 var response = await client.GetAsync(url);
                 if (!response.IsSuccessStatusCode) continue;
 

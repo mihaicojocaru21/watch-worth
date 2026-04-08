@@ -126,7 +126,7 @@ const MovieDetail = () => {
     const movieId = Number(id);
 
     useEffect(() => {
-        if (!id) return;
+        if (!id || isNaN(movieId)) return;
         setLoading(true);
         movieService.getById(movieId).then(data => { setMovie(data); setLoading(false); });
         loadReviews(movieId);
@@ -150,6 +150,15 @@ const MovieDetail = () => {
     const handleDelete = (reviewId: string) => {
         if (window.confirm('Delete your review?')) deleteReview(reviewId);
     };
+
+    if (isNaN(movieId)) return (
+        <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
+            <h2 className="text-2xl font-bold text-white mb-2">Invalid movie ID</h2>
+            <button onClick={() => navigate('/movies')} className="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors">
+                Back to Movies
+            </button>
+        </div>
+    );
 
     if (loading) return (
         <div className="container mx-auto px-4 py-12 max-w-5xl animate-pulse">
