@@ -70,7 +70,7 @@ const Profile = () => {
     const navigate = useNavigate();
     const { watchlist } = useWatchlist();
     const { reviews } = useReviews();
-    const { movies } = useMovieList('rating');
+    const { movies, loading: moviesLoading } = useMovieList('rating');
 
     // Pass API movies so stats are always in sync with the real catalogue
     const stats = useUserStats(user?.id, watchlist, reviews, movies);
@@ -242,7 +242,17 @@ const Profile = () => {
                 </div>
 
                 {/* ── Watchlist preview ── */}
-                {watchlistPreview.length > 0 && (
+                {moviesLoading && watchlist.length > 0 && (
+                    <div>
+                        <div className="h-6 w-28 rounded-lg bg-gray-800/80 mb-5 animate-pulse" />
+                        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3">
+                            {Array.from({ length: Math.min(watchlist.length, 8) }).map((_, i) => (
+                                <div key={i} className="aspect-[2/3] rounded-xl bg-gray-800/50 border border-gray-700/50 animate-pulse" />
+                            ))}
+                        </div>
+                    </div>
+                )}
+                {!moviesLoading && watchlistPreview.length > 0 && (
                     <div>
                         <div className="flex items-center justify-between mb-5">
                             <h2 className="text-xl font-black text-white">Watchlist</h2>

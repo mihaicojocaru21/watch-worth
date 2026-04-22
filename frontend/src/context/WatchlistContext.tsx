@@ -32,6 +32,8 @@ export const WatchlistProvider = ({ children }: { children: React.ReactNode }) =
         async (id: number, title?: string) => {
             if (!user) return;
             const wasIn = watchlist.includes(id);
+            // Optimistic update — flip state immediately so the UI responds at once
+            setWatchlist(prev => wasIn ? prev.filter(i => i !== id) : [...prev, id]);
             try {
                 if (wasIn) {
                     await apiDelete(`/watchlist/${id}`);
@@ -53,6 +55,8 @@ export const WatchlistProvider = ({ children }: { children: React.ReactNode }) =
                     });
                 }
             } catch {
+                // Rollback on failure
+                setWatchlist(prev => wasIn ? [...prev, id] : prev.filter(i => i !== id));
                 toast.error('Could not update watchlist. Please try again.');
             }
         },

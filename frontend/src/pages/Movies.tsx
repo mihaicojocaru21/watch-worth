@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import MovieCard from '../components/MovieCard';
 import { useMovieList } from '../hooks/useMovieList';
@@ -26,7 +26,11 @@ const MOVIES_PER_PAGE = 40;
 
 export default function Movies() {
     const { movies, loading, error } = useMovieList('rating');
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    // Capture initial URL year params before the first sync can overwrite them
+    const initialYearFromUrl = useRef(searchParams.get('yearFrom'));
+    const initialYearToUrl   = useRef(searchParams.get('yearTo'));
 
     // Derived from API — no more mockData dependency
     const ALL_GENRES = useMemo(
@@ -42,39 +46,50 @@ export default function Movies() {
         [movies]
     );
 
-    const [searchInput, setSearchInput] = useState('');
-    const [search,      setSearch]      = useState('');
-    const [sortBy,      setSortBy]      = useState<SortKey>('rating');
-    const [genre,       setGenre]       = useState('');
-    const [minRating,   setMinRating]   = useState(0);
+    const [searchInput, setSearchInput] = useState(() => searchParams.get('search') ?? '');
+    const [search,      setSearch]      = useState(() => searchParams.get('search') ?? '');
+    const [sortBy,      setSortBy]      = useState<SortKey>(() => (searchParams.get('sort') as SortKey | null) ?? 'rating');
+    const [genre,       setGenre]       = useState(() => searchParams.get('genre') ?? '');
+    const [minRating,   setMinRating]   = useState(() => Number(searchParams.get('minRating') ?? 0));
     const [yearFrom,    setYearFrom]    = useState(0);
     const [yearTo,      setYearTo]      = useState(9999);
-    const [panel,       setPanel]       = useState(false);
+    const [panel,       setPanel]       = useState(() =>
+        !!(searchParams.get('genre') || searchParams.get('minRating') || searchParams.get('yearFrom') || searchParams.get('yearTo'))
+    );
     const [yearsReady,  setYearsReady]  = useState(false);
 
     // Pagination state
-    const [page, setPage] = useState(1);
+    const [page, setPage] = useState(() => Math.max(1, Number(searchParams.get('page') ?? 1)));
 
-    // Initialise year range once movies have loaded
+    // Initialise year range once movies have loaded, restoring URL params if present
     useEffect(() => {
         if (movies.length && !yearsReady) {
-            setYearFrom(MIN_YEAR);
-            setYearTo(MAX_YEAR);
+            setYearFrom(initialYearFromUrl.current ? Number(initialYearFromUrl.current) : MIN_YEAR);
+            setYearTo(initialYearToUrl.current   ? Number(initialYearToUrl.current)   : MAX_YEAR);
             setYearsReady(true);
         }
     }, [movies.length, MIN_YEAR, MAX_YEAR, yearsReady]);
-
-    // Read ?genre= from URL on mount
-    useEffect(() => {
-        const g = searchParams.get('genre');
-        if (g) { setGenre(g); setPanel(true); }
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Debounce search 300ms
     useEffect(() => {
         const t = setTimeout(() => setSearch(searchInput), 300);
         return () => clearTimeout(t);
     }, [searchInput]);
+
+    // Sync filter state back to URL so links are shareable and the back button works.
+    // Wait for yearsReady so we don't clobber year params before movies are loaded.
+    useEffect(() => {
+        if (!yearsReady) return;
+        const params: Record<string, string> = {};
+        if (search)          params.search    = search;
+        if (sortBy !== 'rating') params.sort  = sortBy;
+        if (genre)           params.genre     = genre;
+        if (minRating > 0)   params.minRating = String(minRating);
+        if (page > 1)        params.page      = String(page);
+        if (yearFrom !== MIN_YEAR) params.yearFrom = String(yearFrom);
+        if (yearTo   !== MAX_YEAR) params.yearTo   = String(yearTo);
+        setSearchParams(params, { replace: true });
+    }, [search, sortBy, genre, minRating, page, yearFrom, yearTo, yearsReady, MIN_YEAR, MAX_YEAR, setSearchParams]);
 
     // Reset pagination to page 1 whenever filters or search change
     useEffect(() => {

@@ -9,7 +9,7 @@ import { useMovieList } from '../hooks/useMovieList';
 const Watchlist = () => {
     const { user } = useAuth();
     const { watchlist, clearWatchlist } = useWatchlist();
-    const { movies } = useMovieList('rating'); // ← filme din API, nu MOCK
+    const { movies, loading: moviesLoading } = useMovieList('rating');
 
     const watchlistMovies = useMemo(
         () => movies.filter(m => watchlist.includes(m.id)),
@@ -42,9 +42,11 @@ const Watchlist = () => {
                     <p className="text-xs font-semibold uppercase tracking-widest text-red-400 mb-2">Your list</p>
                     <h1 className="text-4xl font-bold text-white">Watchlist</h1>
                     <p className="text-gray-400 mt-1 text-sm">
-                        {watchlistMovies.length === 0
-                            ? 'No movies saved yet.'
-                            : `${watchlistMovies.length} movie${watchlistMovies.length !== 1 ? 's' : ''} saved`}
+                        {moviesLoading
+                            ? 'Loading your watchlist…'
+                            : watchlistMovies.length === 0
+                                ? 'No movies saved yet.'
+                                : `${watchlistMovies.length} movie${watchlistMovies.length !== 1 ? 's' : ''} saved`}
                     </p>
                 </div>
                 {watchlistMovies.length > 0 && (
@@ -60,7 +62,18 @@ const Watchlist = () => {
                 )}
             </div>
 
-            {watchlistMovies.length === 0 && (
+            {/* Skeleton while movies are loading */}
+            {moviesLoading && watchlist.length > 0 && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    {Array.from({ length: Math.min(watchlist.length, 8) }).map((_, i) => (
+                        <div key={i} className="rounded-2xl overflow-hidden bg-gray-800/50 border border-gray-700/50 animate-pulse">
+                            <div className="aspect-[2/3] bg-gray-700/50" />
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {!moviesLoading && watchlistMovies.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-32 text-center">
                     <div className="w-20 h-20 mb-6 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center">
                         <svg className="w-9 h-9 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -78,7 +91,7 @@ const Watchlist = () => {
                 </div>
             )}
 
-            {watchlistMovies.length > 0 && (
+            {!moviesLoading && watchlistMovies.length > 0 && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {watchlistMovies.map(movie => (
                         <MovieCard key={movie.id} movie={movie} />
