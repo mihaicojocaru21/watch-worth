@@ -22,7 +22,7 @@ const RATING_PRESETS = [
     { label: '9+',   value: 9   },
 ];
 
-const MOVIES_PER_PAGE = 40;
+const MOVIES_PER_PAGE = 20;
 
 export default function Movies() {
     const { movies, loading, error } = useMovieList('rating');

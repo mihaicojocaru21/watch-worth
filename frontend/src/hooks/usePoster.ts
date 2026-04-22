@@ -18,13 +18,12 @@ export function usePoster(tmdbId: number, title: string, staticImage?: string): 
     const [src, setSrc] = useState<string>(getInitial);
 
     useEffect(() => {
-        // Already cached — nothing to do
+        // Already cached — skip all async work
         if (tmdbId && posterCache.has(tmdbId)) {
-            setSrc(posterCache.get(tmdbId)!);
+            const cached = posterCache.get(tmdbId)!;
+            if (cached !== src) setSrc(cached);
             return;
         }
-
-        setSrc(getInitial());
 
         if (!tmdbId) {
             const url = staticImage || FALLBACK_POSTER(title);
@@ -51,7 +50,8 @@ export function usePoster(tmdbId: number, title: string, staticImage?: string): 
         } else {
             const url = staticImage || FALLBACK_POSTER(title);
             if (tmdbId) posterCache.set(tmdbId, url);
-            setSrc(url);
+            // Only update state if value actually changed
+            setSrc(prev => prev === url ? prev : url);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tmdbId]);

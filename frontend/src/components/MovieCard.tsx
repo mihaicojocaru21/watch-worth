@@ -28,7 +28,8 @@ const MovieCard = ({ movie, rank }: MovieCardProps) => {
     return (
         <div
             onClick={() => navigate(`/movies/${movie.id}`)}
-            className="group relative aspect-[2/3] rounded-2xl overflow-hidden cursor-pointer border border-white/5 shadow-xl shadow-black/30 hover:shadow-black/50 hover:border-white/10 transition-all duration-300 hover:-translate-y-1"
+            style={{ willChange: 'transform' }}
+            className="group relative aspect-[2/3] rounded-2xl overflow-hidden cursor-pointer border border-white/5 shadow-xl shadow-black/30 hover:shadow-black/50 hover:border-white/10 transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1"
         >
             <div className={`absolute inset-0 bg-gray-800 ${!imgLoaded ? 'animate-pulse' : ''}`} />
             {posterSrc && (
@@ -38,7 +39,7 @@ const MovieCard = ({ movie, rank }: MovieCardProps) => {
                     loading="lazy"
                     decoding="async"
                     onLoad={() => setImgLoaded(true)}
-                    className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 group-hover:scale-105 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+                    className={`absolute inset-0 w-full h-full object-cover transition-[transform,opacity] duration-500 group-hover:scale-105 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
                 />
             )}
 
@@ -50,7 +51,7 @@ const MovieCard = ({ movie, rank }: MovieCardProps) => {
                 <button
                     onClick={handleWatchlist}
                     title={!user ? 'Login to save' : saved ? 'Remove from watchlist' : 'Add to watchlist'}
-                    className={`w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm transition-all duration-200 ${
+                    className={`w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm transition-colors duration-200 ${
                         saved
                             ? 'bg-red-500/90 text-white scale-110'
                             : 'bg-black/40 text-white/60 hover:bg-black/60 hover:text-white'
@@ -76,7 +77,7 @@ const MovieCard = ({ movie, rank }: MovieCardProps) => {
             </div>
 
             {/* Bottom info on hover */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-2 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
+            <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-2 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-[transform,opacity] duration-300">
                 <div className="flex items-center gap-2 mb-1.5">
                     {rank !== undefined && (
                         <span className="text-[10px] font-black text-white/40 tracking-widest">#{rank}</span>
@@ -91,7 +92,7 @@ const MovieCard = ({ movie, rank }: MovieCardProps) => {
                 </h3>
                 <button
                     onClick={e => { e.stopPropagation(); navigate(`/movies/${movie.id}`); }}
-                    className="w-full py-2 rounded-xl bg-white/10 hover:bg-blue-600 backdrop-blur-sm text-white text-xs font-bold border border-white/10 hover:border-blue-500 transition-all duration-200"
+                    className="w-full py-2 rounded-xl bg-white/10 hover:bg-blue-600 backdrop-blur-sm text-white text-xs font-bold border border-white/10 hover:border-blue-500 transition-[background-color,border-color] duration-200"
                 >
                     See Details
                 </button>
