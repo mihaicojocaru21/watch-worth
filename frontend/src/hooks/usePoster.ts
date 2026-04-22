@@ -5,27 +5,30 @@ const TMDB_KEY = (import.meta as any).env?.VITE_TMDB_KEY as string | undefined;
 export const FALLBACK_POSTER = (title: string) =>
     `https://placehold.co/300x450/1f2937/6b7280?text=${encodeURIComponent(title)}`;
 
-/**
- * Returnează URL-ul posterului pentru un film.
- * - Dacă VITE_TMDB_KEY e setat → fetch din TMDB API
- * - Altfel → folosește staticImage dacă există, sau placeholder
- *
- * Re-fetch-uiește automat dacă tmdbId se schimbă (ex. navigare între filme).
- */
+// Module-level cache — survives re-renders and page navigations within the session
+const posterCache = new Map<number, string>();
+
 export function usePoster(tmdbId: number, title: string, staticImage?: string): string {
-    const getInitial = () =>
-        staticImage && !staticImage.includes('placehold.co') && !TMDB_KEY
-            ? staticImage
-            : '';
+    const getInitial = (): string => {
+        if (tmdbId && posterCache.has(tmdbId)) return posterCache.get(tmdbId)!;
+        if (staticImage && !staticImage.includes('placehold.co') && !TMDB_KEY) return staticImage;
+        return '';
+    };
 
     const [src, setSrc] = useState<string>(getInitial);
 
     useEffect(() => {
-        // Resetăm src când tmdbId se schimbă — permite re-fetch la navigare
+        // Already cached — nothing to do
+        if (tmdbId && posterCache.has(tmdbId)) {
+            setSrc(posterCache.get(tmdbId)!);
+            return;
+        }
+
         setSrc(getInitial());
 
         if (!tmdbId) {
-            setSrc(staticImage || FALLBACK_POSTER(title));
+            const url = staticImage || FALLBACK_POSTER(title);
+            setSrc(url);
             return;
         }
 
@@ -35,18 +38,20 @@ export function usePoster(tmdbId: number, title: string, staticImage?: string): 
                 .then(r => r.json())
                 .then(d => {
                     if (cancelled) return;
-                    setSrc(
-                        d.poster_path
-                            ? `https://image.tmdb.org/t/p/w500${d.poster_path}`
-                            : staticImage || FALLBACK_POSTER(title)
-                    );
+                    const url = d.poster_path
+                        ? `https://image.tmdb.org/t/p/w342${d.poster_path}`
+                        : staticImage || FALLBACK_POSTER(title);
+                    posterCache.set(tmdbId, url);
+                    setSrc(url);
                 })
                 .catch(() => {
                     if (!cancelled) setSrc(staticImage || FALLBACK_POSTER(title));
                 });
             return () => { cancelled = true; };
         } else {
-            setSrc(staticImage || FALLBACK_POSTER(title));
+            const url = staticImage || FALLBACK_POSTER(title);
+            if (tmdbId) posterCache.set(tmdbId, url);
+            setSrc(url);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tmdbId]);

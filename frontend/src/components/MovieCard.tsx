@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Movie } from '../types';
 import { useWatchlist } from '../context/WatchlistContext';
@@ -16,6 +17,7 @@ const MovieCard = ({ movie, rank }: MovieCardProps) => {
     const saved = isInWatchlist(movie.id);
 
     const posterSrc = usePoster(movie.tmdbId, movie.title, movie.image);
+    const [imgLoaded, setImgLoaded] = useState(false);
 
     const handleWatchlist = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -28,14 +30,16 @@ const MovieCard = ({ movie, rank }: MovieCardProps) => {
             onClick={() => navigate(`/movies/${movie.id}`)}
             className="group relative aspect-[2/3] rounded-2xl overflow-hidden cursor-pointer border border-white/5 shadow-xl shadow-black/30 hover:shadow-black/50 hover:border-white/10 transition-all duration-300 hover:-translate-y-1"
         >
-            {posterSrc ? (
+            <div className={`absolute inset-0 bg-gray-800 ${!imgLoaded ? 'animate-pulse' : ''}`} />
+            {posterSrc && (
                 <img
                     src={posterSrc}
                     alt={movie.title}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                    decoding="async"
+                    onLoad={() => setImgLoaded(true)}
+                    className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 group-hover:scale-105 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
                 />
-            ) : (
-                <div className="absolute inset-0 bg-gray-800 animate-pulse" />
             )}
 
             <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-transparent" />
