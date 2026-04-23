@@ -10,8 +10,9 @@ import type { Movie } from '../types';
 const GuestState = () => (
     <div className="min-h-screen">
         {/* Page header */}
-        <div className="relative overflow-hidden border-b border-gray-800">
-            <div className="absolute inset-0 bg-gradient-to-br from-red-600/8 via-transparent to-transparent pointer-events-none" />
+        <div className="relative overflow-hidden rounded-3xl mx-4 mt-4 bg-gray-900">
+            <div className="absolute -top-20 -left-20 w-72 h-72 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute top-0 right-0 w-72 h-64 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
             <div className="relative container mx-auto px-4 pt-12 pb-10">
                 <div className="flex items-center gap-2.5 mb-3">
                     <div className="h-px w-8 bg-red-500 rounded-full" />
@@ -50,7 +51,7 @@ const GuestState = () => (
                             },
                             {
                                 icon: (
-                                    <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                                     </svg>
                                 ),

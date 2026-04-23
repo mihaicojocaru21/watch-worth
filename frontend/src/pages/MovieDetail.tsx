@@ -220,7 +220,7 @@ const MovieDetail = () => {
                     </div>
 
                     <div className="flex-1 flex flex-col justify-start pt-2">
-                        <span className="inline-block self-start px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-blue-500/15 text-blue-400 border border-blue-500/20 mb-4">
+                        <span className="inline-block self-start px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-amber-500/15 text-amber-400 border border-amber-500/20 mb-4">
                             {movie.genre}
                         </span>
                         <h1 className="text-4xl md:text-5xl font-extrabold text-white leading-tight mb-2">{movie.title}</h1>

@@ -11,11 +11,11 @@ const GENRE_META: Record<string, {
     icon:   React.ReactNode;
 }> = {
     Drama: {
-        border: 'border-blue-500/30 hover:border-blue-400/60',
-        glow:   'bg-blue-500/10',
-        sweep:  'from-blue-500/50',
-        tag:    'bg-blue-500/10 border-blue-500/20 text-blue-400',
-        icon: <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.182 15.182a4.5 4.5 0 01-6.364 0M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z"/></svg>,
+        border: 'border-violet-500/30 hover:border-violet-400/60',
+        glow:   'bg-violet-500/10',
+        sweep:  'from-violet-500/50',
+        tag:    'bg-violet-500/10 border-violet-500/20 text-violet-400',
+        icon: <svg className="w-5 h-5 text-violet-400" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.182 15.182a4.5 4.5 0 01-6.364 0M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z"/></svg>,
     },
     Crime: {
         border: 'border-red-500/30 hover:border-red-400/60',
@@ -165,9 +165,9 @@ const Genres = () => {
         <div className="min-h-screen">
 
             {/* ── Header ── */}
-            <div className="relative overflow-hidden border-b border-gray-800">
-                <div className="absolute -top-20 -left-20 w-72 h-72 bg-purple-600/8 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute top-0 right-0 w-96 h-64 bg-blue-600/6 rounded-full blur-3xl pointer-events-none" />
+            <div className="relative overflow-hidden rounded-3xl mx-4 mt-4 bg-gray-900">
+                <div className="absolute -top-20 -left-20 w-72 h-72 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute top-0 right-0 w-96 h-64 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
 
                 <div className="relative container mx-auto px-4 pt-12 pb-10">
                     <div className="flex items-center gap-2.5 mb-3">
@@ -176,7 +176,7 @@ const Genres = () => {
                     </div>
                     <h1 className="text-5xl font-black text-white tracking-tight leading-none mb-3">
                         All{' '}
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-300">
                             Genres
                         </span>
                     </h1>

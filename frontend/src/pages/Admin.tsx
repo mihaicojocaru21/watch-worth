@@ -161,8 +161,9 @@ const Admin = () => {
             )}
 
             {/* ── Header ── */}
-            <div className="relative overflow-hidden border-b border-gray-800">
-                <div className="absolute -top-16 right-0 w-80 h-64 bg-yellow-500/6 rounded-full blur-3xl pointer-events-none" />
+            <div className="relative overflow-hidden rounded-3xl mx-4 mt-4 bg-gray-900">
+                <div className="absolute -top-20 -left-20 w-72 h-72 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute -top-16 right-0 w-80 h-64 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
                 <div className="relative container mx-auto px-4 pt-12 pb-10">
                     <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5">
                         <div>

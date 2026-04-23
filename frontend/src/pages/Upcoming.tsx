@@ -8,13 +8,13 @@ const YEARS = [2026, 2027, 2028];
 const STATUS_STYLES: Record<UpcomingMovie['status'], string> = {
     'Coming Soon':     'bg-green-500/15 text-green-400 border-green-500/25',
     'Post-Production': 'bg-yellow-500/15 text-yellow-400 border-yellow-500/25',
-    'In Production':   'bg-blue-500/15 text-blue-400 border-blue-500/25',
+    'In Production':   'bg-cyan-500/15 text-cyan-400 border-cyan-500/25',
 };
 
 const STATUS_DOT: Record<UpcomingMovie['status'], string> = {
     'Coming Soon':     'bg-green-400',
     'Post-Production': 'bg-yellow-400',
-    'In Production':   'bg-blue-400',
+    'In Production':   'bg-cyan-400',
 };
 
 const UpcomingCard = ({ movie }: { movie: UpcomingMovie }) => {
@@ -85,20 +85,20 @@ export default function Upcoming() {
 
     return (
         <div className="min-h-screen">
-            <div className="relative overflow-hidden border-b border-gray-800">
-                <div className="absolute -top-20 left-0 w-96 h-72 bg-indigo-600/8 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute top-0 right-0 w-72 h-64 bg-purple-600/8 rounded-full blur-3xl pointer-events-none" />
+            <div className="relative overflow-hidden rounded-3xl mx-4 mt-4 bg-gray-900">
+                <div className="absolute -top-20 left-0 w-96 h-72 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute top-0 right-0 w-72 h-64 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
 
                 <div className="relative container mx-auto px-4 pt-12 pb-10">
                     <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
                         <div>
                             <div className="flex items-center gap-2.5 mb-3">
-                                <div className="h-px w-8 bg-indigo-500 rounded-full" />
-                                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-400">On the horizon</span>
+                                <div className="h-px w-8 bg-amber-500 rounded-full" />
+                                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-400">On the horizon</span>
                             </div>
                             <h1 className="text-5xl font-black text-white tracking-tight leading-none mb-3">
                                 Coming{' '}
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">Soon</span>
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-300">Soon</span>
                             </h1>
                             <p className="text-gray-500 text-sm max-w-md">
                                 Confirmed releases and highly anticipated films for 2026–2028. Dates subject to change.
@@ -145,10 +145,10 @@ export default function Upcoming() {
                     return (
                         <div key={year} className="mb-12">
                             <div className="flex items-center gap-4 mb-6">
-                                <span className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
+                                <span className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-300">
                                     {year}
                                 </span>
-                                <div className="flex-1 h-px bg-gradient-to-r from-indigo-500/30 via-gray-700 to-transparent" />
+                                <div className="flex-1 h-px bg-gradient-to-r from-amber-500/30 via-gray-700 to-transparent" />
                                 <span className="text-xs text-gray-600 font-semibold uppercase tracking-widest">{films.length} film{films.length !== 1 ? 's' : ''}</span>
                             </div>
                             <div className="space-y-4">

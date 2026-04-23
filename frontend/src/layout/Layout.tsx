@@ -136,10 +136,10 @@ const Footer = () => (
                             {
                                 value: '500+',
                                 label: 'Films',
-                                color: 'text-blue-400',
-                                bg: 'bg-blue-500/10 border-blue-500/20',
+                                color: 'text-amber-400',
+                                bg: 'bg-amber-500/10 border-amber-500/20',
                                 icon: (
-                                    <svg className="w-3 h-3 text-blue-400" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                                    <svg className="w-3 h-3 text-amber-400" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4"/>
                                     </svg>
                                 ),

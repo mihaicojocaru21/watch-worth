@@ -43,8 +43,10 @@ const MovieCard = ({ movie, rank }: MovieCardProps) => {
                 />
             )}
 
-            <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            {/* Top gradient for heart/rating contrast */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent" />
+            {/* Permanent bottom gradient */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-transparent" />
 
             {/* Top row */}
             <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-3">
@@ -76,26 +78,32 @@ const MovieCard = ({ movie, rank }: MovieCardProps) => {
                 </div>
             </div>
 
-            {/* Bottom info on hover */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-2 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-[transform,opacity] duration-300">
-                <div className="flex items-center gap-2 mb-1.5">
+            {/* Bottom info — always visible */}
+            <div className="absolute bottom-0 left-0 right-0 p-3.5">
+                <div className="flex items-center gap-1.5 mb-1">
                     {rank !== undefined && (
                         <span className="text-[10px] font-black text-white/40 tracking-widest">#{rank}</span>
                     )}
-                    <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wider truncate">
+                    <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider truncate">
                         {movie.genre}
                     </span>
                     <span className="text-[10px] text-white/30 ml-auto shrink-0">{movie.year}</span>
                 </div>
-                <h3 className="text-white font-black text-sm leading-tight line-clamp-2 mb-3">
+                <h3 className="text-white font-black text-sm leading-tight line-clamp-2">
                     {movie.title}
                 </h3>
-                <button
-                    onClick={e => { e.stopPropagation(); navigate(`/movies/${movie.id}`); }}
-                    className="w-full py-2 rounded-xl bg-white/10 hover:bg-blue-600 backdrop-blur-sm text-white text-xs font-bold border border-white/10 hover:border-blue-500 transition-[background-color,border-color] duration-200"
-                >
-                    See Details
-                </button>
+
+                {/* See Details — slides in on hover */}
+                <div className="grid grid-rows-[0fr] group-hover:grid-rows-[1fr] transition-all duration-300">
+                    <div className="overflow-hidden">
+                        <button
+                            onClick={e => { e.stopPropagation(); navigate(`/movies/${movie.id}`); }}
+                            className="w-full mt-2.5 py-2 rounded-xl bg-white/10 hover:bg-blue-600 backdrop-blur-sm text-white text-xs font-bold border border-white/10 hover:border-blue-500 transition-[background-color,border-color] duration-200"
+                        >
+                            See Details
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     );

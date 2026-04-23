@@ -15,7 +15,7 @@ const Avatar = ({ name, size = 'lg' }: { name: string; size?: 'sm' | 'lg' }) => 
         ? 'w-20 h-20 text-2xl font-black'
         : 'w-10 h-10 text-sm font-black';
     return (
-        <div className={`${cls} rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white shrink-0 shadow-lg shadow-blue-500/20`}>
+        <div className={`${cls} rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white shrink-0 shadow-lg shadow-amber-500/20`}>
             {initials}
         </div>
     );
@@ -119,9 +119,9 @@ const Profile = () => {
         <div className="min-h-screen">
 
             {/* ── Header banner ── */}
-            <div className="relative overflow-hidden border-b border-gray-800">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-purple-600/8 to-transparent pointer-events-none" />
-                <div className="absolute -top-20 -right-20 w-80 h-80 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="relative overflow-hidden rounded-3xl mx-4 mt-4 bg-gray-900">
+                <div className="absolute -top-20 -left-20 w-80 h-80 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute -top-20 -right-20 w-80 h-80 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
 
                 <div className="relative container mx-auto px-4 pt-12 pb-10">
                     <div className="flex flex-col sm:flex-row sm:items-end gap-6">
@@ -173,9 +173,9 @@ const Profile = () => {
                                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wider border ${
                                     user.role === 'admin'
                                         ? 'bg-yellow-500/10 border-yellow-500/25 text-yellow-400'
-                                        : 'bg-blue-500/10 border-blue-500/20 text-blue-400'
+                                        : 'bg-amber-500/10 border-amber-500/20 text-amber-400'
                                 }`}>
-                                    <span className={`w-1.5 h-1.5 rounded-full ${user.role === 'admin' ? 'bg-yellow-400' : 'bg-blue-400'}`} />
+                                    <span className={`w-1.5 h-1.5 rounded-full ${user.role === 'admin' ? 'bg-yellow-400' : 'bg-amber-400'}`} />
                                     {user.role}
                                 </span>
                                 {stats.favoriteGenre && (
@@ -313,7 +313,7 @@ const Profile = () => {
                                     <div className="flex items-start gap-4">
                                         <div className="flex-1 min-w-0">
                                             <div className="flex flex-wrap items-center gap-2 mb-2">
-                                                <h3 className="text-white font-bold text-sm group-hover:text-blue-300 transition-colors truncate">
+                                                <h3 className="text-white font-bold text-sm group-hover:text-amber-300 transition-colors truncate">
                                                     {review.movieTitle}
                                                 </h3>
                                                 <span className="shrink-0 px-2 py-0.5 rounded-md bg-gray-900/60 border border-gray-700 text-[10px] font-semibold text-gray-500 uppercase tracking-wider">

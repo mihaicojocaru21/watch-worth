@@ -142,20 +142,20 @@ export default function Movies() {
         <div className="min-h-screen">
 
             {/* ── Page header ── */}
-            <div className="relative overflow-hidden border-b border-gray-800">
-                <div className="absolute -top-20 -left-20 w-72 h-72 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute -top-10 right-0 w-96 h-64 bg-purple-600/8 rounded-full blur-3xl pointer-events-none" />
+            <div className="relative overflow-hidden rounded-3xl mx-4 mt-4 bg-gray-900">
+                <div className="absolute -top-20 -left-20 w-72 h-72 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute -top-10 right-0 w-96 h-64 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
 
                 <div className="relative container mx-auto px-4 pt-12 pb-10">
                     <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
                         <div>
                             <div className="flex items-center gap-2.5 mb-3">
-                                <div className="h-px w-8 bg-blue-500 rounded-full" />
-                                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-400">Browse</span>
+                                <div className="h-px w-8 bg-amber-500 rounded-full" />
+                                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-400">Browse</span>
                             </div>
                             <h1 className="text-5xl font-black text-white tracking-tight leading-none mb-3">
                                 Movie{' '}
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-300">
                                     Collection
                                 </span>
                             </h1>
@@ -245,7 +245,7 @@ export default function Movies() {
                             <button
                                 key={chip.label}
                                 onClick={chip.onRemove}
-                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-500/15 border border-blue-500/30 text-blue-400 text-xs font-semibold hover:bg-red-500/15 hover:border-red-500/30 hover:text-red-400 transition-all group"
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-semibold hover:bg-red-500/15 hover:border-red-500/30 hover:text-red-400 transition-all group"
                             >
                                 {chip.label}
                                 <svg className="w-3 h-3 group-hover:rotate-90 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -306,7 +306,7 @@ export default function Movies() {
                                 <div>
                                     <p className="text-[11px] uppercase tracking-[0.15em] text-gray-500 font-bold mb-3">
                                         Year Range
-                                        <span className="ml-2 text-blue-400 normal-case font-bold">{yearFrom} – {yearTo}</span>
+                                        <span className="ml-2 text-amber-400 normal-case font-bold">{yearFrom} – {yearTo}</span>
                                     </p>
                                     <div className="flex items-center gap-3">
                                         <input type="number" min={MIN_YEAR} max={yearTo} value={yearFrom}
