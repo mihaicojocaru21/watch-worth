@@ -37,15 +37,17 @@ const Navbar = () => {
     return (
         <>
             <header className="sticky top-0 z-50">
-                <div className="bg-gray-900/80 backdrop-blur-md border-b border-white/5 shadow-xl shadow-black/20">
-                    <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-6">
+                <div className="h-px bg-gradient-to-r from-transparent via-amber-400/90 to-transparent" />
+                <div className="relative bg-gray-900/85 backdrop-blur-md border-b border-white/5 shadow-xl shadow-black/20">
+                    <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-amber-400/6 to-transparent" />
+                    <div className="container mx-auto px-4 h-20 flex items-center justify-between gap-6">
 
                         {/* ── Logo ── */}
                         <Link to="/" className="flex items-center gap-3 shrink-0 group" onClick={() => setMobileOpen(false)}>
 
                             {/* Clapperboard icon */}
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-800 to-slate-600 flex items-center justify-center shadow-lg shadow-black/30 group-hover:shadow-black/50 transition-all duration-300 group-hover:scale-105 shrink-0">
-                                <svg width="24" height="22" viewBox="0 0 24 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-800 to-gray-700 border border-amber-500/20 flex items-center justify-center shadow-lg shadow-black/30 group-hover:shadow-amber-500/15 transition-all duration-300 group-hover:scale-105 shrink-0">
+                                <svg width="27" height="25" viewBox="0 0 24 22" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     {/* Body */}
                                     <rect x="2" y="8" width="20" height="13" rx="2" fill="white" fillOpacity="0.12" stroke="white" strokeWidth="1.4"/>
                                     {/* Top strip */}
@@ -60,14 +62,18 @@ const Navbar = () => {
                             </div>
 
                             {/* Brand name */}
-                            <div className="flex items-baseline gap-0">
-        <span className="text-xl font-extrabold tracking-tight text-white">
-            Watch
-        </span>
-                                <span className="text-xl font-light tracking-tight text-gray-400">
-            Worth
-        </span>
-
+                            <div className="flex flex-col">
+                                <div className="flex items-baseline gap-0">
+                                    <span className="text-2xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-amber-400">
+                                        Watch
+                                    </span>
+                                    <span className="text-2xl font-light tracking-tight text-gray-400">
+                                        Worth
+                                    </span>
+                                </div>
+                                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-600 leading-none -mt-0.5">
+                                    Film Reviews
+                                </span>
                             </div>
                         </Link>
 
@@ -90,7 +96,7 @@ const Navbar = () => {
                                 >
                                     {label}
                                     {isActive(to) && (
-                                        <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-blue-400 rounded-full" />
+                                        <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-amber-400 rounded-full" />
                                     )}
                                 </Link>
                             ))}
@@ -118,7 +124,7 @@ const Navbar = () => {
                                     </span>
                                 )}
                                 {isActive('/watchlist') && (
-                                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-blue-400 rounded-full" />
+                                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-amber-400 rounded-full" />
                                 )}
                             </Link>
 
@@ -163,7 +169,7 @@ const Navbar = () => {
                                                 : 'bg-white/5 border-white/8 hover:bg-white/10 hover:border-white/15'
                                         }`}
                                     >
-                                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-xs font-black text-white shrink-0">
+                                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-xs font-black text-white shrink-0">
                                             {displayName.charAt(0).toUpperCase()}
                                         </div>
                                         <span className="text-sm text-gray-300 font-medium max-w-[100px] truncate">
@@ -259,7 +265,7 @@ const Navbar = () => {
                                         onClick={() => setMobileOpen(false)}
                                         className="flex items-center gap-2"
                                     >
-                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-sm font-black text-white">
+                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-sm font-black text-white">
                                             {displayName.charAt(0).toUpperCase()}
                                         </div>
                                         <span className="text-sm text-gray-300 font-medium">{displayName}</span>
