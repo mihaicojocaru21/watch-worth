@@ -116,50 +116,67 @@ const Home = () => {
         <div className="space-y-20">
 
             {/* ── Hero ── */}
-            <section className="relative overflow-hidden rounded-3xl mx-4 mt-4 px-8 py-24 text-center bg-gray-900">
-                <div className="pointer-events-none absolute -top-24 -left-24 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl" />
-                <div className="pointer-events-none absolute -bottom-24 -right-24 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl" />
+            <section className="relative overflow-hidden rounded-3xl mx-4 mt-4 text-center bg-gray-900 min-h-[58vh] flex flex-col items-center justify-center px-8 py-16">
+                {/* Background orbs — larger & more vibrant */}
+                <div className="pointer-events-none absolute -top-40 -left-40 w-[36rem] h-[36rem] bg-amber-500/15 rounded-full blur-3xl" />
+                <div className="pointer-events-none absolute -bottom-40 -right-40 w-[36rem] h-[36rem] bg-blue-600/20 rounded-full blur-3xl" />
+                <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[28rem] h-[28rem] bg-amber-500/5 rounded-full blur-3xl" />
 
-                <span className="inline-block mb-6 px-4 py-1.5 rounded-full text-xs font-semibold tracking-widest uppercase bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                    ✦ Curated reviews, zero noise
-                </span>
+                {/* Subtle dot-grid texture */}
+                <div
+                    className="pointer-events-none absolute inset-0 opacity-[0.04]"
+                    style={{ backgroundImage: 'radial-gradient(rgba(255,255,255,0.8) 1px, transparent 1px)', backgroundSize: '28px 28px' }}
+                />
 
-                <h1 className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-500 leading-tight mb-5">
-                    Find your next<br className="hidden md:block" /> favourite movie.
-                </h1>
+                {/* Cinematic accent lines */}
+                <div className="pointer-events-none absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/60 to-transparent" />
+                <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/40 to-transparent" />
 
-                <p className="text-lg text-gray-400 max-w-xl mx-auto mb-10">
-                    WatchWorth surfaces hand-picked films with honest ratings — no algorithms, no ads, just great cinema.
-                </p>
+                <div className="relative">
+                    <span className="inline-block mb-7 px-4 py-1.5 rounded-full text-xs font-semibold tracking-widest uppercase bg-amber-500/10 text-amber-300 border border-amber-500/25">
+                        ✦ Curated reviews, zero noise
+                    </span>
 
-                <div className="flex flex-wrap justify-center gap-4">
-                    <Link
-                        to="/movies"
-                        className="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-bold transition-all shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40"
-                    >
-                        Explore Movies
-                    </Link>
-                    {!user && (
+                    <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-white to-blue-400 leading-[1.06] mb-6">
+                        Find your next<br /> favourite movie.
+                    </h1>
+
+                    <p className="text-lg text-gray-400 max-w-lg mx-auto mb-10 leading-relaxed">
+                        WatchWorth surfaces hand-picked films with honest ratings — no algorithms, no ads, just great cinema.
+                    </p>
+
+                    <div className="flex flex-wrap justify-center gap-4 mb-12">
                         <Link
-                            to="/login"
-                            className="px-8 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-full font-bold transition-all"
+                            to="/movies"
+                            className="group inline-flex items-center gap-2 px-9 py-3.5 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-bold transition-all duration-200 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/50 hover:-translate-y-0.5"
                         >
-                            Sign In
+                            Explore Movies
+                            <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
                         </Link>
-                    )}
-                </div>
+                        {!user && (
+                            <Link
+                                to="/login"
+                                className="px-9 py-3.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white rounded-full font-bold transition-all duration-200 hover:-translate-y-0.5"
+                            >
+                                Sign In
+                            </Link>
+                        )}
+                    </div>
 
-                <div className="mt-14 flex flex-wrap justify-center gap-10 text-center">
-                    {[
-                        { label: 'Movies',  value: '500+'   },
-                        { label: 'Genres',  value: '20+'    },
-                        { label: 'Reviews', value: '1,200+' },
-                    ].map(({ label, value }) => (
-                        <div key={label}>
-                            <p className="text-2xl font-extrabold text-white">{value}</p>
-                            <p className="text-xs text-gray-500 uppercase tracking-widest mt-0.5">{label}</p>
-                        </div>
-                    ))}
+                    <div className="flex flex-wrap justify-center divide-x divide-gray-700/60">
+                        {[
+                            { label: 'Movies',  value: '500+'   },
+                            { label: 'Genres',  value: '20+'    },
+                            { label: 'Reviews', value: '1,200+' },
+                        ].map(({ label, value }) => (
+                            <div key={label} className="px-10">
+                                <p className="text-3xl font-extrabold text-white">{value}</p>
+                                <p className="text-xs text-gray-500 uppercase tracking-widest mt-1">{label}</p>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </section>
 
@@ -169,16 +186,16 @@ const Home = () => {
                 {/* Section header */}
                 <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
                     <div>
-                        <div className="inline-flex items-center gap-2 mb-4 px-3 py-1.5 rounded-full bg-blue-500/8 border border-blue-500/20">
+                        <div className="inline-flex items-center gap-2 mb-4 px-3 py-1.5 rounded-full bg-amber-500/8 border border-amber-500/20">
                             <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-60" />
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-400" />
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-60" />
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400" />
                             </span>
-                            <span className="text-[11px] font-bold uppercase tracking-[0.15em] text-blue-400">Updated this week</span>
+                            <span className="text-[11px] font-bold uppercase tracking-[0.15em] text-amber-400">Updated this week</span>
                         </div>
                         <h2 className="text-4xl font-black text-white tracking-tight leading-none">
                             Weekly<br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-300">
                                 Recommendations
                             </span>
                         </h2>
