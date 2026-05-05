@@ -19,7 +19,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     useEffect(() => {
         try {
             const savedUser = authService.getCurrentUser();
-            if (savedUser) setUser(savedUser);
+            // Assert the type to satisfy TypeScript
+            if (savedUser) setUser(savedUser as Omit<User, 'password'>);
         } catch (err) {
             console.error('[AuthContext] Failed to restore session:', err);
         } finally {
@@ -30,7 +31,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const login = async (email: string, password: string) => {
         const foundUser = await authService.login(email, password);
         if (foundUser) {
-            setUser(foundUser);
+            // Assert the type to satisfy TypeScript
+            setUser(foundUser as Omit<User, 'password'>);
             return true;
         }
         return false;
@@ -39,7 +41,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const register = async (username: string, email: string, password: string) => {
         const { user: newUser, error } = await authService.register(username, email, password);
         if (newUser) {
-            setUser(newUser);
+            // Assert the type to satisfy TypeScript
+            setUser(newUser as Omit<User, 'password'>);
             return { success: true, error: null };
         }
         return { success: false, error };

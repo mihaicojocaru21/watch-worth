@@ -142,7 +142,7 @@ const Home = () => {
                     </h1>
 
                     <p className="text-lg text-gray-400 max-w-lg mx-auto mb-10 leading-relaxed">
-                        WatchWorth surfaces hand-picked films with honest ratings — no algorithms, no ads, just great cinema.
+                        WatchWorth surfaces hand-picked films with honest ratings No algorithms, no ads, just great cinema.
                     </p>
 
                     <div className="flex flex-wrap justify-center gap-4 mb-12">
