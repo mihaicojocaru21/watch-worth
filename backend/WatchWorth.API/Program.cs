@@ -10,7 +10,7 @@ using WatchWorth.DataAccessLayer.SeedData;
 var builder = WebApplication.CreateBuilder(args);
 
 // ── eBookStore pattern: set connection string once, statically ──
-var dbPath = Path.Combine(AppContext.BaseDirectory, "watchworth.db");
+var dbPath = Path.Combine(Directory.GetCurrentDirectory(), "watchworth.db");
 DbSession.ConnectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? $"Data Source={dbPath}";
 

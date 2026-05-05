@@ -7,6 +7,7 @@ namespace WatchWorth.BusinessLayer.Interfaces
     {
         List<Review> GetByMovieIdAction(int movieId);
         List<object> GetSummaryAction();
+        
         bool         ExistsForUserAction(int movieId, int userId);
         ActionResponse AddReviewAction(Review review);
         Review?      GetReviewByIdAction(string id);
