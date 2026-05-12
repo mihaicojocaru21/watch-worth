@@ -9,7 +9,7 @@ namespace WatchWorth.DataAccessLayer.SeedData
     {
         public static void Seed(WatchWorthDbContext ctx)
         {
-            ctx.Database.EnsureCreated();
+            ctx.Database.Migrate();
 
             // ── RefreshTokens table (idempotent — handles existing DBs) ─────────
             ctx.Database.ExecuteSqlRaw(@"

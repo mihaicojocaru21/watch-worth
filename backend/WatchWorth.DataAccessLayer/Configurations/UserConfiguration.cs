@@ -30,6 +30,10 @@ namespace WatchWorth.DataAccessLayer.Configurations
             builder.Property(u => u.Password)
                 .IsRequired()
                 .HasMaxLength(200);
+            
+            builder.Property(u => u.IsActive)
+                .IsRequired()
+                .HasDefaultValue(true);
 
             // Reviews: one User → many Reviews
             builder.HasMany(u => u.Reviews)

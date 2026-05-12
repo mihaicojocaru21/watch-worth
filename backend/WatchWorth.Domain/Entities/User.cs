@@ -7,6 +7,7 @@ namespace WatchWorth.Domain.Entities
         public string Email    { get; set; } = "";
         public string Role     { get; set; } = "user";
         public string Password { get; set; } = "";
+        public bool   IsActive { get; set; } = true;
 
         // Navigation
         public ICollection<Review>   Reviews   { get; set; } = [];

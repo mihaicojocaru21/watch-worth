@@ -35,6 +35,7 @@ namespace WatchWorth.BusinessLayer.Core
                 Email    = email,
                 Password = BCrypt.Net.BCrypt.HashPassword(password),
                 Role     = "user",
+                IsActive = true,
             };
 
             db.Users.Add(user);
@@ -86,6 +87,12 @@ namespace WatchWorth.BusinessLayer.Core
                 db.RefreshTokens.RemoveRange(tokens);
                 db.SaveChanges();
             }
+        }
+        
+        protected User? GetActiveUserByIdExecution(int id)
+        {
+            using var db = new WatchWorthDbContext();
+            return db.Users.FirstOrDefault(u => u.Id == id && u.IsActive);
         }
     }
 }

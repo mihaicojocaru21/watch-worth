@@ -31,6 +31,9 @@ namespace WatchWorth.API.Controllers
             if (user is null)
                 return Unauthorized(new { message = "Invalid email or password." });
 
+            if (!user.IsActive)
+                return Unauthorized(new { message = "Account is deactivated." });
+
             return Ok(IssueTokenPair(user));
         }
 
@@ -61,7 +64,9 @@ namespace WatchWorth.API.Controllers
             if (user is null)
                 return Unauthorized(new { message = "User not found." });
 
-            // Token rotation — revoke old, issue new
+            if (!user.IsActive)
+                return Unauthorized(new { message = "Account is deactivated." });
+            
             _users.RevokeRefreshToken(oldToken);
             return Ok(IssueTokenPair(user));
         }
