@@ -41,6 +41,15 @@ namespace WatchWorth.API.Controllers
         [HttpPost("register")]
         public IActionResult Register([FromBody] RegisterRequest dto)
         {
+            if (string.IsNullOrWhiteSpace(dto.Username))
+                return BadRequest(new { message = "Username is required." });
+
+            if (string.IsNullOrWhiteSpace(dto.Email))
+                return BadRequest(new { message = "Email is required." });
+
+            if (string.IsNullOrWhiteSpace(dto.Password))
+                return BadRequest(new { message = "Password is required." });
+            
             var (user, error) = _users.RegisterUserAction(dto.Username, dto.Email, dto.Password);
             if (user is null)
                 return Conflict(new { message = error });
